@@ -1,0 +1,537 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow-x: hidden; /* Prevents scrolling on the body when the piano is scrolled */
+    font-family: Helvetica, sans-serif;
+}
+
+.loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.9);
+    z-index: 9999;
+}
+
+.spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 50px;
+    height: 50px;
+    background-color: #333;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.top-bar{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    padding-right: 5%;
+    margin-bottom: 4%;
+}
+
+.header {
+    color: #181611;
+    text-align: left;
+    font-size: 8pt;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.config {
+    display: none;
+}
+
+.icon-tabs {
+    display: flex;
+    justify-content: right;
+}
+
+.help-button {
+    width: 45px;
+    aspect-ratio: 1 / 1; /* Makes it a perfect circle */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    border: solid 1px #333;
+    flex-shrink: 0; /* Prevents flex items from shrinking */
+    margin-right: 15px;
+    font-weight: bold;
+}
+
+.icon-tab {
+    margin: 0 10px;
+    padding: 10px 15px;
+    border: 2px solid #333;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.icon-tab.active {
+    background-color: #ddd;
+}
+
+.piano-icon::before {
+    content: "🎹";
+}
+
+.xy-icon::before {
+    content: "X/Y";
+}
+
+.piano-functions {
+    display: flex;
+    justify-content: space-between; /* Aligns children to the opposite ends */
+    align-items: center; /* Vertically centers the children */
+    margin: 20px 0;
+    padding: 0 5px;
+    padding-right: 6%;
+}
+
+.deselect-button {
+    padding: 10px 15px;
+    margin: 0 5px;
+    border: 1px solid #333;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+.deselect-button:hover {
+    background-color: #ddd;
+    
+}
+
+.mute-button {
+    padding: 10px 15px;
+    margin: 0 5px;
+    border: 1px solid #333;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+.mute-button:hover {
+    background-color: #ddd;
+    
+}
+
+.mute-button.active {
+    background-color: #cfb8e5;
+}
+
+.wavetable-buttons {
+    display: flex;
+    margin: 0; /* Remove or adjust the margin as needed */
+}
+
+.wavetable-button {
+    padding: 10px 15px;
+    margin: 0 5px;
+    border: 1px solid #333;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+.wavetable-button:hover {
+    background-color: #ddd;
+}
+
+.wavetable-button.active {
+    background-color: #cfb8e5;
+    color: #fff;
+}
+
+.piano-container {
+    width: calc(100vw - 60px); /* Subtracting 30px from both sides */
+    align-items: flex-start;
+    margin-left: 1%;
+    margin-right: 1%;
+    margin-top: 20px;
+    margin-bottom: 30px;
+    overflow-x: scroll;
+    white-space: nowrap;
+}
+
+.piano {
+    width: calc(22 * 60px); /* Adjust based on the total number of white keys and their width */
+    display: inline-flex;
+    align-items: flex-start;
+}
+
+.piano {
+    display: flex;
+    align-items: flex-start;
+    position: relative;
+}
+
+/* Optional: Hide the scrollbar for a cleaner look */
+.piano-container::-webkit-scrollbar {
+    display: auto;
+}
+
+.piano-container {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+    min-height: 280px;
+}
+
+.white-key, .black-key {
+    /* ... (existing styles) ... */
+    display: inline-block; /* Convert the key containers to flex containers */
+    flex-direction: column; /* Stack the child elements vertically */
+    justify-content: center; /* Center the child elements vertically */
+    align-items: center; /* Center the child elements horizontally */
+}
+
+/* Adjust the height of the keys if needed */
+.white-key {
+    width: 60px;
+    height: 200px; /* Adjust this value if needed */
+    background-color: #fffcf597;
+    border: 2px solid rgba(44, 41, 39, 0.435);
+    margin-bottom: 60px;
+    position: relative; /* Set to relative so the .frequency div is positioned relative to this */
+}
+
+.white-key[data-note*='B'], .white-key[data-note*='E'] {
+    border-right: 0;
+} 
+
+.black-key {
+    width: 40px;
+    height: 120px; /* Adjust this value if needed */
+    background-color: #181611;
+    margin-left: -20px;
+    margin-right: -20px;
+    z-index: 1;
+    margin-bottom: 40px;
+    position: relative; /* Set to relative so the .frequency div is positioned relative to this */
+    border-radius: 0 0 10% 10%; /* Make the keys circular */
+    box-shadow: 2px 2px 1px 1px rgba(0,0,0,0.1);
+}
+
+/* Style for active white key */
+.white-key.active {
+    background-color: #9f82d6; /* Light gray color for active white key */
+    box-shadow: inset 3px 0px 3px 1px rgba(0,0,0,0.1);
+}
+
+/* Style for active black key */
+.black-key.active {
+    background-color: #9f82d6; /* Darker gray color for active black key */
+    box-shadow: 0 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.key-label {
+    font-weight: bold; /* Make the labels bold */
+    font-size: 14px; /* Set a font size for the labels */
+    z-index: 2; /* Ensure the labels appear above other elements */
+    text-align: center; /* Center the labels horizontally */
+    position: relative; /* Position the labels absolutely */
+}
+
+.white-key .key-label {
+    color: #181611; /* Set the label color for white keys */
+    top: 80%; /* Position the label towards the top of the white key */
+}
+
+.white-key.active .key-label {
+    color: #ffffff; /* Set the label color for active white keys */
+}
+
+.black-key.active .key-label {
+    color: #ffffff; /* Set the label color for active white keys */
+}
+
+.black-key .key-label {
+    color: white; /* Set the label color for black keys */
+    top: 50%; /* Center the label vertically within the black key */
+    transform: translateY(-50%); /* Adjust for perfect vertical centering */
+}
+
+.adjustment {
+    position: absolute;
+    top: 245px;
+    bottom: 20px; /* Adjust this value to position the adjustment text above the frequency text */
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px; /* Adjust font size as needed */
+    color: #333; /* Adjust color as needed */
+}
+
+.frequency {
+    position: absolute;
+    top: 260px;
+    bottom: 20px; /* Adjust this value to position the frequency text below the adjustment text */
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px; /* Adjust font size as needed */
+    color: #333; /* Adjust color as needed */
+}
+
+.black-key .adjustment{
+    top: 208px; /* Adjust this value to position the text above the black keys */
+}
+
+/* For the black keys, adjust the positioning of the .frequency div */
+.black-key .frequency {
+    top: 223px; /* Adjust this value to position the text below the black keys */
+}
+
+.frequencyRatioString {
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    color: #333;
+}
+
+
+/* One-Octave Piano Styles */
+
+#xy-tab {
+    display: none; /* Hide the one-octave piano by default */
+}
+
+.one-octave-piano {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    position: relative;
+    max-width: 750px;
+    margin: 0 auto;
+    margin-bottom: 3%;
+}
+
+.small-white-key, .small-black-key {
+    width: 10%;
+    aspect-ratio: 1 / 1; /* Makes it a perfect circle */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    position: relative;
+    flex-shrink: 0; /* Prevents flex items from shrinking */
+}
+
+.small-white-key {
+    background-color: #fffcf597;
+    margin-top: 11%;
+    margin-right: 0.1%; /* Add some margin to separate the keys */
+    border-style: solid;
+    border-width: 2px;
+    border-color: rgba(208, 202, 192, 0.735);
+    box-shadow: 2px 2px 1px 2px rgba(0,0,0,0.1);
+}
+
+.small-white-key[data-note='E'] {
+    margin-right: 4%; /* Add some margin to separate the keys */
+} 
+
+.small-black-key {
+    background-color: #181611;
+    z-index: 1;
+    margin-left: -3%; /* Negative margin for overlap */
+    margin-right: -3%; /* Negative margin for overlap */
+    border-style: solid;
+    border-width: 2px;
+    border-color: rgba(60, 59, 57, 0.45);
+    box-shadow: 2px 2px 1px 2px rgba(0, 0, 0, 0.207);
+}
+
+.small-white-key.active, .small-black-key.active {
+    background-color: #9170cd;
+    border-style: solid;
+    border-width: 2px;
+    border-color: rgba(117, 84, 156, 0.561);
+    box-shadow: inset 0px 0px 3px 2px rgba(0,0,0,0.1);
+}
+
+.small-key-label {
+    font-weight: bolder; /* Make the labels bold */
+    font-size: 107%; /* Set a font size for the labels */
+    z-index: 2; /* Ensure the labels appear above other elements */
+    text-align: center;
+}
+
+
+.small-white-key .small-key-label {
+    color: #181611; /* Set the label color for white keys */
+}
+
+.small-white-key.active .small-key-label {
+    color: #ffffff; 
+}
+
+.small-black-key .small-key-label {
+    color: #ffffff; /* Set the label color for white keys */
+}
+
+.tuning-adjustment {
+    min-height: 25px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+    font-size: 20px;
+}
+
+.melody-context {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0;
+    max-height: 70vh; /* Adjust this value based on your preference */
+    overflow-y: auto;
+}
+
+.context-button {
+    padding: 10px 15px;
+    margin: 0 5px;
+    border: 1px solid #333;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+.context-button.selected {
+    background-color: #007BFF;
+    color: #fff;
+}
+
+.chord-info {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center; /* Center items */
+    overflow-y: auto;
+    width: 100%; /* Take up full width */
+    position: relative; /* Relative positioning for child absolute positioning */
+    padding-bottom: 20px; /* Add padding to the bottom to make room for the button */
+    padding-top: 5px;
+    margin-top: 20px;
+    min-height: 10vh;
+}
+
+.chord-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0 auto;  /* Center the element */
+}
+
+.deselect-chord-button {
+    padding: 10px 15px;
+    border: 1px solid #333;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    background-color: #f5f5f5;
+    color: #333;
+    position: absolute; /* Take it out of the normal flow */
+    left: 0; /* Align it to the left */
+    margin-top: 4%;
+    margin-left: 3%;
+}
+
+.deselect-chord-button:hover {
+    background-color: #ddd;
+}
+
+.chord-symbol {
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    color: #333;
+    padding-top: 10px;
+}
+
+.chord-pitches {
+    font-size: 18px;
+    margin-top: 0px;
+    text-align: center;
+    color: #333;
+    padding-top: 10px;
+}
+
+.chord-selector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-height: 80vh; /* Adjust this value based on your preference */
+    overflow-y: auto;
+}
+
+.row-label {
+    display: flex;
+    flex-direction: row;
+    width: 93%;
+    height: 55%;
+    font-size: 15px;
+    margin-right: 10px;
+    color: #333;
+    border-bottom: 1px solid #bbbbbb;
+    border-width: 1px;
+}
+
+.row {
+    display: flex;
+    justify-content: center;
+    margin: 14px 0;
+    overflow-x: scroll;
+}
+
+.chord-btn {
+    padding: 10px 15px;
+    margin: 0 5px;
+    border: 1px solid #333;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+.disabled {
+    opacity: 0.5;
+    pointer-events: none; /* Prevents the button from being clickable */
+}
+
+.chord-btn:hover {
+    background-color: #ddd;
+}
+
+.chord-btn.selected {
+    background-color: #007BFF;
+    color: #fff;
+}
+
+.chord-btn.disabled {
+    background-color: #eee;
+    color: #aaa;
+    cursor: not-allowed;
+}
