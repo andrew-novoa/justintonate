@@ -92,6 +92,7 @@ interval_name_to_semitones_dict = {
     'P8': 12,
     'm9': 13,
     'M9': 14,
+    'A9': 15,
     'm10': 15,
     'M10': 16,
     'P11': 17,
@@ -205,60 +206,122 @@ chord_by_interval_dict = {
 'sus4':['P4','P5'],
 'sus2':['M2','P5'],
 
+'add2': ['M2','M3','P5'],
+'add4': ['M3','P4','P5'],
+'add6': ['M3','P5','M6'],
+'madd2': ['M2','m3','P5'],
+'madd4': ['m3','P4','P5'],
+'madd6': ['m3','P5','M6'],
+'madd9': ['m3','P5','M9'],
+'madd11': ['m3','P5','P11'],
+'madd13': ['m3','P5','M13'],
+'5add9':['P5','M9'],
 '6':['M3','P5','M6'],
 '6/9':['M3','P5','M6','M9'],
 'm6':['m3','P5','M6'],
 'mb6':['m3','P5','m6'],
 'm6/9':['m3','P5','M6','M9'],
+'+add2':['M2','M3','A5'],
+'°add9':['m3','d5','M9'],
+'°add11':['m3','d5','P11'],
 
 'm7':['m3','P5','m7'],
+'m7add2':['M2','m3','P5','m7'],
+'m7add4':['m3','P4','P5','m7'],
+'m7add6':['m3','P5','M6','m7'],
 'dim7':['m3','d5','d7'],
 'dim7':['m3','d5','M6'],
 '°7':['m3','d5','M6'],
 'm7b5':['m3','d5','m7'],
 'ø7':['m3','d5','m7'],
-'m(maj7)':['m3','P5','M7'],
-'°(maj7)':['m3','d5','M7'],
+'mmaj7':['m3','P5','M7'],
+'mmaj7add2':['M2','m3','P5','M7'],
+'mmaj7add4':['m3','P4','P5','M7'],
+'mmaj7add6':['m3','P5','M6','M7'],
+'°maj7':['m3','d5','M7'],
 
 '7':['M3','P5','m7'],
 'maj7':['M3','P5','M7'],
+'maj7add2': ['M2','M3','P5','M7'],
+'maj7add2b5': ['M2','M3','d5','M7'],
+'maj7add2#11': ['M2','M3','P5','M7','A11'],
+'maj7add4': ['M3','P4','P5','M7'],
+'maj7add6': ['M3','P5','M6','M7'],
+'maj7add6b5': ['M3','d5','M6','M7'],
+'maj7add6#11': ['M3','P5','M6','M7','A11'],
 'maj7#11':['M3','P5','M7','A11'],
-
+'maj7b5': ['M3','d5','M7'],
+'maj7sus2': ['M2','P5','M7'],
+'maj7sus2add4': ['M2','P4','P5','M7'],
+'maj7sus2add6': ['M2','P5','M6','M7'],
+'maj7sus4': ['P4','P5','M7'],
+'maj7sus4add2': ['M2','P4','P5','M7'],
 '7b5':['M3','d5','m7'],
 '7b9':['M3','P5','m7','m9'],
 '7#9':['M3','P5','m7','A9'],
 '7b5#9':['M3','d5','m7','A9'],
 '7#11':['M3','P5','m7','A11'],
+'7sus2': ['M2','P5','m7'],
+'7sus2add4': ['M2','P4','P5','m7'],
+'7sus2add6': ['M2','P5','M6','m7'],
+'7sus4': ['P4','P5','m7'],
+'7sus4add2': ['M2','P4','P5','m7'],
+'7sus4add6': ['P4','P5','M6','m7'],
 
 '7#5':['M3','A5','m7'],
 '+7':['M3','A5','m7'],
+'+7add2':['M2','M3','A5','m7'],
+'+maj7':['M3','A5','M7'],
+'+maj7add2':['M2','M3','A5','M7'],
 'aug7':['M3','A5','m7'],
 '7b9#5':['M3','A5','m7','m9'],
 '7#9#5':['M3','A5','m7','A9'],
 '+7b9':['M3','A5','m7','m9'],
 '+7#9':['M3','A5','m7','A9'],
+'+7#11':['M3','A5','m7','A9','A11'],
 '7sus4':['P4','P5','m7'],
+'7b13':['M3','P5','m7','m13'],
+'7alt':['M3','P5','m7','A9','m13'],
 
 'add9':['M3','P5','M9'],
 '+9':['M3','A5','m7','M9'],
+'+9#11': ['M3','A5','m7','M9','A11'],
+'+add9':['M3','A5','M9'],
+'+maj9':['M3','A5','M7','M9'],
 'maj9':['M3','P5','M7','M9'],
+'maj9b5':['M3','d5','M7','M9'],
+'maj9#11':['M3','P5','M7','M9','A11'],
 'm9':['m3','P5','m7','M9'],
 '9':['M3','P5','m7','M9'],
 'm9b5':['m3','d5','m7','M9'],
-'m9(maj7)':['m3','P5','M7','M9'],
+'m9maj7':['m3','P5','M7','M9'],
 '9#5':['M3','A5','m7','M9'],
 '9b5':['M3','d5','m7','M9'],
 '9sus4':['P4','P5','m7','M9'],
 '9#11':['M3','P5','m7','M9','A11'],
+'°9':['m3','d5','M6','M9'],
+'°maj9':['m3','d5','M7','M9'],
+'ø9':['m3','d5','m7','M9'],
 
 'maj11':['M3','P5','M7','M9','P11'],
 'm11':['m3','P5','m7','M9','P11'],
+'m11maj7':['m3','P5','M7','M9','P11'],
 '11':['M3','P5','m7','M9','P11'],
+'°11':['m3','d5','M6','M9','P11'],
+'°maj11':['m3','d5','M7','M9','P11'],
+'ø11':['m3','d5','m7','M9','P11'],
 
 'maj13':['M3','P5','M7','M9','M13'],
+'maj13#11':['M3','P5','M7','M9','A11','M13'],
+'maj13b5':['M3','d5','M7','M9','M13'],
 'm13':['m3','P5','m7','M9','P11','M13'],
+'m13maj7':['m3','P5','M7','M9','P11','M13'],
 '13':['M3','P5','m7','M9','M13'],
-'13#11':['M3','P5','m7','M9', 'A11', 'M13'],
+'13b5':['M3','d5','m7','M9','M13'],
+'13b9':['M3','d5','m7','m9','M13'],
+'13#9':['M3','d5','m7','A9','M13'],
+'13#11':['M3','P5','m7','M9','A11','M13'],
+'13alt':['M3','P5','m7','A9','m13'],
 '13sus4':['P4','P5','m7','M9','M13']
 }
 
@@ -460,17 +523,23 @@ def rewrite_chord_pitches(chord_pitches, chord_interval_list):
         return choose_best_spelling(potential_spellings)
 
 def pitches_from_chord_symbol(chord_symbol):
+    cleaned_chord_symbol = chord_symbol
+    replacements = [('(', ''), (')', '')]
+    for char, replacement in replacements:
+        if char in cleaned_chord_symbol:
+            cleaned_chord_symbol = cleaned_chord_symbol.replace(char, replacement)
     chord_pitches = []
     slash = None
-    if "/" in chord_symbol:
-        chord_symbol, slash = chord_symbol.split("/")
+    if "/" in cleaned_chord_symbol and not cleaned_chord_symbol[-1].isdigit():
+        chord_symbol = chord_symbol.split("/")[0]
+        cleaned_chord_symbol, slash = cleaned_chord_symbol.split("/")
 
-    if "#" in chord_symbol or "b" in chord_symbol[:2]:
-        root = chord_symbol[:2] + "4"
-        quality_symbol = chord_symbol[2:]
+    if "#" in cleaned_chord_symbol[:2] or "b" in cleaned_chord_symbol[:2]:
+        root = cleaned_chord_symbol[:2] + "4"
+        quality_symbol = cleaned_chord_symbol[2:]
     else:
-        root = chord_symbol[0] + "4"
-        quality_symbol = chord_symbol[1:]
+        root = cleaned_chord_symbol[0] + "4"
+        quality_symbol = cleaned_chord_symbol[1:]
 
     chord_pitches.append(root)
     for interval in chord_by_interval_dict[quality_symbol]:
@@ -546,6 +615,9 @@ def construct_chord_symbol(components):
     if "add" in extension:
         fourth = "(" + extension + ")"
 
+    if seventh == "" and "add6" in extension:
+        fourth = extension.replace("add", "")
+
     if quality not in ["major", "minor", "sus2", "sus4"] and seventh == "nat7":
         third = "(" + third + ")"
 
@@ -603,21 +675,26 @@ def get_available_options(components):
 
     if quality == "major":
         available_sevenths = ["nat7", "m7"]
-        available_extensions = ["add2", "add4", "add6", "6/9", "9", "13"]
+        available_extensions = ["add2", "add4", "add6", "6/9", "9"]
         available_alterations = ["b5", "#11"]
         if seventh == "m7":
             available_extensions = ["9", "13"]
             available_alterations = ["b5", "b9", "#9", "#11", "b13", "alt"]
+        elif seventh == "nat7":
+            available_extensions = ["add2", "add4", "add6", "9", "11", "13"]
+            if extension in ["add4", "11"]:
+                available_alterations = []
     elif quality == "minor":
         available_sevenths = ["nat7", "m7"]
-        available_extensions = ["add2", "add4", "add6", "6/9", "9", "11", "13"]
-        if seventh == "m7":
-            available_extensions.remove("6/9")
-        available_alterations = ["b6"]
+        available_extensions = ["add2", "add4", "add6", "6/9", "9"]
+        available_alterations = ["b6"] if extension == "" else []
+        if seventh != "":
+            available_extensions = ["add2", "add4", "add6", "9", "11", "13"]
+            available_alterations = []
     elif quality == "augmented":
         available_sevenths = ["nat7", "m7"]
         available_extensions = ["add2", "9"]
-        available_alterations = ["b9", "#9", "#11", "b13"] if seventh != "nat7" else ["#11"]
+        available_alterations = ["b9", "#9", "#11"] if seventh != "nat7" else ["#11"]
     elif quality == "diminished":
         available_sevenths = ["nat7", "m7", "bb7"]
         available_extensions = ["9", "11"] if seventh != "m7" else ["9", "11", "13"]
