@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Just Intonation Calculator</title>
+    <link rel="icon" href="svgs/plus-minus-icon.png" type="image/x-icon">
     <link rel="stylesheet" href="styles.css">
     <script defer src="https://pyscript.net/latest/pyscript.js"></script>
 </head>
@@ -28,247 +29,263 @@
     <div id="piano-tab"class="tab-content">
         <div class="piano-functions">
             <div class="left-side-buttons">
-                <button class="deselect-button">Deselect All</button>
-                <button class="mute-button hidden"></button>
+                <button class="deselect-button disabled">
+                    <img src = "svgs/power.png" class="power-icon">
+                </button>
+                <button class="mute-button disabled">
+                    <img src = "svgs/Speaker_Icon.svg.png" class="audio-on-icon hidden">
+                    <img src = "svgs/Mute_Icon.svg.png" class="mute-on-icon hidden">
+                    <img src = "svgs/Speaker_Icon_Inactive.svg.png" class="audio-inactive-icon">
+                </button>
+                <button class="rebalance-button disabled">
+                    <img src = "svgs/unbalanced-scales.png" class="unbalanced-icon hidden">
+                    <img src = "svgs/balanced-scales.png" class="balanced-icon">
+                </button>
             </div>
             <div class="frequencyRatioString"></div>
             <div class="wavetable-buttons">
-                <button class="wavetable-button" data-wavetype="sine">∿</button>
-                <button class="wavetable-button" data-wavetype="square">■</button>
-                <button class="wavetable-button" data-wavetype="sawtooth">▲</button>
+                <button class="wavetable-button" data-wavetype="sine">
+                    <img src="svgs/sine.png" class="sine-icon">
+                </button>
+                <button class="wavetable-button" data-wavetype="square">
+                    <img src="svgs/square.png" class="square-icon">
+                </button>
+                <button class="wavetable-button" data-wavetype="sawtooth">
+                    <img src="svgs/saw.png" class="saw-icon">
+                </button>
             </div>
         </div>        
         <div class="piano-container">
             <div class="piano">
-                <div class="white-key" data-note="F3" data-volume="1">
+                <div class="white-key" data-note="F3" data-enharmonic="F3" data-volume="1">
                     <div class="color-fill"></div>
                     <div class="key-label"></div>
                     <div class="adjustment"></div>
                     <div class="frequency"></div>
                 </div>
-                <div class="black-key" data-note="F#3" data-volume="1">
+                <div class="black-key" data-note="F#3" data-enharmonic="Gb3" data-volume="1">
                     <div class="color-fill"></div>
                     <div class="key-label"></div>
                     <div class="adjustment"></div>
                     <div class="frequency"></div>       
                 </div>
-                <div class="white-key" data-note="G3" data-volume="1">
+                <div class="white-key" data-note="G3" data-enharmonic="G3" data-volume="1">
                     <div class="color-fill"></div>
                     <div class="key-label"></div>
                     <div class="adjustment"></div>
                     <div class="frequency"></div>
                 </div>
-                <div class="black-key" data-note="G#3" data-volume="1">
+                <div class="black-key" data-note="G#3" data-enharmonic="Ab3" data-volume="1">
                     <div class="color-fill"></div>
                     <div class="key-label"></div>
                     <div class="adjustment"></div>
                     <div class="frequency"></div>       
                 </div>
-                <div class="white-key" data-note="A3" data-volume="1">
+                <div class="white-key" data-note="A3" data-enharmonic="A3" data-volume="1">
                     <div class="color-fill"></div>
                     <div class="key-label"></div>
                     <div class="adjustment"></div>
                     <div class="frequency"></div>
                 </div>
-                <div class="black-key" data-note="A#3" data-volume="1">
+                <div class="black-key" data-note="A#3" data-enharmonic="Bb3" data-volume="1">
                     <div class="color-fill"></div>
                     <div class="key-label"></div>
                     <div class="adjustment"></div>
                     <div class="frequency"></div>
                 </div>
-                <div class="white-key" data-note="B3" data-volume="1">
+                <div class="white-key" data-note="B3" data-enharmonic="B3" data-volume="1">
                     <div class="color-fill"></div>
                     <div class="key-label"></div>
                     <div class="adjustment"></div>
                     <div class="frequency"></div>
                 </div>
-                <div class="white-key" data-note="C4" data-volume="1">
+                <div class="white-key" data-note="C4" data-enharmonic="C4" data-volume="1">
                     <div class="color-fill"></div>
                     <div class="key-label"></div>
                     <div class="adjustment"></div>
                     <div class="frequency"></div>
                 </div>
-                <div class="black-key" data-note="C#4" data-volume="1">
+                <div class="black-key" data-note="C#4" data-enharmonic="Db4" data-volume="1">
                     <div class="color-fill"></div>
                     <div class="key-label"></div>
                     <div class="adjustment"></div>
                     <div class="frequency"></div>
                 </div>
-                <div class="white-key" data-note="D4" data-volume="1">
+                <div class="white-key" data-note="D4" data-enharmonic="D4" data-volume="1">
                     <div class="color-fill"></div>
                     <div class="key-label"></div>
                     <div class="adjustment"></div>
                     <div class="frequency"></div>
                 </div>
-                <div class="black-key" data-note="D#4" data-volume="1">
+                <div class="black-key" data-note="D#4" data-enharmonic="Eb4" data-volume="1">
                     <div class="color-fill"></div>
                     <div class="key-label"></div>
                     <div class="adjustment"></div>
                     <div class="frequency"></div>
                 </div>
-                <div class="white-key" data-note="E4" data-volume="1">
+                <div class="white-key" data-note="E4" data-enharmonic="E4" data-volume="1">
                     <div class="color-fill"></div>
                     <div class="key-label"></div>
                     <div class="adjustment"></div>
                     <div class="frequency"></div>
                 </div>
-                <div class="white-key" data-note="F4" data-volume="1">
+                <div class="white-key" data-note="F4" data-enharmonic="F4" data-volume="1">
                     <div class="color-fill"></div>
                     <div class="key-label"></div>
                     <div class="adjustment"></div>
                     <div class="frequency"></div>
                 </div>
-                <div class="black-key" data-note="F#4" data-volume="1">
+                <div class="black-key" data-note="F#4" data-enharmonic="Gb4" data-volume="1">
                     <div class="color-fill"></div>
                     <div class="key-label"></div>
                     <div class="adjustment"></div>
                     <div class="frequency"></div>
                 </div>
-                <div class="white-key" data-note="G4" data-volume="1">
+                <div class="white-key" data-note="G4" data-enharmonic="G4" data-volume="1">
                     <div class="color-fill"></div>
                     <div class="key-label"></div>
                     <div class="adjustment"></div>
                     <div class="frequency"></div>
                 </div>
-                <div class="black-key" data-note="G#4" data-volume="1">
+                <div class="black-key" data-note="G#4" data-enharmonic="Ab4" data-volume="1">
                     <div class="color-fill"></div>
                     <div class="key-label"></div>
                     <div class="adjustment"></div>
                     <div class="frequency"></div>       
                 </div>
-                <div class="white-key" data-note="A4" data-volume="1">
+                <div class="white-key" data-note="A4" data-enharmonic="A4" data-volume="1">
                     <div class="color-fill"></div>
                     <div class="key-label"></div>
                     <div class="adjustment"></div>
                     <div class="frequency"></div>
                 </div>
-                <div class="black-key" data-note="A#4" data-volume="1">
+                <div class="black-key" data-note="A#4" data-enharmonic="Bb4" data-volume="1">
                     <div class="color-fill"></div>
                     <div class="key-label"></div>
                     <div class="adjustment"></div>
                     <div class="frequency"></div>
                 </div>
-                <div class="white-key" data-note="B4" data-volume="1">
+                <div class="white-key" data-note="B4" data-enharmonic="B4" data-volume="1">
                     <div class="color-fill"></div>
                     <div class="key-label"></div>
                     <div class="adjustment"></div>
                     <div class="frequency"></div>
                 </div>
-                <div class="white-key" data-note="C5" data-volume="1">
+                <div class="white-key" data-note="C5" data-enharmonic="C5" data-volume="1">
                     <div class="color-fill"></div>
                     <div class="key-label"></div>
                     <div class="adjustment"></div>
                     <div class="frequency"></div>
                 </div>        
-                <div class="black-key" data-note="C#5" data-volume="1">
+                <div class="black-key" data-note="C#5" data-enharmonic="Db5" data-volume="1">
                     <div class="color-fill"></div>
                     <div class="key-label"></div>
                     <div class="adjustment"></div>
                     <div class="frequency"></div>
                 </div>
-                <div class="white-key" data-note="D5" data-volume="1">
+                <div class="white-key" data-note="D5" data-enharmonic="D5" data-volume="1">
                     <div class="color-fill"></div>
                     <div class="key-label"></div>
                     <div class="adjustment"></div>
                     <div class="frequency"></div>
                 </div>
-                <div class="black-key" data-note="D#5" data-volume="1">
+                <div class="black-key" data-note="D#5" data-enharmonic="Eb5" data-volume="1">
                     <div class="color-fill"></div>
                     <div class="key-label"></div>
                     <div class="adjustment"></div>
                     <div class="frequency"></div>
                 </div>
-                <div class="white-key" data-note="E5" data-volume="1">
+                <div class="white-key" data-note="E5" data-enharmonic="E5" data-volume="1">
                     <div class="color-fill"></div>
                     <div class="key-label"></div>
                     <div class="adjustment"></div>
                     <div class="frequency"></div>
                 </div>
-                <div class="white-key" data-note="F5" data-volume="1">
+                <div class="white-key" data-note="F5" data-enharmonic="F5" data-volume="1">
                     <div class="color-fill"></div>
                     <div class="key-label"></div>
                     <div class="adjustment"></div>
                     <div class="frequency"></div>
                 </div>
-                <div class="black-key" data-note="F#5" data-volume="1">
+                <div class="black-key" data-note="F#5" data-enharmonic="Gb5" data-volume="1">
                     <div class="color-fill"></div>
                     <div class="key-label"></div>
                     <div class="adjustment"></div>
                     <div class="frequency"></div>
                 </div>
-                <div class="white-key" data-note="G5" data-volume="1">
+                <div class="white-key" data-note="G5" data-enharmonic="G5" data-volume="1">
                     <div class="color-fill"></div>
                     <div class="key-label"></div>
                     <div class="adjustment"></div>
                     <div class="frequency"></div>
                 </div>
-                <div class="black-key" data-note="G#5" data-volume="1">
+                <div class="black-key" data-note="G#5" data-enharmonic="Ab5" data-volume="1">
                     <div class="color-fill"></div>
                     <div class="key-label"></div>
                     <div class="adjustment"></div>
                     <div class="frequency"></div>
                 </div>
-                <div class="white-key" data-note="A5" data-volume="1">
+                <div class="white-key" data-note="A5" data-enharmonic="A5" data-volume="1">
                     <div class="color-fill"></div>
                     <div class="key-label"></div>
                     <div class="adjustment"></div>
                     <div class="frequency"></div>
                 </div>
-                <div class="black-key" data-note="A#5" data-volume="1">
+                <div class="black-key" data-note="A#5" data-enharmonic="Bb5" data-volume="1">
                     <div class="color-fill"></div>
                     <div class="key-label"></div>
                     <div class="adjustment"></div>
                     <div class="frequency"></div>
                 </div>
-                <div class="white-key" data-note="B5" data-volume="1">
+                <div class="white-key" data-note="B5" data-enharmonic="B5" data-volume="1">
                     <div class="color-fill"></div>
                     <div class="key-label"></div>
                     <div class="adjustment"></div>
                     <div class="frequency"></div>
                 </div>
-                <div class="white-key" data-note="C6" data-volume="1">
+                <div class="white-key" data-note="C6" data-enharmonic="C6" data-volume="1">
                     <div class="color-fill"></div>
                     <div class="key-label"></div>
                     <div class="adjustment"></div>
                     <div class="frequency"></div>
                 </div>
-                <div class="black-key" data-note="C#6" data-volume="1">
+                <div class="black-key" data-note="C#6" data-enharmonic="Db6" data-volume="1">
                     <div class="color-fill"></div>
                     <div class="key-label"></div>
                     <div class="adjustment"></div>
                     <div class="frequency"></div>
                 </div>
-                <div class="white-key" data-note="D6" data-volume="1">
+                <div class="white-key" data-note="D6" data-enharmonic="D6" data-volume="1">
                     <div class="color-fill"></div>
                     <div class="key-label"></div>
                     <div class="adjustment"></div>
                     <div class="frequency"></div>
                 </div>
-                <div class="black-key" data-note="D#6" data-volume="1">
+                <div class="black-key" data-note="D#6" data-enharmonic="Eb6" data-volume="1">
                     <div class="color-fill"></div>
                     <div class="key-label"></div>
                     <div class="adjustment"></div>
                     <div class="frequency"></div>
                 </div>
-                <div class="white-key" data-note="E6" data-volume="1">
+                <div class="white-key" data-note="E6" data-enharmonic="E6" data-volume="1">
                     <div class="color-fill"></div>
                     <div class="key-label"></div>
                     <div class="adjustment"></div>
                     <div class="frequency"></div>
                 </div>
-                <div class="white-key" data-note="F6" data-volume="1">
+                <div class="white-key" data-note="F6" data-enharmonic="F6" data-volume="1">
                     <div class="color-fill"></div>
                     <div class="key-label"></div>
                     <div class="adjustment"></div>
                     <div class="frequency"></div>
                 </div>
-                <div class="black-key" data-note="F#6" data-volume="1">
+                <div class="black-key" data-note="F#6" data-enharmonic="Gb6" data-volume="1">
                     <div class="color-fill"></div>
                     <div class="key-label"></div>
                     <div class="adjustment"></div>
                     <div class="frequency"></div>
                 </div>
-                <div class="white-key" data-note="G6" data-volume="1">
+                <div class="white-key" data-note="G6" data-enharmonic="G6" data-volume="1">
                     <div class="color-fill"></div>
                     <div class="key-label"></div>
                     <div class="adjustment"></div>
@@ -506,48 +523,58 @@
             const bigPianokeys = document.querySelectorAll('.white-key, .black-key');
             const freqRatioDiv = document.querySelector('.frequencyRatioString');
             let activePitches = [];
+            let currentKey = null; // To keep track of the current key being dragged
             let isDragging = false;
             let wasDragged = false;
             let initialVolume = 0;
 
+            function handleStart(event) {
+                event.preventDefault(); // Prevent default behavior like text selection
+                isDragging = true;
+                currentKey = this; // Set the current key
+                initialVolume = parseFloat(this.getAttribute('data-volume') || '0.1');
+            }
+
+            function handleMove(event) {
+                if (isDragging && currentKey && currentKey.classList.contains('active')) {
+                    wasDragged = true;
+                    const deltaY = event.type === 'mousemove' ? event.movementY : event.touches[0].clientY - this.getBoundingClientRect().top;
+                    let newVolume = initialVolume - deltaY * 0.01; // Adjust the sensitivity here
+                    newVolume = Math.min(Math.max(newVolume, 0.1), 1); // Clamp between 0.1 and 1
+
+                    currentKey.setAttribute('data-volume', newVolume);
+                    currentKey.classList.add('manual');
+                    document.querySelector('.balanced-icon').classList.add('hidden');
+                    document.querySelector('.unbalanced-icon').classList.remove('hidden');
+                    rebalanceButton.classList.remove('active');
+                    updateColorFill(currentKey, newVolume); // Your function to update color fill
+
+                    // Update the gain value in your audio code
+                    const note = currentKey.getAttribute('data-note');
+                    if (activeGainNodes[note]) {
+                        activeGainNodes[note].gain.value = gainScale * newVolume;
+                    }
+
+                    initialVolume = newVolume;
+                }
+            }
+
+            function handleEnd(event) {
+                isDragging = false;
+                currentKey = null; // Reset the current key
+            }
+
             bigPianokeys.forEach(key => {
                 const noteLabel = key.getAttribute('data-note');
+                const enharmonicLabel = key.getAttribute('data-enharmonic');
+                if (enharmonicLabel !== noteLabel) {
+                    key.querySelector('.key-label').textContent = `${noteLabel} ${enharmonicLabel}`;
+                } else {
                 key.querySelector('.key-label').textContent = noteLabel;
+                }
 
-                key.addEventListener('mousedown', function(event) {
-                    event.preventDefault(); // Prevent default behavior like text selection
-                    isDragging = true;
-                    initialVolume = parseFloat(this.getAttribute('data-volume') || '0.1');
-                });
-
-                key.addEventListener('mousemove', function(event) {
-                    if (isDragging && this.classList.contains('active')) {
-                        wasDragged = true;
-                        const deltaY = event.movementY;
-                        let newVolume = initialVolume - deltaY * 0.01; // Adjust the sensitivity here
-                        newVolume = Math.min(Math.max(newVolume, 0.1), 1); // Clamp between 0.1 and 1
-
-                        this.setAttribute('data-volume', newVolume);
-                        updateColorFill(this, newVolume); // Your function to update color fill
-
-                        // Update the gain value in your audio code
-                        const note = this.getAttribute('data-note');
-                        if (activeGainNodes[note]) {
-                            activeGainNodes[note].gain.value = gainScale * newVolume;
-                        }
-
-                        initialVolume = newVolume;
-                    }
-                });
-
-                key.addEventListener('mouseup', function(event) {
-                    isDragging = false;
-                });
-
-                key.addEventListener('mouseleave', function(event) {
-                    isDragging = false;
-                    wasDragged = false; // Reset the flag if you're using it
-                });
+                key.addEventListener('mousedown', handleStart);
+                key.addEventListener('touchstart', handleStart);
 
                 key.addEventListener('click', function() {
                     const note = this.getAttribute('data-note');
@@ -567,33 +594,52 @@
                         this.querySelector('.frequency').textContent = "";
                         this.querySelector('.adjustment').textContent = "";
                         this.classList.remove('active');
+                        this.classList.remove('manual');
                     } else if (activePitches.length < 8) {
-                        muteButton.classList.remove('hidden');
-                        muteButton.classList.add('active');
-                        muteButton.appendChild(audioOnIcon);
+                        if (muteButton.classList.contains('disabled')) {
+                            muteButton.classList.remove('disabled');
+                            document.querySelector('.audio-inactive-icon').classList.add('hidden');
+                            document.querySelector('.audio-on-icon').classList.remove('hidden');
+                        }
+                        if (document.querySelector('.mute-on-icon').classList.contains('hidden') && !muteButton.classList.contains('active')) {
+                            muteButton.classList.add('active');
+                        }
+                        if (document.querySelector('.audio-on-icon').classList.contains('hidden') && muteButton.classList.contains('active')) {
+                            muteButton.classList.remove('active');
+                        }
                         activePitches.push(note);
                         this.classList.add('active');
                     }
 
                     if (activePitches.length > 0 && pianoTabIcon.classList.contains('active')) {
+                        deselectButton.classList.remove('disabled');
+                        deselectButton.classList.add('active');
+                        rebalanceButton.classList.remove('disabled');
+                        rebalanceButton.classList.add('active');
                         const result = pyscript.interpreter.globals.get('just_intonate')(activePitches);
                         const [justIntonationData, freqRatioString] = result.toJs();
                         
                         justIntonationData.forEach((info, pitch) => {
-                            console.log(info, pitch)
                             const keyElement = document.querySelector(`[data-note="${pitch}"]`);
                             const freqDiv = keyElement.querySelector('.frequency');
                             const adjustmentDiv = keyElement.querySelector('.adjustment');
 
                             freqDiv.textContent = info[0];
                             adjustmentDiv.textContent = info[1];
-                            volumeAdjustment = info[2];
-                            
-                            keyElement.setAttribute('data-volume', volumeAdjustment.toString());
+                            volumeAdjustment = keyElement.getAttribute('data-volume');
+
+                            // Check if pitch is not in activePitches
+                            if (!keyElement.classList.contains('manual')) {
+                                volumeAdjustment = info[2];
+                                keyElement.setAttribute('data-volume', volumeAdjustment.toString());
+                            } else {
+                                rebalanceButton.classList.remove('active');
+                            }
 
                             // Update the frequency and volume of the active oscillator
                             const newFreq = parseFloat(info[0].split(' ')[0]);
                             changeFrequencyAndVolume(pitch, newFreq, volumeAdjustment);
+                            
                         });
 
                         freqRatioDiv.textContent = freqRatioString;
@@ -612,6 +658,12 @@
                 });
             });
 
+            document.addEventListener('mousemove', handleMove);
+            document.addEventListener('touchmove', handleMove);
+
+            document.addEventListener('mouseup', handleEnd);
+            document.addEventListener('touchend', handleEnd);
+
             // Get the deselect button element
             const deselectButton = document.querySelector('.deselect-button');
 
@@ -625,6 +677,8 @@
                         removeColorFill(key);
                         key.querySelector('.frequency').textContent = "";
                         key.querySelector('.adjustment').textContent = "";
+                        key.setAttribute('data-volume', '1');
+                        key.classList.remove('manual');
                         key.classList.remove('active');
                     }
                 });
@@ -634,36 +688,54 @@
 
                 // Clear the frequency ratio string
                 freqRatioDiv.textContent = "";
+                deselectButton.classList.add('disabled');
+            });
+
+
+            const rebalanceButton = document.querySelector('.rebalance-button');
+
+            rebalanceButton.addEventListener('click', () => {
+                if (activePitches.length > 0 && pianoTabIcon.classList.contains('active')) {
+                    const result = pyscript.interpreter.globals.get('just_intonate')(activePitches);
+                    const [justIntonationData, freqRatioString] = result.toJs();
+                    
+                    justIntonationData.forEach((info, pitch) => {
+                        const keyElement = document.querySelector(`[data-note="${pitch}"]`);
+                        const freqDiv = keyElement.querySelector('.frequency');
+
+                        volumeAdjustment = info[2];
+                        keyElement.setAttribute('data-volume', volumeAdjustment.toString());
+                        keyElement.classList.remove('manual');
+
+                        // Update the frequency and volume of the active oscillator
+                        const newFreq = parseFloat(info[0].split(' ')[0]);
+                        changeFrequencyAndVolume(pitch, newFreq, volumeAdjustment);
+                    });
+                }
+                document.querySelector('.balanced-icon').classList.remove('hidden');
+                document.querySelector('.unbalanced-icon').classList.add('hidden');
+                rebalanceButton.classList.add('active');
             });
 
             let isMuted = false;  // A flag to keep track of the mute state
-
             const muteButton = document.querySelector('.mute-button');
-            const audioOnIcon = document.createElement('img')
-            audioOnIcon.src = "svgs/Speaker_Icon.svg.png";
-            audioOnIcon.height = "20";
-            audioOnIcon.width = "20";
-            const muteOn = document.createElement('img')
-            muteOn.src = "svgs/Mute_Icon.svg.png";
-            muteOn.height = "20";
-            muteOn.width = "20";
 
             muteButton.addEventListener('click', () => {
                 if (isMuted) {
                     masterGainNode.gain.setValueAtTime(0, audioContext.currentTime);  // Unmute
                     masterGainNode.gain.linearRampToValueAtTime(1, audioContext.currentTime + 0.01);
-                    if (document.querySelector('.mute-button').contains(muteOn)) {
-                        document.querySelector('.mute-button').removeChild(muteOn);
+                    if (!document.querySelector('.mute-on-icon').classList.contains('hidden')) {
+                        document.querySelector('.mute-on-icon').classList.add('hidden');
                     }
-                    document.querySelector('.mute-button').appendChild(audioOnIcon);
+                    document.querySelector('.audio-on-icon').classList.remove('hidden');
                     muteButton.classList.add('active');
                 } else {
                     masterGainNode.gain.setValueAtTime(1, audioContext.currentTime);
                     masterGainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.01);  // Mute
-                    if (document.querySelector('.mute-button').contains(audioOnIcon)) {
-                        document.querySelector('.mute-button').removeChild(audioOnIcon);
+                    if (!document.querySelector('.audio-on-icon').classList.contains('hidden')) {
+                        document.querySelector('.audio-on-icon').classList.add('hidden');
                     }
-                    document.querySelector('.mute-button').appendChild(muteOn);
+                    document.querySelector('.mute-on-icon').classList.remove('hidden');
                     muteButton.classList.remove('active');
                 }
                 isMuted = !isMuted;
@@ -671,18 +743,37 @@
 
             // Reset the mute button when all keys are turned off
             function checkAndResetMute() {
-                if (Object.keys(activeOscillators).length === 0 && isMuted) {
+                const hasActiveOscillators = Object.keys(activeOscillators).length > 0;
+
+                // Common actions for both conditions
+                function resetIconsAndButtons() {
+                    document.querySelector('.mute-on-icon').classList.add('hidden');
+                    document.querySelector('.audio-on-icon').classList.add('hidden');
+                    document.querySelector('.audio-inactive-icon').classList.remove('hidden');
+                    muteButton.classList.remove('active');
+                    deselectButton.classList.add('disabled');
+                    deselectButton.classList.remove('active');
+                    rebalanceButton.classList.add('disabled');
+                    rebalanceButton.classList.remove('active');
+
+                    if (document.querySelector('.balanced-icon').classList.contains('hidden')) {
+                        document.querySelector('.balanced-icon').classList.remove('hidden');
+                        document.querySelector('.unbalanced-icon').classList.add('hidden');
+                    }
+                }
+
+                if (!hasActiveOscillators && isMuted) {
                     masterGainNode.gain.setValueAtTime(1, audioContext.currentTime);  // Unmute
                     muteButton.classList.remove('active');
-                    muteButton.removeChild(muteOn)
-                    muteButton.classList.add('hidden');
+                    muteButton.classList.add('disabled');
                     isMuted = false;
-                } else if (Object.keys(activeOscillators).length === 0){
-                    muteButton.classList.add('hidden');
-                    muteButton.removeChild(muteOn)
+                    resetIconsAndButtons();
+                } else if (!hasActiveOscillators) {
+                    muteButton.classList.add('disabled');
+                    resetIconsAndButtons();
                 }
             }
-            
+
             // Get all wavetable buttons
             const wavetableButtons = document.querySelectorAll('.wavetable-button');
             document.querySelector('.wavetable-button[data-wavetype="sine"]').classList.add('active');
