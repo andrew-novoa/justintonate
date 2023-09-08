@@ -538,6 +538,7 @@
             }
 
             function handleMove(event) {
+                event.preventDefault();
                 const currentTime = new Date().getTime();
                 if (currentTime - lastCalledTime < delay) {
                     return;
