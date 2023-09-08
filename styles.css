@@ -246,6 +246,7 @@ body, html {
     margin-top: 20px;
     margin-bottom: 30px;
     overflow-x: scroll;
+    overflow-y: hidden;
     white-space: nowrap;
 }
 
