@@ -532,10 +532,6 @@
             const delay = 16; // 60fps
 
             function handleStart(event) {
-                // If the key is active, prevent default behavior like scrolling
-                if (this.classList.contains('active')) {
-                    event.preventDefault();
-                }
                 isDragging = true;
                 currentKey = this; // Set the current key
                 initialVolume = parseFloat(this.getAttribute('data-volume') || '0.1');
@@ -548,9 +544,10 @@
                 }
                 lastCalledTime = currentTime;
                 if (isDragging && currentKey && currentKey.classList.contains('active')) {
-                    event.preventDefault();
                     wasDragged = true;
+                    event.preventDefault(); // Prevent default behavior like scrolling
                     let deltaY;
+                    
                     if (event.type === 'mousemove') {
                         deltaY = event.movementY;
                     } else if (event.type === 'touchmove') {
@@ -583,6 +580,10 @@
             }
 
             function handleEnd(event) {
+                if (event.type === 'touchend') {
+                    prevTouchY = null;
+                    wasDragged = false;
+                }
                 isDragging = false;
                 currentKey = null; // Reset the current key
             }
@@ -597,7 +598,7 @@
                 }
 
                 key.addEventListener('mousedown', handleStart);
-                key.addEventListener('touchstart', handleStart);
+                key.addEventListener('touchstart', handleStart, { passive: false });
 
                 key.addEventListener('click', function() {
                     const note = this.getAttribute('data-note');
@@ -682,7 +683,7 @@
             });
 
             document.addEventListener('mousemove', handleMove);
-            document.addEventListener('touchmove', handleMove);
+            document.addEventListener('touchmove', handleMove, { passive: false });
 
             document.addEventListener('mouseup', handleEnd);
             document.addEventListener('touchend', handleEnd);
