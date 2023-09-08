@@ -523,22 +523,40 @@
             const bigPianokeys = document.querySelectorAll('.white-key, .black-key');
             const freqRatioDiv = document.querySelector('.frequencyRatioString');
             let activePitches = [];
+            let prevTouchY = null;
             let currentKey = null; // To keep track of the current key being dragged
             let isDragging = false;
             let wasDragged = false;
             let initialVolume = 0;
+            let lastCalledTime = 0;
+            const delay = 16; // 60fps
 
             function handleStart(event) {
-                event.preventDefault(); // Prevent default behavior like text selection
                 isDragging = true;
                 currentKey = this; // Set the current key
                 initialVolume = parseFloat(this.getAttribute('data-volume') || '0.1');
             }
 
             function handleMove(event) {
+                const currentTime = new Date().getTime();
+                if (currentTime - lastCalledTime < delay) {
+                    return;
+                }
+                lastCalledTime = currentTime;
                 if (isDragging && currentKey && currentKey.classList.contains('active')) {
                     wasDragged = true;
-                    const deltaY = event.type === 'mousemove' ? event.movementY : event.touches[0].clientY - this.getBoundingClientRect().top;
+                    let deltaY;
+                    if (event.type === 'mousemove') {
+                        deltaY = event.movementY;
+                    } else if (event.type === 'touchmove') {
+                        const currentTouchY = event.touches[0].clientY;
+                        if (prevTouchY !== null) {
+                            deltaY = Math.round(currentTouchY - prevTouchY);
+                        } else {
+                            deltaY = 0;
+                        }
+                        prevTouchY = currentTouchY;
+                    }
                     let newVolume = initialVolume - deltaY * 0.01; // Adjust the sensitivity here
                     newVolume = Math.min(Math.max(newVolume, 0.1), 1); // Clamp between 0.1 and 1
 
@@ -690,7 +708,6 @@
                 freqRatioDiv.textContent = "";
                 deselectButton.classList.add('disabled');
             });
-
 
             const rebalanceButton = document.querySelector('.rebalance-button');
 
