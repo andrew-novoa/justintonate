@@ -55,7 +55,7 @@
                 </button>
             </div>
         </div>        
-        <div class="piano-container">
+        <div id="piano-container" class="piano-container">
             <div class="piano">
                 <div class="white-key" data-note="F3" data-enharmonic="F3" data-volume="1">
                     <div class="color-fill"></div>
@@ -532,19 +532,23 @@
             const delay = 16; // 60fps
 
             function handleStart(event) {
+                // If the key is active, prevent default behavior like scrolling
+                if (this.classList.contains('active')) {
+                    event.preventDefault();
+                }
                 isDragging = true;
                 currentKey = this; // Set the current key
                 initialVolume = parseFloat(this.getAttribute('data-volume') || '0.1');
             }
 
             function handleMove(event) {
-                event.preventDefault();
                 const currentTime = new Date().getTime();
                 if (currentTime - lastCalledTime < delay) {
                     return;
                 }
                 lastCalledTime = currentTime;
                 if (isDragging && currentKey && currentKey.classList.contains('active')) {
+                    event.preventDefault();
                     wasDragged = true;
                     let deltaY;
                     if (event.type === 'mousemove') {
