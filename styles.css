@@ -1,1248 +1,645 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Just Intonation Calculator</title>
-    <link rel="icon" href="svgs/plus-minus-icon.png" type="image/x-icon">
-    <link rel="stylesheet" href="styles.css">
-    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
-</head>
-<body>
-    <div id="loader" class="loader">
-        <div class="spinner"></div>
-    </div>    
-    <py-config class="config">
-        [[fetch]]
-        files = ["music_utils.py"]
-    </py-config>
-    <div class="top-bar">
-        <div class="header">
-            <h1>Just Intonation Calculator</h1>
-        </div>
-        <div class="icon-tabs">
-            <button class="help-button">?</button>
-            <div class="icon-tab piano-icon active" id="pianoTab"></div>
-            <div class="icon-tab xy-icon" id="xyTab"></div>
-        </div>
-    </div>
-    <div id="piano-tab"class="tab-content">
-        <div class="piano-functions">
-            <div class="left-side-buttons">
-                <button class="deselect-button disabled">
-                    <img src = "svgs/power.png" class="power-icon">
-                </button>
-                <button class="mute-button disabled">
-                    <img src = "svgs/Speaker_Icon.svg.png" class="audio-on-icon hidden">
-                    <img src = "svgs/Mute_Icon.svg.png" class="mute-on-icon hidden">
-                    <img src = "svgs/Speaker_Icon_Inactive.svg.png" class="audio-inactive-icon">
-                </button>
-                <button class="rebalance-button disabled">
-                    <img src = "svgs/unbalanced-scales.png" class="unbalanced-icon hidden">
-                    <img src = "svgs/balanced-scales.png" class="balanced-icon">
-                </button>
-            </div>
-            <div class="frequencyRatioString"></div>
-            <div class="wavetable-buttons">
-                <button class="wavetable-button" data-wavetype="sine">
-                    <img src="svgs/sine.png" class="sine-icon">
-                </button>
-                <button class="wavetable-button" data-wavetype="square">
-                    <img src="svgs/square.png" class="square-icon">
-                </button>
-                <button class="wavetable-button" data-wavetype="sawtooth">
-                    <img src="svgs/saw.png" class="saw-icon">
-                </button>
-            </div>
-        </div>        
-        <div id="piano-container" class="piano-container">
-            <div class="piano">
-                <div class="white-key" data-note="F3" data-enharmonic="F3" data-volume="1">
-                    <div class="color-fill"></div>
-                    <div class="key-label"></div>
-                    <div class="adjustment"></div>
-                    <div class="frequency"></div>
-                </div>
-                <div class="black-key" data-note="F#3" data-enharmonic="Gb3" data-volume="1">
-                    <div class="color-fill"></div>
-                    <div class="key-label"></div>
-                    <div class="adjustment"></div>
-                    <div class="frequency"></div>       
-                </div>
-                <div class="white-key" data-note="G3" data-enharmonic="G3" data-volume="1">
-                    <div class="color-fill"></div>
-                    <div class="key-label"></div>
-                    <div class="adjustment"></div>
-                    <div class="frequency"></div>
-                </div>
-                <div class="black-key" data-note="G#3" data-enharmonic="Ab3" data-volume="1">
-                    <div class="color-fill"></div>
-                    <div class="key-label"></div>
-                    <div class="adjustment"></div>
-                    <div class="frequency"></div>       
-                </div>
-                <div class="white-key" data-note="A3" data-enharmonic="A3" data-volume="1">
-                    <div class="color-fill"></div>
-                    <div class="key-label"></div>
-                    <div class="adjustment"></div>
-                    <div class="frequency"></div>
-                </div>
-                <div class="black-key" data-note="A#3" data-enharmonic="Bb3" data-volume="1">
-                    <div class="color-fill"></div>
-                    <div class="key-label"></div>
-                    <div class="adjustment"></div>
-                    <div class="frequency"></div>
-                </div>
-                <div class="white-key" data-note="B3" data-enharmonic="B3" data-volume="1">
-                    <div class="color-fill"></div>
-                    <div class="key-label"></div>
-                    <div class="adjustment"></div>
-                    <div class="frequency"></div>
-                </div>
-                <div class="white-key" data-note="C4" data-enharmonic="C4" data-volume="1">
-                    <div class="color-fill"></div>
-                    <div class="key-label"></div>
-                    <div class="adjustment"></div>
-                    <div class="frequency"></div>
-                </div>
-                <div class="black-key" data-note="C#4" data-enharmonic="Db4" data-volume="1">
-                    <div class="color-fill"></div>
-                    <div class="key-label"></div>
-                    <div class="adjustment"></div>
-                    <div class="frequency"></div>
-                </div>
-                <div class="white-key" data-note="D4" data-enharmonic="D4" data-volume="1">
-                    <div class="color-fill"></div>
-                    <div class="key-label"></div>
-                    <div class="adjustment"></div>
-                    <div class="frequency"></div>
-                </div>
-                <div class="black-key" data-note="D#4" data-enharmonic="Eb4" data-volume="1">
-                    <div class="color-fill"></div>
-                    <div class="key-label"></div>
-                    <div class="adjustment"></div>
-                    <div class="frequency"></div>
-                </div>
-                <div class="white-key" data-note="E4" data-enharmonic="E4" data-volume="1">
-                    <div class="color-fill"></div>
-                    <div class="key-label"></div>
-                    <div class="adjustment"></div>
-                    <div class="frequency"></div>
-                </div>
-                <div class="white-key" data-note="F4" data-enharmonic="F4" data-volume="1">
-                    <div class="color-fill"></div>
-                    <div class="key-label"></div>
-                    <div class="adjustment"></div>
-                    <div class="frequency"></div>
-                </div>
-                <div class="black-key" data-note="F#4" data-enharmonic="Gb4" data-volume="1">
-                    <div class="color-fill"></div>
-                    <div class="key-label"></div>
-                    <div class="adjustment"></div>
-                    <div class="frequency"></div>
-                </div>
-                <div class="white-key" data-note="G4" data-enharmonic="G4" data-volume="1">
-                    <div class="color-fill"></div>
-                    <div class="key-label"></div>
-                    <div class="adjustment"></div>
-                    <div class="frequency"></div>
-                </div>
-                <div class="black-key" data-note="G#4" data-enharmonic="Ab4" data-volume="1">
-                    <div class="color-fill"></div>
-                    <div class="key-label"></div>
-                    <div class="adjustment"></div>
-                    <div class="frequency"></div>       
-                </div>
-                <div class="white-key" data-note="A4" data-enharmonic="A4" data-volume="1">
-                    <div class="color-fill"></div>
-                    <div class="key-label"></div>
-                    <div class="adjustment"></div>
-                    <div class="frequency"></div>
-                </div>
-                <div class="black-key" data-note="A#4" data-enharmonic="Bb4" data-volume="1">
-                    <div class="color-fill"></div>
-                    <div class="key-label"></div>
-                    <div class="adjustment"></div>
-                    <div class="frequency"></div>
-                </div>
-                <div class="white-key" data-note="B4" data-enharmonic="B4" data-volume="1">
-                    <div class="color-fill"></div>
-                    <div class="key-label"></div>
-                    <div class="adjustment"></div>
-                    <div class="frequency"></div>
-                </div>
-                <div class="white-key" data-note="C5" data-enharmonic="C5" data-volume="1">
-                    <div class="color-fill"></div>
-                    <div class="key-label"></div>
-                    <div class="adjustment"></div>
-                    <div class="frequency"></div>
-                </div>        
-                <div class="black-key" data-note="C#5" data-enharmonic="Db5" data-volume="1">
-                    <div class="color-fill"></div>
-                    <div class="key-label"></div>
-                    <div class="adjustment"></div>
-                    <div class="frequency"></div>
-                </div>
-                <div class="white-key" data-note="D5" data-enharmonic="D5" data-volume="1">
-                    <div class="color-fill"></div>
-                    <div class="key-label"></div>
-                    <div class="adjustment"></div>
-                    <div class="frequency"></div>
-                </div>
-                <div class="black-key" data-note="D#5" data-enharmonic="Eb5" data-volume="1">
-                    <div class="color-fill"></div>
-                    <div class="key-label"></div>
-                    <div class="adjustment"></div>
-                    <div class="frequency"></div>
-                </div>
-                <div class="white-key" data-note="E5" data-enharmonic="E5" data-volume="1">
-                    <div class="color-fill"></div>
-                    <div class="key-label"></div>
-                    <div class="adjustment"></div>
-                    <div class="frequency"></div>
-                </div>
-                <div class="white-key" data-note="F5" data-enharmonic="F5" data-volume="1">
-                    <div class="color-fill"></div>
-                    <div class="key-label"></div>
-                    <div class="adjustment"></div>
-                    <div class="frequency"></div>
-                </div>
-                <div class="black-key" data-note="F#5" data-enharmonic="Gb5" data-volume="1">
-                    <div class="color-fill"></div>
-                    <div class="key-label"></div>
-                    <div class="adjustment"></div>
-                    <div class="frequency"></div>
-                </div>
-                <div class="white-key" data-note="G5" data-enharmonic="G5" data-volume="1">
-                    <div class="color-fill"></div>
-                    <div class="key-label"></div>
-                    <div class="adjustment"></div>
-                    <div class="frequency"></div>
-                </div>
-                <div class="black-key" data-note="G#5" data-enharmonic="Ab5" data-volume="1">
-                    <div class="color-fill"></div>
-                    <div class="key-label"></div>
-                    <div class="adjustment"></div>
-                    <div class="frequency"></div>
-                </div>
-                <div class="white-key" data-note="A5" data-enharmonic="A5" data-volume="1">
-                    <div class="color-fill"></div>
-                    <div class="key-label"></div>
-                    <div class="adjustment"></div>
-                    <div class="frequency"></div>
-                </div>
-                <div class="black-key" data-note="A#5" data-enharmonic="Bb5" data-volume="1">
-                    <div class="color-fill"></div>
-                    <div class="key-label"></div>
-                    <div class="adjustment"></div>
-                    <div class="frequency"></div>
-                </div>
-                <div class="white-key" data-note="B5" data-enharmonic="B5" data-volume="1">
-                    <div class="color-fill"></div>
-                    <div class="key-label"></div>
-                    <div class="adjustment"></div>
-                    <div class="frequency"></div>
-                </div>
-                <div class="white-key" data-note="C6" data-enharmonic="C6" data-volume="1">
-                    <div class="color-fill"></div>
-                    <div class="key-label"></div>
-                    <div class="adjustment"></div>
-                    <div class="frequency"></div>
-                </div>
-                <div class="black-key" data-note="C#6" data-enharmonic="Db6" data-volume="1">
-                    <div class="color-fill"></div>
-                    <div class="key-label"></div>
-                    <div class="adjustment"></div>
-                    <div class="frequency"></div>
-                </div>
-                <div class="white-key" data-note="D6" data-enharmonic="D6" data-volume="1">
-                    <div class="color-fill"></div>
-                    <div class="key-label"></div>
-                    <div class="adjustment"></div>
-                    <div class="frequency"></div>
-                </div>
-                <div class="black-key" data-note="D#6" data-enharmonic="Eb6" data-volume="1">
-                    <div class="color-fill"></div>
-                    <div class="key-label"></div>
-                    <div class="adjustment"></div>
-                    <div class="frequency"></div>
-                </div>
-                <div class="white-key" data-note="E6" data-enharmonic="E6" data-volume="1">
-                    <div class="color-fill"></div>
-                    <div class="key-label"></div>
-                    <div class="adjustment"></div>
-                    <div class="frequency"></div>
-                </div>
-                <div class="white-key" data-note="F6" data-enharmonic="F6" data-volume="1">
-                    <div class="color-fill"></div>
-                    <div class="key-label"></div>
-                    <div class="adjustment"></div>
-                    <div class="frequency"></div>
-                </div>
-                <div class="black-key" data-note="F#6" data-enharmonic="Gb6" data-volume="1">
-                    <div class="color-fill"></div>
-                    <div class="key-label"></div>
-                    <div class="adjustment"></div>
-                    <div class="frequency"></div>
-                </div>
-                <div class="white-key" data-note="G6" data-enharmonic="G6" data-volume="1">
-                    <div class="color-fill"></div>
-                    <div class="key-label"></div>
-                    <div class="adjustment"></div>
-                    <div class="frequency"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div id="xy-tab" class="tab-content">
-        <div class="one-octave-piano">
-            <div class="small-white-key" data-note="C" data-label="C">
-                <div class="small-key-label"></div>
-            </div>
-            <div class="small-black-key" data-note="C#" data-label="C# / Db">
-                <div class="small-key-label"></div>
-            </div>
-            <div class="small-white-key" data-note="D" data-label="D">
-                <div class="small-key-label"></div>
-            </div>
-            <div class="small-black-key" data-note="D#" data-label="D# / Eb">
-                <div class="small-key-label"></div>
-            </div>
-            <div class="small-white-key" data-note="E" data-label="E">
-                <div class="small-key-label"></div>
-            </div>
-            <div class="small-white-key" data-note="F" data-label="F">
-                <div class="small-key-label"></div>
-            </div>
-            <div class="small-black-key" data-note="F#" data-label="F# / Gb">
-                <div class="small-key-label"></div>
-            </div>
-            <div class="small-white-key" data-note="G" data-label="G">
-                <div class="small-key-label"></div>
-            </div>
-            <div class="small-black-key" data-note="G#" data-label="G# / Ab">
-                <div class="small-key-label"></div>   
-            </div>
-            <div class="small-white-key" data-note="A" data-label="A">
-                <div class="small-key-label"></div>
-            </div>
-            <div class="small-black-key" data-note="A#" data-label="A# / Bb">
-                <div class="small-key-label"></div>
-            </div>
-            <div class="small-white-key" data-note="B" data-label="B">
-                <div class="small-key-label"></div>
-            </div>
-        </div>
-        <div class="tuning-adjustment"></div>
-        <div class="melody-context">
-            <button class="context-button" data-context="inside">Inside</button>
-            <button class="context-button" data-context="outside">Outside</button>
-        </div>
-        <div class="chord-info">
-            <button class="deselect-chord-button">Deselect Chord</button>
-            <div class="chord-text">
-                <div class="chord-symbol"></div>
-                <div class="chord-pitches"></div>
-            </div>
-        </div>        
-        <div class="chord-selector">
-            <div class="row-label">Roots</div>
-            <div class="row roots">
-                <!-- Roots -->
-                <button class="chord-btn" data-type="root" data-value="C">C</button>
-                <button class="chord-btn" data-type="root" data-value="C#">C#/Db</button>
-                <button class="chord-btn" data-type="root" data-value="D">D</button>
-                <button class="chord-btn" data-type="root" data-value="D#">D#/Eb</button>
-                <button class="chord-btn" data-type="root" data-value="E">E</button>
-                <button class="chord-btn" data-type="root" data-value="F">F</button>
-                <button class="chord-btn" data-type="root" data-value="F#">F#/Gb</button>
-                <button class="chord-btn" data-type="root" data-value="G">G</button>
-                <button class="chord-btn" data-type="root" data-value="G#">G#/Ab</button>
-                <button class="chord-btn" data-type="root" data-value="A">A</button>
-                <button class="chord-btn" data-type="root" data-value="A#">A#/Bb</button>
-                <button class="chord-btn" data-type="root" data-value="B">B</button>
-            </div>
-            <div class="row-label">Qualities</div>
-            <div class="row qualities">
-                <!-- Qualities -->
-                <button class="chord-btn" data-type="quality" data-value="major">Major</button>
-                <button class="chord-btn" data-type="quality" data-value="minor">Minor</button>
-                <button class="chord-btn" data-type="quality" data-value="augmented">Augmented</button>
-                <button class="chord-btn" data-type="quality" data-value="diminished">Diminished</button>
-                <button class="chord-btn" data-type="quality" data-value="power">Power</button>
-                <button class="chord-btn" data-type="quality" data-value="sus2">sus2</button>
-                <button class="chord-btn" data-type="quality" data-value="sus4">sus4</button>
-            </div>
-            <div class="row-label">Sevenths</div>
-            <div class="row sevenths">
-                <!-- Sevenths -->
-                <button class="chord-btn" data-type="seventh" data-value="nat7">♮7</button>
-                <button class="chord-btn" data-type="seventh" data-value="m7">♭7</button>
-                <button class="chord-btn" data-type="seventh" data-value="bb7">♭♭7</button>
-            </div>
-            <div class="row-label">Extensions</div>
-            <div class="row extensions">
-                <!-- Extensions -->
-                <button class="chord-btn" data-type="extension" data-value="add2">add2</button>
-                <button class="chord-btn" data-type="extension" data-value="add4">add4</button>
-                <button class="chord-btn" data-type="extension" data-value="add6">add6</button>
-                <button class="chord-btn" data-type="extension" data-value="6/9">6/9</button>
-                <button class="chord-btn" data-type="extension" data-value="9">9</button>
-                <button class="chord-btn" data-type="extension" data-value="11">11</button>
-                <button class="chord-btn" data-type="extension" data-value="13">13</button>
-            </div>
-            <div class="row-label">Alterations</div>
-            <div class="row alterations">
-                <!-- Alterations -->
-                <button class="chord-btn" data-type="alteration" data-value="b5">b5</button>
-                <button class="chord-btn" data-type="alteration" data-value="b6">b6</button>
-                <button class="chord-btn" data-type="alteration" data-value="b9">b9</button>
-                <button class="chord-btn" data-type="alteration" data-value="#9">#9</button>
-                <button class="chord-btn" data-type="alteration" data-value="#11">#11</button>
-                <button class="chord-btn" data-type="alteration" data-value="b13">b13</button>
-                <button class="chord-btn" data-type="alteration" data-value="alt">alt</button>
-            </div>
-            <div class="row-label">Alternative Bass</div>
-            <div class="row slash-roots">
-                <!-- Slash Roots -->
-                <button class="chord-btn" data-type="slash-root" data-value="/C">/C</button>
-                <button class="chord-btn" data-type="slash-root" data-value="/C#">/C#</button>
-                <button class="chord-btn" data-type="slash-root" data-value="/D">/D</button>
-                <button class="chord-btn" data-type="slash-root" data-value="/D#">/D#</button>
-                <button class="chord-btn" data-type="slash-root" data-value="/E">/E</button>
-                <button class="chord-btn" data-type="slash-root" data-value="/F">/F</button>
-                <button class="chord-btn" data-type="slash-root" data-value="/F#">/F#</button>
-                <button class="chord-btn" data-type="slash-root" data-value="/G">/G</button>
-                <button class="chord-btn" data-type="slash-root" data-value="/G#">/G#</button>
-                <button class="chord-btn" data-type="slash-root" data-value="/A">/A</button>
-                <button class="chord-btn" data-type="slash-root" data-value="/A#">/A#</button>
-                <button class="chord-btn" data-type="slash-root" data-value="/B">/B</button>
-            </div>
-        </div>        
-    </div>
-    <py-script>
-        import js
-        import pyodide
-        import pyscript
-        from music_utils import *
-    </py-script>
-    <script>
-        window.addEventListener('load', () => {
-            const loader = document.getElementById('loader');
-            loader.style.opacity = "100";
-            setTimeout(() => {
-                loader.style.display = "none";
-            }, 500); // 500ms for fade-out animation
-        });
-
-        window.addEventListener('load', () => {
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const masterGainNode = audioContext.createGain();
-            masterGainNode.connect(audioContext.destination);
-            const activeOscillators = {};
-            const activeGainNodes = {};
-            let currentWavetype = 'sine'; // Default wavetable type
-            let gainScale = 0.2
-            if (currentWavetype !== 'sine') {
-                gainScale = 0.15
-            } else {
-                gainScale = 0.2
-            }
-
-            // Function to start an oscillator and its corresponding gain node
-            function startOscillator(freq, note, volumeAdjustment) {
-                const oscillator = audioContext.createOscillator();
-                oscillator.type = currentWavetype;
-                oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
-                
-                const gainNode = audioContext.createGain();
-                gainNode.gain.value = gainScale * volumeAdjustment; // Reduce the gain to 20%
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(masterGainNode);
-                
-                oscillator.start();
-                
-                activeOscillators[note] = oscillator;
-                activeGainNodes[note] = gainNode;  // Store the gain node
-            }
-
-            // Function to stop an oscillator and its corresponding gain node
-            function stopOscillator(note, fadeOutDuration = 0.02) { // Default fade-out duration is 5 seconds
-                if (activeOscillators[note]) {
-                    // Set the current gain value to start the ramp
-                    activeGainNodes[note].gain.setValueAtTime(activeGainNodes[note].gain.value, audioContext.currentTime);
-                    
-                    // Ramp down to 0 over fadeOutDuration seconds
-                    activeGainNodes[note].gain.linearRampToValueAtTime(0, audioContext.currentTime + fadeOutDuration);
-
-                    // Stop the oscillator after fadeOutDuration seconds to allow the fade-out to complete
-                    activeOscillators[note].stop(audioContext.currentTime + fadeOutDuration);
-
-                    // Schedule the removal of the oscillator and gain node after the fade-out
-                    setTimeout(() => {
-                        delete activeOscillators[note];
-                        delete activeGainNodes[note];  // Remove the gain node
-                        checkAndResetMute();
-                    }, fadeOutDuration * 1000);  // Convert fadeOutDuration to milliseconds
-                }
-            }
-
-            // Function to change the frequency and volume of active oscillators
-            function changeFrequencyAndVolume(note, newFreq, newVolumeAdjustment) {
-                if (activeOscillators[note]) {
-                    activeOscillators[note].frequency.setValueAtTime(newFreq, audioContext.currentTime);
-
-                    activeGainNodes[note].gain.setValueAtTime(activeGainNodes[note].gain.value, audioContext.currentTime);
-                    activeGainNodes[note].gain.linearRampToValueAtTime(gainScale * newVolumeAdjustment, audioContext.currentTime + 0.02);
-
-                    updateColorFill(document.querySelector(`[data-note="${note}"]`), newVolumeAdjustment);
-                }
-            }
-
-            function updateColorFill(keyElement, volumeLevel) {
-                const colorFillElement = keyElement.querySelector('.color-fill');
-                const keyLabelElement = keyElement.querySelector('.key-label');
-                const newHeight = `${Math.max(volumeLevel, 0.1) * 100}%`; // Minimum 10% fill
-
-                colorFillElement.style.height = newHeight;
-
-                // Check if the fill is below 10%
-                if (Math.max(volumeLevel, 0.1) * 100 < 17) {
-                    keyLabelElement.classList.add('low-fill');
-                } else {
-                    keyLabelElement.classList.remove('low-fill');
-                }
-            }
-
-            function removeColorFill(keyElement) {
-                const colorFillElement = keyElement.querySelector('.color-fill');
-                colorFillElement.style.height = "0%";
-            }
-
-            const bigPianokeys = document.querySelectorAll('.white-key, .black-key');
-            const freqRatioDiv = document.querySelector('.frequencyRatioString');
-            let activePitches = [];
-            let prevTouchY = null;
-            let currentKey = null; // To keep track of the current key being dragged
-            let isDragging = false;
-            let wasDragged = false;
-            let initialVolume = 0;
-            let lastCalledTime = 0;
-            const delay = 16; // 60fps
-
-            function handleStart(event) {
-                // If the key is active, prevent default behavior like scrolling
-                if (this.classList.contains('active')) {
-                    event.preventDefault();
-                }
-                isDragging = true;
-                currentKey = this; // Set the current key
-                initialVolume = parseFloat(this.getAttribute('data-volume') || '0.1');
-            }
-
-            function handleMove(event) {
-                const currentTime = new Date().getTime();
-                if (currentTime - lastCalledTime < delay) {
-                    return;
-                }
-                lastCalledTime = currentTime;
-                if (isDragging && currentKey && currentKey.classList.contains('active')) {
-                    event.preventDefault();
-                    wasDragged = true;
-                    let deltaY;
-                    if (event.type === 'mousemove') {
-                        deltaY = event.movementY;
-                    } else if (event.type === 'touchmove') {
-                        const currentTouchY = event.touches[0].clientY;
-                        if (prevTouchY !== null) {
-                            deltaY = Math.round(currentTouchY - prevTouchY);
-                        } else {
-                            deltaY = 0;
-                        }
-                        prevTouchY = currentTouchY;
-                    }
-                    let newVolume = initialVolume - deltaY * 0.01; // Adjust the sensitivity here
-                    newVolume = Math.min(Math.max(newVolume, 0.1), 1); // Clamp between 0.1 and 1
-
-                    currentKey.setAttribute('data-volume', newVolume);
-                    currentKey.classList.add('manual');
-                    document.querySelector('.balanced-icon').classList.add('hidden');
-                    document.querySelector('.unbalanced-icon').classList.remove('hidden');
-                    rebalanceButton.classList.remove('active');
-                    updateColorFill(currentKey, newVolume); // Your function to update color fill
-
-                    // Update the gain value in your audio code
-                    const note = currentKey.getAttribute('data-note');
-                    if (activeGainNodes[note]) {
-                        activeGainNodes[note].gain.value = gainScale * newVolume;
-                    }
-
-                    initialVolume = newVolume;
-                }
-            }
-
-            function handleEnd(event) {
-                isDragging = false;
-                currentKey = null; // Reset the current key
-            }
-
-            bigPianokeys.forEach(key => {
-                const noteLabel = key.getAttribute('data-note');
-                const enharmonicLabel = key.getAttribute('data-enharmonic');
-                if (enharmonicLabel !== noteLabel) {
-                    key.querySelector('.key-label').textContent = `${noteLabel} ${enharmonicLabel}`;
-                } else {
-                key.querySelector('.key-label').textContent = noteLabel;
-                }
-
-                key.addEventListener('mousedown', handleStart);
-                key.addEventListener('touchstart', handleStart);
-
-                key.addEventListener('click', function() {
-                    const note = this.getAttribute('data-note');
-                    const freqDiv = this.querySelector('.frequency');
-                    let volumeAdjustment = parseFloat(this.getAttribute('data-volume') || '0.1');
-
-                    if (wasDragged) {
-                        wasDragged = false; // Reset the flag
-                        return; // If the key was dragged, don't toggle the active state
-                    }
-                    
-                    if (this.classList.contains('active')) {
-                        stopOscillator(note);
-                        removeColorFill(this);
-                        const index = activePitches.indexOf(note);
-                        activePitches.splice(index, 1);
-                        this.querySelector('.frequency').textContent = "";
-                        this.querySelector('.adjustment').textContent = "";
-                        this.classList.remove('active');
-                        this.classList.remove('manual');
-                    } else if (activePitches.length < 8) {
-                        if (muteButton.classList.contains('disabled')) {
-                            muteButton.classList.remove('disabled');
-                            document.querySelector('.audio-inactive-icon').classList.add('hidden');
-                            document.querySelector('.audio-on-icon').classList.remove('hidden');
-                        }
-                        if (document.querySelector('.mute-on-icon').classList.contains('hidden') && !muteButton.classList.contains('active')) {
-                            muteButton.classList.add('active');
-                        }
-                        if (document.querySelector('.audio-on-icon').classList.contains('hidden') && muteButton.classList.contains('active')) {
-                            muteButton.classList.remove('active');
-                        }
-                        activePitches.push(note);
-                        this.classList.add('active');
-                    }
-
-                    if (activePitches.length > 0 && pianoTabIcon.classList.contains('active')) {
-                        deselectButton.classList.remove('disabled');
-                        deselectButton.classList.add('active');
-                        rebalanceButton.classList.remove('disabled');
-                        rebalanceButton.classList.add('active');
-                        const result = pyscript.interpreter.globals.get('just_intonate')(activePitches);
-                        const [justIntonationData, freqRatioString] = result.toJs();
-                        
-                        justIntonationData.forEach((info, pitch) => {
-                            const keyElement = document.querySelector(`[data-note="${pitch}"]`);
-                            const freqDiv = keyElement.querySelector('.frequency');
-                            const adjustmentDiv = keyElement.querySelector('.adjustment');
-
-                            freqDiv.textContent = info[0];
-                            adjustmentDiv.textContent = info[1];
-                            volumeAdjustment = keyElement.getAttribute('data-volume');
-
-                            // Check if pitch is not in activePitches
-                            if (!keyElement.classList.contains('manual')) {
-                                volumeAdjustment = info[2];
-                                keyElement.setAttribute('data-volume', volumeAdjustment.toString());
-                            } else {
-                                rebalanceButton.classList.remove('active');
-                            }
-
-                            // Update the frequency and volume of the active oscillator
-                            const newFreq = parseFloat(info[0].split(' ')[0]);
-                            changeFrequencyAndVolume(pitch, newFreq, volumeAdjustment);
-                            
-                        });
-
-                        freqRatioDiv.textContent = freqRatioString;
-                    }
-
-                    if (freqDiv.textContent) {
-                        const freq = parseFloat(freqDiv.textContent.split(' ')[0]);
-                        const noteVolume = parseFloat(this.getAttribute('data-volume') || '0.1')
-                        startOscillator(freq, note, noteVolume);
-                        updateColorFill(this, noteVolume);
-                    }
-
-                    if (chordDisplay.textContent && xyTabIcon.classList.contains('active')) {
-                        updateAdjustmentInfo(note);
-                    }
-                });
-            });
-
-            document.addEventListener('mousemove', handleMove);
-            document.addEventListener('touchmove', handleMove);
-
-            document.addEventListener('mouseup', handleEnd);
-            document.addEventListener('touchend', handleEnd);
-
-            // Get the deselect button element
-            const deselectButton = document.querySelector('.deselect-button');
-
-            // Add click event listener to the deselect button
-            deselectButton.addEventListener('click', function() {
-                // Loop through all active piano keys and deactivate them
-                bigPianokeys.forEach(key => {
-                    if (key.classList.contains('active')) {
-                        const note = key.getAttribute('data-note');
-                        stopOscillator(note);
-                        removeColorFill(key);
-                        key.querySelector('.frequency').textContent = "";
-                        key.querySelector('.adjustment').textContent = "";
-                        key.setAttribute('data-volume', '1');
-                        key.classList.remove('manual');
-                        key.classList.remove('active');
-                    }
-                });
-
-                // Clear the activePitches array
-                activePitches = [];
-
-                // Clear the frequency ratio string
-                freqRatioDiv.textContent = "";
-                deselectButton.classList.add('disabled');
-            });
-
-            const rebalanceButton = document.querySelector('.rebalance-button');
-
-            rebalanceButton.addEventListener('click', () => {
-                if (activePitches.length > 0 && pianoTabIcon.classList.contains('active')) {
-                    const result = pyscript.interpreter.globals.get('just_intonate')(activePitches);
-                    const [justIntonationData, freqRatioString] = result.toJs();
-                    
-                    justIntonationData.forEach((info, pitch) => {
-                        const keyElement = document.querySelector(`[data-note="${pitch}"]`);
-                        const freqDiv = keyElement.querySelector('.frequency');
-
-                        volumeAdjustment = info[2];
-                        keyElement.setAttribute('data-volume', volumeAdjustment.toString());
-                        keyElement.classList.remove('manual');
-
-                        // Update the frequency and volume of the active oscillator
-                        const newFreq = parseFloat(info[0].split(' ')[0]);
-                        changeFrequencyAndVolume(pitch, newFreq, volumeAdjustment);
-                    });
-                }
-                document.querySelector('.balanced-icon').classList.remove('hidden');
-                document.querySelector('.unbalanced-icon').classList.add('hidden');
-                rebalanceButton.classList.add('active');
-            });
-
-            let isMuted = false;  // A flag to keep track of the mute state
-            const muteButton = document.querySelector('.mute-button');
-
-            muteButton.addEventListener('click', () => {
-                if (isMuted) {
-                    masterGainNode.gain.setValueAtTime(0, audioContext.currentTime);  // Unmute
-                    masterGainNode.gain.linearRampToValueAtTime(1, audioContext.currentTime + 0.01);
-                    if (!document.querySelector('.mute-on-icon').classList.contains('hidden')) {
-                        document.querySelector('.mute-on-icon').classList.add('hidden');
-                    }
-                    document.querySelector('.audio-on-icon').classList.remove('hidden');
-                    muteButton.classList.add('active');
-                } else {
-                    masterGainNode.gain.setValueAtTime(1, audioContext.currentTime);
-                    masterGainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.01);  // Mute
-                    if (!document.querySelector('.audio-on-icon').classList.contains('hidden')) {
-                        document.querySelector('.audio-on-icon').classList.add('hidden');
-                    }
-                    document.querySelector('.mute-on-icon').classList.remove('hidden');
-                    muteButton.classList.remove('active');
-                }
-                isMuted = !isMuted;
-            });
-
-            // Reset the mute button when all keys are turned off
-            function checkAndResetMute() {
-                const hasActiveOscillators = Object.keys(activeOscillators).length > 0;
-
-                // Common actions for both conditions
-                function resetIconsAndButtons() {
-                    document.querySelector('.mute-on-icon').classList.add('hidden');
-                    document.querySelector('.audio-on-icon').classList.add('hidden');
-                    document.querySelector('.audio-inactive-icon').classList.remove('hidden');
-                    muteButton.classList.remove('active');
-                    deselectButton.classList.add('disabled');
-                    deselectButton.classList.remove('active');
-                    rebalanceButton.classList.add('disabled');
-                    rebalanceButton.classList.remove('active');
-
-                    if (document.querySelector('.balanced-icon').classList.contains('hidden')) {
-                        document.querySelector('.balanced-icon').classList.remove('hidden');
-                        document.querySelector('.unbalanced-icon').classList.add('hidden');
-                    }
-                }
-
-                if (!hasActiveOscillators && isMuted) {
-                    masterGainNode.gain.setValueAtTime(1, audioContext.currentTime);  // Unmute
-                    muteButton.classList.remove('active');
-                    muteButton.classList.add('disabled');
-                    isMuted = false;
-                    resetIconsAndButtons();
-                } else if (!hasActiveOscillators) {
-                    muteButton.classList.add('disabled');
-                    resetIconsAndButtons();
-                }
-            }
-
-            // Get all wavetable buttons
-            const wavetableButtons = document.querySelectorAll('.wavetable-button');
-            document.querySelector('.wavetable-button[data-wavetype="sine"]').classList.add('active');
-
-            // Add click event listener to each wavetable button
-            wavetableButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    // Remove active class from all buttons
-                    wavetableButtons.forEach(btn => btn.classList.remove('active'));
-
-                    // Add active class to clicked button
-                    this.classList.add('active');
-
-                    // Update current wavetable type
-                    currentWavetype = this.getAttribute('data-wavetype');
-
-                    // Update the wavetype of all active oscillators
-                    for (const note in activeOscillators) {
-                        if (currentWavetype !== 'sine') {
-                            gainScale = 0.15
-                        } else {
-                            gainScale = 0.2
-                        }
-                        activeGainNodes[note].gain.value = gainScale * parseFloat(document.querySelector(`[data-note="${note}"]`).getAttribute('data-volume') || '0.1');
-                        activeOscillators[note].type = currentWavetype;
-                    }
-                });
-            });
-
-            function clearPianoScreen() {
-                // Loop through all active piano keys and deactivate them
-                bigPianokeys.forEach(key => {
-                    if (key.classList.contains('active')) {
-                        const note = key.getAttribute('data-note');
-                        stopOscillator(note);
-                        removeColorFill(key);
-                        key.querySelector('.frequency').textContent = "";
-                        key.querySelector('.adjustment').textContent = "";
-                        key.classList.remove('active');
-                    }
-                });
-
-                // Clear the activePitches array
-                activePitches = [];
-
-                // Clear the frequency ratio string
-                freqRatioDiv.textContent = "";
-            }
-
-            // Tab functionality
-            const pianoTabIcon = document.getElementById('pianoTab');
-            const xyTabIcon = document.getElementById('xyTab');
-            const pianoContent = document.getElementById('piano-tab');
-            const xyContent = document.getElementById('xy-tab');
-
-            pianoTabIcon.addEventListener('click', function() {
-                pianoTabIcon.classList.add('active');
-                xyTabIcon.classList.remove('active');
-                clearXYscreen()
-                pianoContent.style.display = 'block';
-                xyContent.style.display = 'none';
-            });
-
-            xyTabIcon.addEventListener('click', function() {
-                xyTabIcon.classList.add('active');
-                pianoTabIcon.classList.remove('active');
-                clearPianoScreen()
-                pianoContent.style.display = 'none';
-                xyContent.style.display = 'block';
-            });
-
-            // Chord selector
-            // Define and initialize the variables
-            let selectedRoot = null;
-            let selectedQuality = null;
-            let selectedSeventh = null;
-            let selectedExtension = null;
-            let selectedAlteration = null;
-            let selectedSlash = null;
-
-            const enharmonicMap = {
-                        "C#": "Db",
-                        "D#": "Eb",
-                        "F#": "Gb",
-                        "G#": "Ab",
-                        "A#": "Bb"
-                    };
-
-            const reverseEnharmonicMap = {};
-                for (const [sharp, flat] of Object.entries(enharmonicMap)) {
-                    reverseEnharmonicMap[flat] = sharp;
-            };
-
-            const adjustmentInfo = document.querySelector('.tuning-adjustment');
-            const chordDisplay = document.querySelector('.chord-symbol');
-            const chordPitches = document.querySelector('.chord-pitches');
-            let melodyContext = "inside"
-            let insidePossible = true;
-            let outsidePossible = true;
-            let chordPitchesList = [];
-
-            const smallPianokeys = document.querySelectorAll('.small-white-key, .small-black-key');
-
-            smallPianokeys.forEach(smallKey => {
-                const noteLabel = smallKey.getAttribute('data-label');
-                smallKey.querySelector('.small-key-label').textContent = noteLabel;
-
-                smallKey.addEventListener('click', function() {
-                    const wasActive = this.classList.contains('active'); // Check if the clicked key was active
-
-                    // Remove 'active' class from all keys
-                    smallPianokeys.forEach(key => {
-                        key.classList.remove('active');
-                    });
-
-                    // If the clicked key was not previously active, add the 'active' class
-                    if (!wasActive) {
-                        this.classList.add('active');
-                    }
-
-                    if (chordDisplay.textContent && this.classList.contains('active')) {
-                        // Enable context buttons when there is a chord symbol and an active key
-                        contextButtons.forEach(button => {
-                            button.classList.remove('disabled');
-                        });
-
-                        const note = this.getAttribute('data-note');
-                        updateAdjustmentInfo(note, melodyContext);
-                    } else {
-                        adjustmentInfo.textContent = "";
-                        // Disable context buttons when there is no chord symbol or active key
-                        contextButtons.forEach(button => {
-                            button.classList.add('disabled');
-                            button.classList.remove('selected');
-                        });
-                    }
-                });
-            });
-
-            // Event listeners for context-buttons
-            const contextButtons = document.querySelectorAll('.context-button');
-            contextButtons.forEach(button => {
-                button.classList.add('disabled');
-                button.classList.remove('selected');
-                button.addEventListener('click', function() {
-                    // Check if the button is disabled
-                    if (this.classList.contains('disabled')) {
-                        return;
-                    }
-
-                    // Remove 'selected' class from all context-buttons
-                    contextButtons.forEach(btn => {
-                        btn.classList.remove('selected');
-                    });
-
-                    // Add 'selected' class to clicked button
-                    this.classList.add('selected');
-
-                    // Update melodyContext
-                    melodyContext = this.getAttribute('data-context');
-
-                    // Update the adjustment info if a key is active and a chord symbol is present
-                    const activeKey = document.querySelector('.small-white-key.active, .small-black-key.active');
-                    if (activeKey && chordDisplay.textContent) {
-                        const note = activeKey.getAttribute('data-note');
-                        updateAdjustmentInfo(note, melodyContext);
-                    }
-                });
-            });
-
-            const deselectChordButton = document.querySelector('.deselect-chord-button');
-            deselectChordButton.addEventListener('click', function() {
-
-                // Disable context buttons
-                document.querySelectorAll('.chord-btn').forEach(button => {
-                    button.classList.remove('selected');
-                    button.classList.remove('disabled');
-                });
-
-                contextButtons.forEach(button => {
-                    button.classList.add('disabled');
-                    button.classList.remove('selected');
-                });
-
-                chordDisplay.textContent = '';
-                chordPitches.textContent = '';
-                adjustmentInfo.textContent = '';
-            });
-
-            // Modify your existing updateAdjustmentInfo function
-            function updateAdjustmentInfo(pitchInfo, melodyContext) {
-                const [adjustmentData, insideData, outsideData] = pyscript.interpreter.globals.get('intonate_single_pitch')(pitchInfo, chordPitchesList, melodyContext).toJs();
-                adjustmentInfo.textContent = adjustmentData;
-                insidePossible = insideData;
-                outsidePossible = outsideData;
-
-                // Update the state of the context-buttons
-                const insideButton = document.querySelector('.context-button[data-context="inside"]');
-                const outsideButton = document.querySelector('.context-button[data-context="outside"]');
-                const insideButtonSelected = insideButton.classList.contains('selected');
-                const outsideButtonSelected = outsideButton.classList.contains('selected');
-
-                if (insidePossible && outsidePossible) {
-                    insideButton.classList.remove('disabled');
-                    outsideButton.classList.remove('disabled');
-                    if (insideButtonSelected) {
-                        insideButton.classList.add('selected');
-                        melodyContext = "inside";
-                        outsideButton.classList.remove('selected');
-                    } else if (outsideButtonSelected) {
-                        outsideButton.classList.add('selected');
-                        melodyContext = "outside";
-                        insideButton.classList.remove('selected');
-                    } else {
-                        insideButton.classList.add('selected');
-                        melodyContext = "inside";
-                        outsideButton.classList.remove('selected');
-                    }
-                } else if (insidePossible && !outsidePossible) {
-                    insideButton.classList.remove('disabled');
-                    outsideButton.classList.add('disabled');
-                    insideButton.classList.add('selected');
-                    melodyContext = "inside";
-                    outsideButton.classList.remove('selected');
-                } else {
-                    outsideButton.classList.remove('disabled');
-                    insideButton.classList.add('disabled');
-                    outsideButton.classList.add('selected');
-                    melodyContext = "outside";
-                    insideButton.classList.remove('selected');
-                }
-            }
-
-            function updateChordSymbol() {
-                const components = [
-                    selectedRoot,
-                    selectedQuality,
-                    selectedSeventh,
-                    selectedExtension,
-                    selectedAlteration,
-                    selectedSlash
-                ];
-                
-                if (selectedRoot && selectedQuality) {
-                    const chordSymbol = pyscript.interpreter.globals.get('construct_chord_symbol')(components);
-                    const [chordPitchesString, pitchList, updatedChordSymbol] = pyscript.interpreter.globals.get('pitches_from_chord_symbol')(chordSymbol);
-                    chordDisplay.textContent = updatedChordSymbol;
-                    chordPitches.textContent = chordPitchesString;
-                    chordPitchesList = pitchList;
-                } else {
-                    chordDisplay.textContent = '';
-                    chordPitches.textContent = '';
-                }
-            }
-        
-            function updateAvailableOptions() {
-                const components = [
-                    selectedRoot,
-                    selectedQuality,
-                    selectedSeventh,
-                    selectedExtension,
-                    selectedAlteration,
-                    selectedSlash
-                ];
-
-                const availableOptionsData = pyscript.interpreter.globals.get('get_available_options')(components);
-                const availableOptions = new Map(availableOptionsData.toJs());
-
-                // Gray out unavailable options
-                document.querySelectorAll(`[data-type="quality"]`).forEach(btn => {
-                    const qualitiesArray = availableOptions.get('qualities');
-                    if (!qualitiesArray.includes(btn.dataset.value)) {
-                        btn.classList.add('disabled');
-                    } else {
-                        btn.classList.remove('disabled');
-                    }
-                });
-
-                document.querySelectorAll(`[data-type="seventh"]`).forEach(btn => {
-                    const extensionsArray = availableOptions.get('sevenths');
-                    if (!extensionsArray.includes(btn.dataset.value)) {
-                        btn.classList.add('disabled');
-                    } else {
-                        btn.classList.remove('disabled');
-                    }
-                });
-
-                document.querySelectorAll(`[data-type="extension"]`).forEach(btn => {
-                    const extensionsArray = availableOptions.get('extensions');
-                    if (!extensionsArray.includes(btn.dataset.value)) {
-                        btn.classList.add('disabled');
-                    } else {
-                        btn.classList.remove('disabled');
-                    }
-                });
-
-                document.querySelectorAll(`[data-type="alteration"]`).forEach(btn => {
-                    const alterationsArray = availableOptions.get('alterations');
-                    if (!alterationsArray.includes(btn.dataset.value)) {
-                        btn.classList.add('disabled');
-                    } else {
-                        btn.classList.remove('disabled');
-                    }
-                });
-
-                document.querySelectorAll(`[data-type="slash-root"]`).forEach(btn => {
-                    const slashesArray = availableOptions.get('slashes');
-                    if (!slashesArray.includes(btn.dataset.value)) {
-                        btn.classList.add('disabled');
-                    } else {
-                        btn.classList.remove('disabled');
-                    }
-                });
-            }
-
-            function clearXYscreen() {
-                // Disable context buttons
-                document.querySelectorAll('.chord-btn').forEach(button => {
-                    button.classList.remove('selected');
-                    button.classList.remove('disabled');
-                });
-
-                contextButtons.forEach(button => {
-                    button.classList.add('disabled');
-                    button.classList.remove('selected');
-                });
-
-                document.querySelectorAll('.small-white-key, .small-black-key').forEach(key => {
-                    key.classList.remove('active');
-                });
-
-                adjustmentInfo.textContent = "";
-                chordDisplay.textContent = "";
-                chordPitches.textContent = "";
-                melodyContext = "inside";
-                insidePossible = true;
-                outsidePossible = true;
-                chordPitchesList = [];
-            }
-
-            // Call these functions whenever a button is clicked
-            document.querySelectorAll('.chord-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    // Check if the button already has the 'selected' class
-                    if (btn.classList.contains('selected')) {
-                        // If it does, remove the 'selected' class
-                        btn.classList.remove('selected');
-                    } else {
-                        // If it doesn't, add the 'selected' class to the button
-                        btn.classList.add('selected');
-
-                        // Remove the 'selected' class from other buttons in the same group
-                        const btnType = btn.getAttribute('data-type');
-                        document.querySelectorAll(`[data-type="${btnType}"].selected`).forEach(otherBtn => {
-                            if (otherBtn !== btn) {
-                                otherBtn.classList.remove('selected');
-                            }
-                        });
-                    }
-
-                    // Update the variables with the current values before calling the functions
-                    selectedRoot = document.querySelector('.row.roots .chord-btn.selected') ? document.querySelector('.row.roots .chord-btn.selected').dataset.value : '';
-                    selectedQuality = document.querySelector('.row.qualities .chord-btn.selected') ? document.querySelector('.row.qualities .chord-btn.selected').dataset.value : ''; // Changed .value to .dataset.value
-                    selectedSeventh = document.querySelector('.row.sevenths .chord-btn.selected') ? document.querySelector('.row.sevenths .chord-btn.selected').dataset.value : ''; // Changed .value to .dataset.value
-                    selectedExtension = document.querySelector('.row.extensions .chord-btn.selected') ? document.querySelector('.row.extensions .chord-btn.selected').dataset.value : ''; // Changed .value to .dataset.value
-                    selectedAlteration = document.querySelector('.row.alterations .chord-btn.selected') ? document.querySelector('.row.alterations .chord-btn.selected').dataset.value : ''; // Changed .value to .dataset.value
-                    
-                    if (selectedQuality === "major" && selectedSeventh === "m7") {
-                        document.querySelector('button.chord-btn[data-type="quality"][data-value="major"]').textContent = "Dominant";
-                    } else {
-                        document.querySelector('button.chord-btn[data-type="quality"][data-value="major"]').textContent = "Major";
-                    }
-
-                    if (selectedRoot.includes("#") && ["major", "augmented", "sus2", "sus4"].includes(selectedQuality)) {
-                        // Select all buttons with data-type="slash-root" and data-value containing a sharp (#)
-                        const slashRootButtons = document.querySelectorAll('button.chord-btn[data-type="slash-root"][data-value*="#"]');
-                        // Loop through each button to update its text content
-                        slashRootButtons.forEach(button => {
-                            const originalValue = button.dataset.value.split('/')[1];
-                            const enharmonicValue = enharmonicMap[originalValue] || originalValue; // Use the mapped value if it exists
-                            button.textContent = '/' + enharmonicValue;
-                        });
-                    } else {
-                        // Reset to original state if needed
-                        const slashRootButtons = document.querySelectorAll('button.chord-btn[data-type="slash-root"][data-value*="#"]');
-                        
-                        // Loop through each button to update its text content
-                        slashRootButtons.forEach(button => {
-                            const originalValue = button.dataset.value.split('/')[1];
-                            const enharmonicValue = reverseEnharmonicMap[originalValue] || originalValue; // Use the mapped value if it exists
-                            button.textContent = '/' + enharmonicValue;
-                        });
-                    }
-
-                    selectedSlash = document.querySelector('.row.slash-roots .chord-btn.selected') ? document.querySelector('.row.slash-roots .chord-btn.selected').textContent : ''; // Changed .value to .dataset.value
-                    const enharmonicRoot = enharmonicMap[selectedRoot] || selectedRoot; // Use the mapped value if it exists
-                    if (selectedSlash.split("/")[1] === enharmonicRoot || selectedSlash.split("/")[1] === selectedRoot) {
-                        selectedSlash = "";
-                    }
-
-                    // Call the functions
-                    updateAvailableOptions();
-
-                    // New code to check for disabled class
-                    ['.row.roots', '.row.qualities', '.row.sevenths', '.row.extensions', '.row.alterations'].forEach(selector => {
-                        const selectedButton = document.querySelector(`${selector} .chord-btn.selected`);
-                        if (selectedButton && selectedButton.classList.contains('disabled')) {
-
-                            // Remove the 'selected' class
-                            selectedButton.classList.remove('selected');
-
-                            switch (selector) {
-                                case '.row.roots':
-                                    selectedRoot = '';
-                                    break;
-                                case '.row.qualities':
-                                    selectedQuality = '';
-                                    break;
-                                case '.row.sevenths':
-                                    selectedSeventh = '';
-                                    break;
-                                case '.row.extensions':
-                                    selectedExtension = '';
-                                    break;
-                                case '.row.alterations':
-                                    selectedAlteration = '';
-                                    break;
-                            }
-                        }
-                    });
-
-                    updateChordSymbol();
-
-                    // Update the adjustment info if a key is active
-                    const activeKey = document.querySelector('.small-white-key.active, .small-black-key.active');
-                    if (activeKey && (selectedRoot && selectedQuality)) {
-                        const note = activeKey.getAttribute('data-note');
-                        updateAdjustmentInfo(note, melodyContext);
-                    } else {
-                        adjustmentInfo.textContent = "";
-                        contextButtons.forEach(button => {
-                            button.classList.add('disabled');
-                            button.classList.remove('selected');});
-                    }
-                });
-            });
-        });   
-    </script>    
-</body>
-</html>
+body, html {
+    margin: 0;
+    margin-left: 8px;
+    margin-right: 8px;
+    padding: 0;
+    height: 100%;
+    overflow-x: hidden; /* Prevents scrolling on the body when the piano is scrolled */
+    font-family: Helvetica, sans-serif;
+}
+
+.loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.9);
+    z-index: 9999;
+}
+
+.spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 50px;
+    height: 50px;
+    background-color: #333;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.top-bar{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    margin-bottom: 30px;
+
+}
+
+.header {
+    color: #181611;
+    text-align: left;
+    font-size: 8pt;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.config {
+    display: none;
+}
+
+.icon-tabs {
+    display: flex;
+    justify-content: right;
+}
+
+.help-button {
+    width: 45px;
+    aspect-ratio: 1 / 1; /* Makes it a perfect circle */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    border: solid 1px #333;
+    flex-shrink: 0; /* Prevents flex items from shrinking */
+    margin-right: 15px;
+    font-weight: bold;
+}
+
+.icon-tab {
+    margin: 0 10px;
+    padding: 10px 15px;
+    border: 2px solid #333;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.icon-tab.active {
+    background-color: #ddd;
+}
+
+.piano-icon::before {
+    content: "🎹";
+}
+
+.xy-icon::before {
+    content: "X/Y";
+}
+
+.piano-functions {
+    display: flex;
+    justify-content: space-between; /* Aligns children to the opposite ends */
+    align-items: center; /* Vertically centers the children */
+    margin: 20px 0;
+    padding: 0 5px;
+}
+
+.left-side-buttons {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.deselect-button {
+    aspect-ratio: 1 / 1;
+    border: 1px solid #333;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+.deselect-button:hover {
+    background-color: #ddd;
+    
+}
+
+.deselect-button.active {
+    background-color: #cfb8e5;
+}
+
+.power-icon {
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+}
+
+.mute-button {
+    aspect-ratio: 1 / 1;
+    margin-left: 10px;
+    border: 1px solid #333;
+    border-radius: 5px;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+.mute-button.disabled {
+    background-color: #eee;
+    color: #aaa;
+    cursor: not-allowed;
+}
+
+.mute-button:hover {
+    background-color: #ddd;
+    
+}
+
+.mute-button.active {
+    background-color: #cfb8e5;
+}
+
+.mute-button img{
+    width: 22px;
+    height: 22px;
+}
+
+.hidden {
+    display: none;
+}
+
+.rebalance-button {
+    margin-left: 10px;
+    padding: 4px 7px;
+    border: 1px solid #333;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+.rebalance-button.active {
+    background-color: #cfb8e5;
+    color: #fff;
+}
+
+.balanced-icon {
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+}
+
+.unbalanced-icon {
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+}
+
+.wavetable-buttons {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.wavetable-button {
+    padding: 5px 8px;
+    margin: 0 5px;
+    border: 1px solid #333;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+.wavetable-button:hover {
+    background-color: #ddd;
+}
+
+.wavetable-button.active {
+    background-color: #cfb8e5;
+    color: #fff;
+}
+
+.sine-icon {
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+}
+
+.square-icon {
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+}
+
+.saw-icon {
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+}
+
+.piano-container {
+    align-items: flex-start;
+    margin-top: 20px;
+    margin-bottom: 30px;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    white-space: nowrap;
+}
+
+.piano {
+    width: calc(23 * 61px);
+    margin: auto;
+    display: flex;
+    align-items: flex-start;
+    position: relative;
+}
+
+/* Optional: Hide the scrollbar for a cleaner look */
+.piano-container::-webkit-scrollbar {
+    display: none;
+}
+
+.piano-container {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+    min-height: 280px;
+}
+
+.white-key, .black-key {
+    /* ... (existing styles) ... */
+    display: inline-block; /* Convert the key containers to flex containers */
+    flex-direction: column; /* Stack the child elements vertically */
+    justify-content: center; /* Center the child elements vertically */
+    align-items: center; /* Center the child elements horizontally */
+    user-select: none; /* Prevent text selection */
+}
+
+/* Adjust the height of the keys if needed */
+.white-key {
+    width: 60px;
+    height: 200px; /* Adjust this value if needed */
+    background-color: #fffcf597;
+    border: 2px solid rgba(44, 41, 39, 0.435);
+    border-right: none;
+    margin-bottom: 60px;
+    position: relative; /* Set to relative so the .frequency div is positioned relative to this */
+}
+
+.white-key[data-note='G6'] {
+    border-right: 2px solid rgba(44, 41, 39, 0.435);
+} 
+
+.black-key {
+    width: 40px;
+    height: 120px; /* Adjust this value if needed */
+    background-color: #181611;
+    margin-left: -20px;
+    margin-right: -20px;
+    z-index: 1;
+    margin-bottom: 40px;
+    position: relative; /* Set to relative so the .frequency div is positioned relative to this */
+    border-radius: 0 0 10% 10%; /* Make the keys circular */
+    box-shadow: 2px 2px 1px 1px rgba(0,0,0,0.1);
+}
+
+.color-fill {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #9f82d6; 
+    height: 0%; /* Initially empty */
+    z-index: -1; /* Place it behind the labels */
+    transition: height 0.05s;
+}
+
+
+/* Style for active white key */
+.white-key.active {
+    background-color: transparent;
+    box-shadow: inset 3px 0px 3px 1px rgba(0,0,0,0.1);
+}
+
+/* Style for active black key */
+.black-key.active {
+    /* background-color: transparent; */
+    box-shadow: 0 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.key-label {
+    font-weight: bold; /* Make the labels bold */
+    font-size: 14px; /* Set a font size for the labels */
+    z-index: 2; /* Ensure the labels appear above other elements */
+    text-align: center; /* Center the labels horizontally */
+    position: relative; /* Position the labels absolutely */
+}
+
+.white-key .key-label {
+    color: #181611; /* Set the label color for white keys */
+    top: 80%; /* Position the label towards the top of the white key */
+}
+
+.white-key.active .key-label {
+    color: #ffffff; /* Set the label color for active white keys */
+    transition: color 0.1s; /* Add a transition to the color change */
+}
+
+.white-key.active .key-label.low-fill {
+    color: #000000; /* Set the label color to black when fill is low */
+    transition: color 0.1s; /* Add a transition to the color change */
+}
+
+.black-key.active .key-label {
+    color: #ffffff; /* Set the label color for active white keys */
+}
+
+.black-key .key-label {
+    color: white; /* Set the label color for black keys */
+    top: 50%; /* Center the label vertically within the black key */
+    transform: translateY(-50%); /* Adjust for perfect vertical centering */
+    overflow: hidden; /* Hide the overflow */
+    width: 100%; /* Set the width to 100% of the parent */
+    text-align: center; /* Center the text */
+    line-height: 1.5; /* Control the line spacing */
+    white-space: normal; /* Allow the text to wrap */
+}
+
+.adjustment {
+    position: absolute;
+    top: 245px;
+    bottom: 20px; /* Adjust this value to position the adjustment text above the frequency text */
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 14px; /* Adjust font size as needed */
+    font-weight: 700;
+    color: #333; /* Adjust color as needed */
+}
+
+.frequency {
+    position: absolute;
+    top: 265px;
+    bottom: 20px; /* Adjust this value to position the frequency text below the adjustment text */
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px; /* Adjust font size as needed */
+    color: #333; /* Adjust color as needed */
+}
+
+.black-key .adjustment{
+    top: 210px; /* Adjust this value to position the text above the black keys */
+}
+
+/* For the black keys, adjust the positioning of the .frequency div */
+.black-key .frequency {
+    top: 230px; /* Adjust this value to position the text below the black keys */
+}
+
+.frequencyRatioString {
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    color: #333;
+}
+
+
+/* One-Octave Piano Styles */
+
+#xy-tab {
+    display: none; /* Hide the one-octave piano by default */
+}
+
+.one-octave-piano {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    position: relative;
+    max-width: 700px;
+    width: 90%;
+    margin: 0 auto;
+    margin-bottom: 3%;
+}
+
+.small-white-key, .small-black-key {
+    width: 10%;
+    aspect-ratio: 1 / 1; /* Makes it a perfect circle */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    position: relative;
+    flex-shrink: 0; /* Prevents flex items from shrinking */
+    user-select: none; /* Prevent text selection */
+}
+
+.small-white-key {
+    background-color: #fffcf597;
+    margin-top: 11%;
+    margin-right: 0.1%; /* Add some margin to separate the keys */
+    border-style: solid;
+    border-width: 2px;
+    border-color: rgba(208, 202, 192, 0.735);
+    box-shadow: 2px 2px 1px 2px rgba(0,0,0,0.1);
+}
+
+.small-white-key[data-note='E'] {
+    margin-right: 4%; /* Add some margin to separate the keys */
+} 
+
+.small-black-key {
+    background-color: #181611;
+    z-index: 1;
+    margin-left: -3%; /* Negative margin for overlap */
+    margin-right: -3%; /* Negative margin for overlap */
+    border-style: solid;
+    border-width: 2px;
+    border-color: rgba(60, 59, 57, 0.45);
+    box-shadow: 2px 2px 1px 2px rgba(0, 0, 0, 0.207);
+}
+
+.small-white-key.active, .small-black-key.active {
+    background-color: #9170cd;
+    border-style: solid;
+    border-width: 2px;
+    border-color: rgba(117, 84, 156, 0.561);
+    box-shadow: inset 0px 0px 4px 1px rgba(0,0,0,0.1);
+    transition: background-color 0.01s, border-color 0.01s, box-shadow 0.01s;
+}
+
+.small-key-label {
+    font-weight: bolder; /* Make the labels bold */
+    font-size: 107%; /* Set a font size for the labels */
+    z-index: 2; /* Ensure the labels appear above other elements */
+    text-align: center;
+}
+
+
+.small-white-key .small-key-label {
+    color: #181611; /* Set the label color for white keys */
+}
+
+.small-white-key.active .small-key-label {
+    color: #ffffff; 
+}
+
+.small-black-key .small-key-label {
+    color: #ffffff; /* Set the label color for white keys */
+}
+
+.tuning-adjustment {
+    min-height: 25px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+    font-size: 20px;
+}
+
+.melody-context {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0;
+    max-height: 70vh; /* Adjust this value based on your preference */
+    overflow-y: auto;
+}
+
+.context-button {
+    padding: 10px 15px;
+    margin: 0 5px;
+    border: 1px solid #333;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+.context-button.selected {
+    background-color: #007BFF;
+    color: #fff;
+}
+
+.chord-info {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center; /* Center items */
+    overflow-y: auto;
+    max-width: 825px;
+    margin: auto;
+    position: relative; /* Relative positioning for child absolute positioning */
+    padding-bottom: 20px; /* Add padding to the bottom to make room for the button */
+    padding-top: 5px;
+    margin-top: 20px;
+    min-height: 10vh;
+}
+
+.chord-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0 auto;  /* Center the element */
+}
+
+.deselect-chord-button {
+    padding: 10px 15px;
+    border: 1px solid #333;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    background-color: #f5f5f5;
+    color: #333;
+    position: absolute; /* Take it out of the normal flow */
+    left: 0; /* Align it to the left */
+    margin-top: 4%;
+    margin-left: 3%;
+}
+
+.deselect-chord-button:hover {
+    background-color: #ddd;
+}
+
+.chord-symbol {
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    color: #333;
+    padding-top: 10px;
+}
+
+.chord-pitches {
+    font-size: 18px;
+    margin-top: 0px;
+    text-align: center;
+    color: #333;
+    padding-top: 10px;
+}
+
+.chord-selector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.row-label {
+    display: flex;
+    flex-direction: row;
+    max-width: 775px;
+    width: 93%;
+    height: 55%;
+    font-size: 15px;
+    margin: auto;
+    color: #333;
+    border-bottom: 1px solid #bbbbbb;
+    border-width: 1px;
+}
+
+.row {
+    display: flex;
+    justify-content: flex-start; /* Align items to the start */
+    white-space: nowrap; /* Prevent wrapping */
+    overflow-x: auto; /* Enable horizontal scrolling */
+    height: 40px; /* Set a fixed height */
+    -webkit-overflow-scrolling: touch; /* for smooth scrolling on mobile */
+    margin: 14px 0;
+    margin-left: 10%;
+    margin-right: 10%;
+}
+
+.chord-btn {
+    scroll-snap-align: start; /* Snap to the start edge of the button */
+    padding: 10px 15px;
+    margin: 0 5px;
+    border: 1px solid #333;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+.disabled {
+    opacity: 0.5;
+    pointer-events: none; /* Prevents the button from being clickable */
+}
+
+.chord-btn:hover {
+    background-color: #ddd;
+}
+
+.chord-btn.selected {
+    background-color: #007BFF;
+    color: #fff;
+}
+
+.chord-btn.disabled {
+    background-color: #eee;
+    color: #aaa;
+    cursor: not-allowed;
+}
