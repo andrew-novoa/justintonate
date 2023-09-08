@@ -547,7 +547,7 @@
                     wasDragged = true;
                     event.preventDefault(); // Prevent default behavior like scrolling
                     let deltaY;
-                    
+
                     if (event.type === 'mousemove') {
                         deltaY = event.movementY;
                     } else if (event.type === 'touchmove') {
@@ -572,7 +572,9 @@
                     // Update the gain value in your audio code
                     const note = currentKey.getAttribute('data-note');
                     if (activeGainNodes[note]) {
-                        activeGainNodes[note].gain.value = gainScale * newVolume;
+                        // activeGainNodes[note].gain.value = gainScale * newVolume;
+                        activeGainNodes[note].gain.setValueAtTime(activeGainNodes[note].gain.value, audioContext.currentTime);
+                        activeGainNodes[note].gain.linearRampToValueAtTime(gainScale * newVolume, audioContext.currentTime + 0.02);
                     }
 
                     initialVolume = newVolume;
