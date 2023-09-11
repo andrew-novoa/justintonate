@@ -676,7 +676,7 @@ def get_available_options(components):
     if quality == "major":
         available_sevenths = ["nat7", "m7"]
         available_extensions = ["add2", "add4", "add6", "6/9", "9"]
-        available_alterations = ["b5", "#11"]
+        available_alterations = ["b5"]
         if seventh == "m7":
             available_extensions = ["9", "13"]
             available_alterations = ["b5", "b9", "#9", "#11", "b13", "alt"]
@@ -730,7 +730,7 @@ def get_interval_ratio(pitch1, pitch2, temperment='equal'):
         new_interval_semitones -= 12
         multiplier *= 2
     new_interval = interval_name_from_semitones(new_interval_semitones)
-    interval_ratio = Fraction(interval_ratio_dict[new_interval][temperment]).limit_denominator(1000).as_integer_ratio()
+    interval_ratio = Fraction(interval_ratio_dict[new_interval][temperment] * multiplier).limit_denominator(1000).as_integer_ratio()
 
     return interval_ratio, new_interval, multiplier
 
@@ -877,7 +877,7 @@ def just_intonate(pitch_list, adjustment_margin=0.1):
             
             chord_ratios = updated_ratios
 
-        chord_tuning[pitch_list[n]] = int(cents_delta_from_ratios(chord_ratios[n] / chord_ratios[0], interval_ratio_dict[interval_type]['equal']))
+        chord_tuning[pitch_list[n]] = int(cents_delta_from_ratios(chord_ratios[n] / chord_ratios[0], interval_ratio_dict[interval_type]['equal'] * multiplier))
         
     chord_tuning = write_freq_and_vol_for_adjustments(chord_tuning)
 
