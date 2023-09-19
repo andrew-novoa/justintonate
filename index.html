@@ -6,7 +6,7 @@
     <title>Just Intonation Calculator</title>
     <link rel="icon" href="svgs/plus-minus-icon.png" type="image/x-icon">
     <link rel="stylesheet" href="styles.css">
-    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+    <script defer class="pyscript" src="https://pyscript.net/latest/pyscript.js"></script>
 </head>
 <body>
     <div id="loader" class="loader">
@@ -293,6 +293,7 @@
                 </div>
             </div>
         </div>
+        <div class="white-box"></div>
     </div>
     <div id="xy-tab" class="tab-content">
         <div class="one-octave-piano">
@@ -420,7 +421,7 @@
             </div>
         </div>        
     </div>
-    <py-script>
+    <py-script class="pyscript">
         import js
         import pyodide
         import pyscript
