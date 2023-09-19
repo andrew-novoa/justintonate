@@ -8,6 +8,10 @@ body, html {
     font-family: Helvetica, sans-serif;
 }
 
+body::-webkit-scrollbar {
+    display: none;
+}
+
 .loader {
     position: fixed;
     top: 0;
