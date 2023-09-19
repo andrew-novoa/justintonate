@@ -297,40 +297,40 @@
     <div id="xy-tab" class="tab-content">
         <div class="one-octave-piano">
             <div class="small-white-key" data-note="C" data-label="C">
-                <div class="small-key-label"></div>
+                <div class="small-key-label">C</div>
             </div>
             <div class="small-black-key" data-note="C#" data-label="C# / Db">
-                <div class="small-key-label"></div>
+                <div class="small-key-label">C# / Db</div>
             </div>
             <div class="small-white-key" data-note="D" data-label="D">
-                <div class="small-key-label"></div>
+                <div class="small-key-label">D</div>
             </div>
             <div class="small-black-key" data-note="D#" data-label="D# / Eb">
-                <div class="small-key-label"></div>
+                <div class="small-key-label">D# / Eb</div>
             </div>
             <div class="small-white-key" data-note="E" data-label="E">
-                <div class="small-key-label"></div>
+                <div class="small-key-label">E</div>
             </div>
             <div class="small-white-key" data-note="F" data-label="F">
-                <div class="small-key-label"></div>
+                <div class="small-key-label">F</div>
             </div>
             <div class="small-black-key" data-note="F#" data-label="F# / Gb">
-                <div class="small-key-label"></div>
+                <div class="small-key-label">F# / Gb</div>
             </div>
             <div class="small-white-key" data-note="G" data-label="G">
-                <div class="small-key-label"></div>
+                <div class="small-key-label">G</div>
             </div>
             <div class="small-black-key" data-note="G#" data-label="G# / Ab">
-                <div class="small-key-label"></div>   
+                <div class="small-key-label">G# / Ab</div>   
             </div>
             <div class="small-white-key" data-note="A" data-label="A">
-                <div class="small-key-label"></div>
+                <div class="small-key-label">A</div>
             </div>
             <div class="small-black-key" data-note="A#" data-label="A# / Bb">
-                <div class="small-key-label"></div>
+                <div class="small-key-label">A# / Bb</div>
             </div>
             <div class="small-white-key" data-note="B" data-label="B">
-                <div class="small-key-label"></div>
+                <div class="small-key-label">B</div>
             </div>
         </div>
         <div class="tuning-adjustment"></div>
@@ -904,9 +904,6 @@
             const smallPianokeys = document.querySelectorAll('.small-white-key, .small-black-key');
 
             smallPianokeys.forEach(smallKey => {
-                const noteLabel = smallKey.getAttribute('data-label');
-                smallKey.querySelector('.small-key-label').textContent = noteLabel;
-
                 smallKey.addEventListener('click', function() {
                     const wasActive = this.classList.contains('active'); // Check if the clicked key was active
 
@@ -938,6 +935,31 @@
                     }
                 });
             });
+
+            // Function to update labels based on window width
+            function updateLabels() {
+                const windowWidth = window.innerWidth;
+                const blackKeys = document.querySelectorAll('.small-black-key');
+
+                blackKeys.forEach((key) => {
+                    const labelElement = key.querySelector('.small-key-label');
+                    const fullLabel = key.getAttribute('data-label');
+                    const shortLabel = fullLabel.split(' ')[0]; // Get the first part of the label (e.g., "C#")
+
+                    if (windowWidth < 600) {
+                        labelElement.textContent = shortLabel;
+                    } else {
+                        labelElement.textContent = fullLabel;
+                    }
+                });
+            }
+
+            // Update labels initially
+            updateLabels();
+
+            // Listen for window resize events
+            window.addEventListener('resize', updateLabels);
+
 
             // Event listeners for context-buttons
             const contextButtons = document.querySelectorAll('.context-button');
