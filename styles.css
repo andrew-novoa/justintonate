@@ -585,6 +585,7 @@ body, html {
     display: flex;
     flex-direction: column;
     align-items: center;
+    overflow-x: hidden;
 }
 
 .row-label {
@@ -601,15 +602,18 @@ body, html {
 }
 
 .row {
-    display: flex;
     justify-content: flex-start; /* Align items to the start */
-    white-space: nowrap; /* Prevent wrapping */
-    overflow-x: auto; /* Enable horizontal scrolling */
-    height: 40px; /* Set a fixed height */
-    -webkit-overflow-scrolling: touch; /* for smooth scrolling on mobile */
+    max-width: 95%;
+    overflow-x: scroll;
+    height: 45px; /* Set a fixed height */
+    white-space: nowrap; /* Prevents the buttons from wrapping */
     margin: 14px 0;
     margin-left: 10%;
     margin-right: 10%;
+}
+
+.row::-webkit-scrollbar {
+    display: none;
 }
 
 .chord-btn {
