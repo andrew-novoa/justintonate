@@ -1,897 +1,954 @@
-body, html {
-    margin: 0;
-    margin-left: 8px;
-    margin-right: 8px;
-    padding: 0;
-    height: 100%;
-    font-family: Helvetica, sans-serif;
+import math
+from fractions import Fraction
+
+musical_range = [
+        'C0', 'C#0', 'D0', 'D#0', 'E0', 'F0', 'F#0', 'G0', 'G#0', 'A0', 'A#0', 'B0', 'C1', 'C#1', 'D1', 'D#1', 'E1', 'F1', 'F#1', 'G1', 'G#1', 'A1', 'A#1', 'B1', 'C2', 'C#2', 'D2', 'D#2', 'E2', 'F2', 'F#2', 'G2', 'G#2', 'A2', 'A#2', 'B2', 'C3', 'C#3', 'D3', 'D#3', 'E3', 'F3', 'F#3', 'G3', 'G#3', 'A3', 'A#3', 'B3', 'C4', 'C#4', 'D4', 'D#4', 'E4', 'F4', 'F#4', 'G4', 'G#4', 'A4', 'A#4', 'B4', 'C5', 'C#5', 'D5', 'D#5', 'E5', 'F5', 'F#5', 'G5', 'G#5', 'A5', 'A#5', 'B5', 'C6', 'C#6', 'D6', 'D#6', 'E6', 'F6', 'F#6', 'G6', 'G#6', 'A6', 'A#6', 'B6', 'C7', 'C#7', 'D7', 'D#7', 'E7', 'F7', 'F#7', 'G7', 'G#7', 'A7', 'A#7', 'B7', 'C8', 'C#8', 'D8', 'D#8', 'E8', 'F8', 'F#8', 'G8', 'G#8', 'A8', 'A#8', 'B8'
+        ]
+
+musical_range_frequencies = {
+    'C0': 16.35, 'C#0': 17.32, 'D0': 18.35, 'D#0': 19.45, 'E0': 20.60, 'F0': 21.83, 'F#0': 23.12, 'G0': 24.50, 'G#0': 25.96, 'A0': 27.50, 'A#0': 29.14, 'B0': 30.87, 'C1': 32.70, 'C#1': 34.65, 'D1': 36.71, 'D#1': 38.89, 'E1': 41.20, 'F1': 43.65, 'F#1': 46.25, 'G1': 49.00, 'G#1': 51.91, 'A1': 55.00, 'A#1': 58.27, 'B1': 61.74, 'C2': 65.41, 'C#2': 69.30, 'D2': 73.42, 'D#2': 77.78, 'E2': 82.41, 'F2': 87.31, 'F#2': 92.50, 'G2': 98.00, 'G#2': 103.83, 'A2': 110.00, 'A#2': 116.54, 'B2': 123.47, 'C3': 130.81, 'C#3': 138.59, 'D3': 146.83, 'D#3': 155.56, 'E3': 164.81, 'F3': 174.61, 'F#3': 185.00, 'G3': 196.00, 'G#3': 207.65, 'A3': 220.00, 'A#3': 233.08, 'B3': 246.94, 'C4': 261.63, 'C#4': 277.18, 'D4': 293.66, 'D#4': 311.13, 'E4': 329.63, 'F4': 349.23, 'F#4': 369.99, 'G4': 392.00, 'G#4': 415.30, 'A4': 440.00, 'A#4': 466.16, 'B4': 493.88, 'C5': 523.25, 'C#5': 554.37, 'D5': 587.33, 'D#5': 622.25, 'E5': 659.25, 'F5': 698.46, 'F#5': 739.99, 'G5': 783.99, 'G#5': 830.61, 'A5': 880.00, 'A#5': 932.33, 'B5': 987.77, 'C6': 1046.50, 'C#6': 1108.73, 'D6': 1174.66, 'D#6': 1244.51, 'E6': 1318.51, 'F6': 1396.91, 'F#6': 1479.98, 'G6': 1567.98, 'G#6': 1661.22, 'A6': 1760.00, 'A#6': 1864.66, 'B6': 1975.53, 'C7': 2093.00, 'C#7': 2217.46, 'D7': 2349.32, 'D#7': 2489.02, 'E7': 2637.02, 'F7': 2793.83, 'F#7': 2959.96, 'G7': 3135.96, 'G#7': 3322.44, 'A7': 3520.00, 'A#7': 3729.31, 'B7': 3951.07, 'C8': 4186.01, 'C#8': 4434.92, 'D8': 4698.63, 'D#8': 4978.03, 'E8': 5274.04, 'F8': 5587.65, 'F#8': 5919.91, 'G8': 6271.93, 'G#8': 6644.88, 'A8': 7040.00, 'A#8': 7458.62, 'B8': 7902.13
 }
 
-body::-webkit-scrollbar {
-    display: none;
+enharmonic_equivalents = {
+    'C': ['B#', 'Dbb'],
+    'C#': ['Db', 'B##'],
+    'C##': ['D', 'Ebbb'],
+    'Cb': ['B', 'Dbbb', 'A##'],
+    'Cbb': ['Bb', 'A#'],
+    'D': ['C##', 'Ebb'],
+    'D#': ['Eb', 'Fbb'],
+    'D##': ['E', 'Fb'],
+    'Db': ['C#', 'Ebbb'],
+    'Dbb': ['C', 'B#'],
+    'E': ['D##', 'Fb'],
+    'E#': ['F', 'Gbb'],
+    'E##': ['F#', 'Gb'],
+    'Eb': ['D#', 'Fbb'],
+    'Ebb': ['D', 'C##'],
+    'F': ['E#', 'Gbb'],
+    'F#': ['Gb', 'E##'],
+    'F##': ['G', 'Abb'],
+    'Fb': ['E', 'Gbbb'],
+    'Fbb': ['Eb', 'D#'],
+    'G': ['F##', 'Abb'],
+    'G#': ['Ab', 'F###'],
+    'G##': ['A', 'Bbb'],
+    'Gb': ['F#', 'Abbb'],
+    'Gbb': ['F', 'E#'],
+    'A': ['G##', 'Bbb'],
+    'A#': ['Bb', 'Cbb'],
+    'A##': ['B', 'Cb'],
+    'Ab': ['G#', 'Bbbb'],
+    'Abb': ['G', 'F##'],
+    'B': ['A##', 'Cb'],
+    'B#': ['C', 'Dbb'],
+    'B##': ['C#', 'Db'],
+    'Bb': ['A#', 'Cbb'],
+    'Bbb': ['A', 'G##']
 }
 
-.loader {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(255, 255, 255, 0.9);
-    z-index: 9999;
+interval_semitone_to_name_dict = {
+    0: 'P1',
+    1: 'm2',
+    2: 'M2',
+    3: 'm3',
+    4: 'M3',
+    5: 'P4',
+    6: 'd5',
+    7: 'P5',
+    8: 'm6',
+    9: 'M6',
+    10: 'm7',
+    11: 'M7',
+    12: 'P8',
+    13: 'm9',
+    14: 'M9',
+    15: 'm10',
+    16: 'M10',
+    17: 'P11',
+    18: 'A11',
+    19: 'P12',
+    20: 'm13',
+    21: 'M13',
+    22: 'm14',
+    23: 'M14',
+    24: 'P15'
+    }
+
+interval_name_to_semitones_dict = {
+    'P1': 0,
+    'm2': 1,
+    'M2': 2,
+    'm3': 3,
+    'M3': 4,
+    'P4': 5,
+    'A4': 6,
+    'd5': 6,
+    'P5': 7,
+    'A5': 8,
+    'm6': 8,
+    'M6': 9,
+    'm7': 10,
+    'M7': 11,
+    'P8': 12,
+    'm9': 13,
+    'M9': 14,
+    'A9': 15,
+    'm10': 15,
+    'M10': 16,
+    'P11': 17,
+    'A11': 18,
+    'P12': 19,
+    'm13': 20,
+    'M13': 21,
+    'm14': 22,
+    'M14': 23,
+    'P15': 24
+    }
+
+interval_ratio_dict = {
+    'P1': {'just': 1, 'equal': 1},
+    'm2': {'just': 16/15, 'equal': 2**(1/12)},
+    'M2': {'just': 9/8, 'equal': 2**(2/12)},
+    'm3': {'just': 6/5, 'equal': 2**(3/12)},
+    'M3': {'just': 5/4, 'equal': 2**(4/12)},
+    'P4': {'just': 4/3, 'equal': 2**(5/12)},
+    'A4': {'just': 45/32, 'equal': 2**(6/12)},
+    'd5': {'just': 64/45, 'equal': 2**(6/12)},
+    'P5': {'just': 3/2, 'equal': 2**(7/12)},
+    'A5': {'just': 8/5, 'equal': 2**(8/12)},
+    'm6': {'just': 8/5, 'equal': 2**(8/12)},
+    'M6': {'just': 5/3, 'equal': 2**(9/12)},
+    'm7': {'just': 16/9, 'equal': 2**(10/12)},
+    'M7': {'just': 15/8, 'equal': 2**(11/12)},
+    'P8': {'just': 2, 'equal': 2**(12/12)},
+    'm9': {'just': 32/15, 'equal': 2**(13/12)},
+    'M9': {'just': 9/4, 'equal': 2**(14/12)},
+    'm10': {'just': 12/5, 'equal': 2**(15/12)},
+    'M10': {'just': 5/2, 'equal': 2**(16/12)},
+    'P11': {'just': 8/3, 'equal': 2**(17/12)},
+    'A11': {'just': 45/16, 'equal': 2**(18/12)},
+    'd12': {'just': 64/27, 'equal': 2**(18/12)},
+    'P12': {'just': 3, 'equal': 2**(19/12)},
+    'm13': {'just': 16/5, 'equal': 2**(20/12)},
+    'M13': {'just': 10/3, 'equal': 2**(21/12)},
+    'm14': {'just': 32/9, 'equal': 2**(22/12)},
+    'M14': {'just': 30/8, 'equal': 2**(23/12)},
+    'P15': {'just': 4, 'equal': 2**(24/12)}
 }
 
-.top-bar{
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 15px;
-    margin-bottom: 30px;
-
+interval_just_ratio_dict = {
+    'P1': [1, 1],
+    'm2': [15, 16],
+    'M2': [8, 9],
+    'm3': [5, 6],
+    'M3': [4, 5],
+    'P4': [3, 4],
+    'A4': [32, 45],
+    'd5': [45, 64],
+    'P5': [2, 3],
+    'A5': [5, 8],
+    'm6': [5, 8],
+    'M6': [3, 5],
+    'm7': [9, 16],
+    'M7': [8, 15],
+    'P8': [1, 2]
 }
 
-.header {
-    color: #181611;
-    text-align: left;
-    font-size: 8pt;
-    font-family: Arial, Helvetica, sans-serif;
+interval_volume_dict = {
+    'P1': 1,
+    'm2': 0.3,
+    'M2': 0.4,
+    'm3': 0.7,
+    'M3': 0.7,
+    'P4': 0.6,
+    'A4': 0.35,
+    'd5': 0.4,
+    'P5': 0.75,
+    'm6': 0.5,
+    'M6': 0.5,
+    'm7': 0.4,
+    'M7': 0.4,
+    'P8': 0.5,
+    'm9': 0.2,
+    'M9': 0.2,
+    'm10': 0.3,
+    'M10': 0.3,
+    'P11': 0.25,
+    'A11': 0.3,
+    'd12': 0.5,
+    'P12': 0.5,
+    'm13': 0.2,
+    'M13': 0.3,
+    'm14': 0.4,
+    'M14': 0.4,
+    'P15': 0.3
 }
 
-.config {
-    display: none;
+max_cents_adjustment_dict = {
+    'P1': 0,
+    'm2': 32,
+    'M2': 32,
+    'm3': 32,
+    'M3': 32,
+    'P4': 20,
+    'A4': 32,
+    'd5': 32,
+    'P5': 32,
+    'm6': 32,
+    'M6': 32,
+    'm7': 32,
+    'M7': 32,
+    'P8': 0,
+    'm9': 32,
+    'M9': 32,
+    'm10': 32,
+    'M10': 32,
+    'P11': 20,
+    'A11': 32,
+    'd12': 32,
+    'P12': 0,
+    'm13': 32,
+    'M13': 32,
+    'm14': 32,
+    'M14': 32,
+    'P15': 0
 }
 
-.pyscript {
-    display: none;
+chord_by_interval_dict = {
+'':['M3','P5'],
+' Major':['M3','P5'],
+'m':['m3','P5'],
+'5':['P5'],
+'+':['M3','A5'],
+'°':['m3','d5'],
+'dim':['m3','d5'],
+'sus4':['P4','P5'],
+'sus2':['M2','P5'],
+
+'add2': ['M2','M3','P5'],
+'add4': ['M3','P4','P5'],
+'add6': ['M3','P5','M6'],
+'madd2': ['M2','m3','P5'],
+'madd4': ['m3','P4','P5'],
+'madd6': ['m3','P5','M6'],
+'madd9': ['m3','P5','M9'],
+'madd11': ['m3','P5','P11'],
+'madd13': ['m3','P5','M13'],
+'5add9':['P5','M9'],
+'6':['M3','P5','M6'],
+'6/9':['M3','P5','M6','M9'],
+'m6':['m3','P5','M6'],
+'mb6':['m3','P5','m6'],
+'m6/9':['m3','P5','M6','M9'],
+'+add2':['M2','M3','A5'],
+'°add9':['m3','d5','M9'],
+'°add11':['m3','d5','P11'],
+
+'m7':['m3','P5','m7'],
+'m7add2':['M2','m3','P5','m7'],
+'m7add4':['m3','P4','P5','m7'],
+'m7add6':['m3','P5','M6','m7'],
+'dim7':['m3','d5','d7'],
+'dim7':['m3','d5','M6'],
+'°7':['m3','d5','M6'],
+'m7b5':['m3','d5','m7'],
+'ø7':['m3','d5','m7'],
+'mmaj7':['m3','P5','M7'],
+'mmaj7add2':['M2','m3','P5','M7'],
+'mmaj7add4':['m3','P4','P5','M7'],
+'mmaj7add6':['m3','P5','M6','M7'],
+'°maj7':['m3','d5','M7'],
+
+'7':['M3','P5','m7'],
+'maj7':['M3','P5','M7'],
+'maj7add2': ['M2','M3','P5','M7'],
+'maj7add2b5': ['M2','M3','d5','M7'],
+'maj7add2#11': ['M2','M3','P5','M7','A11'],
+'maj7add4': ['M3','P4','P5','M7'],
+'maj7add6': ['M3','P5','M6','M7'],
+'maj7add6b5': ['M3','d5','M6','M7'],
+'maj7add6#11': ['M3','P5','M6','M7','A11'],
+'maj7#11':['M3','P5','M7','A11'],
+'maj7b5': ['M3','d5','M7'],
+'maj7sus2': ['M2','P5','M7'],
+'maj7sus2add4': ['M2','P4','P5','M7'],
+'maj7sus2add6': ['M2','P5','M6','M7'],
+'maj7sus4': ['P4','P5','M7'],
+'maj7sus4add2': ['M2','P4','P5','M7'],
+'7b5':['M3','d5','m7'],
+'7b9':['M3','P5','m7','m9'],
+'7#9':['M3','P5','m7','A9'],
+'7b5#9':['M3','d5','m7','A9'],
+'7#11':['M3','P5','m7','A11'],
+'7sus2': ['M2','P5','m7'],
+'7sus2add4': ['M2','P4','P5','m7'],
+'7sus2add6': ['M2','P5','M6','m7'],
+'7sus4': ['P4','P5','m7'],
+'7sus4add2': ['M2','P4','P5','m7'],
+'7sus4add6': ['P4','P5','M6','m7'],
+
+'7#5':['M3','A5','m7'],
+'+7':['M3','A5','m7'],
+'+7add2':['M2','M3','A5','m7'],
+'+maj7':['M3','A5','M7'],
+'+maj7add2':['M2','M3','A5','M7'],
+'aug7':['M3','A5','m7'],
+'7b9#5':['M3','A5','m7','m9'],
+'7#9#5':['M3','A5','m7','A9'],
+'+7b9':['M3','A5','m7','m9'],
+'+7#9':['M3','A5','m7','A9'],
+'+7#11':['M3','A5','m7','A9','A11'],
+'7sus4':['P4','P5','m7'],
+'7b13':['M3','P5','m7','m13'],
+'7alt':['M3','P5','m7','A9','m13'],
+
+'add9':['M3','P5','M9'],
+'+9':['M3','A5','m7','M9'],
+'+9#11': ['M3','A5','m7','M9','A11'],
+'+add9':['M3','A5','M9'],
+'+maj9':['M3','A5','M7','M9'],
+'maj9':['M3','P5','M7','M9'],
+'maj9b5':['M3','d5','M7','M9'],
+'maj9#11':['M3','P5','M7','M9','A11'],
+'m9':['m3','P5','m7','M9'],
+'9':['M3','P5','m7','M9'],
+'m9b5':['m3','d5','m7','M9'],
+'m9maj7':['m3','P5','M7','M9'],
+'9#5':['M3','A5','m7','M9'],
+'9b5':['M3','d5','m7','M9'],
+'9sus4':['P4','P5','m7','M9'],
+'9#11':['M3','P5','m7','M9','A11'],
+'°9':['m3','d5','M6','M9'],
+'°maj9':['m3','d5','M7','M9'],
+'ø9':['m3','d5','m7','M9'],
+
+'maj11':['M3','P5','M7','M9','P11'],
+'m11':['m3','P5','m7','M9','P11'],
+'m11maj7':['m3','P5','M7','M9','P11'],
+'11':['M3','P5','m7','M9','P11'],
+'°11':['m3','d5','M6','M9','P11'],
+'°maj11':['m3','d5','M7','M9','P11'],
+'ø11':['m3','d5','m7','M9','P11'],
+
+'maj13':['M3','P5','M7','M9','M13'],
+'maj13#11':['M3','P5','M7','M9','A11','M13'],
+'maj13b5':['M3','d5','M7','M9','M13'],
+'m13':['m3','P5','m7','M9','P11','M13'],
+'m13maj7':['m3','P5','M7','M9','P11','M13'],
+'13':['M3','P5','m7','M9','M13'],
+'13b5':['M3','d5','m7','M9','M13'],
+'13b9':['M3','d5','m7','m9','M13'],
+'13#9':['M3','d5','m7','A9','M13'],
+'13#11':['M3','P5','m7','M9','A11','M13'],
+'13alt':['M3','P5','m7','A9','m13'],
+'13sus4':['P4','P5','m7','M9','M13']
 }
 
-.icon-tabs {
-    display: flex;
-    justify-content: right;
-    align-items: center;
+chord_by_name_dict = {
+'':'major',
+'m':'minor',
+'5':'power cord',
+'+':'augmented',
+'dim':'diminished',
+'sus4':'suspended 4th',
+'sus2':'suspended 2nd',
+
+'6':'major add 6th',
+'6/9':'major add 6th & 9th',
+'m6':'minor add 6th',
+'mb6':'minor add flat 6th',
+'m6/9':'minor add 6th & 9th',
+
+'m7':'minor 7th',
+'dim7':'diminished 7th',
+'m7b5':'minor 7th flat five',
+'m(maj7)':'minor major 7th',
+
+'7':'dominant 7th',
+'maj7':'major 7th',
+'maj7#11':'major 7th sharp eleven',
+
+'7b5':'seventh flat five',
+'7b9':'seventh flat nine',
+'7#9':'seventh sharp nine',
+'7b5#9':'dominant 7th, flat 5th, sharp 9th',
+'7#11':'dominant 7th, sharp 11th',
+
+'7#5':'dominant augmented 7th',
+'+7':'dominant 7th, sharp 5th',
+'aug7':'augmented 7th',
+'7b9#5':'augmented 7th flat nine',
+'7#9#5':'augmented 7th sharp nine',
+'+7b9':'dominant 7th, sharp 5th, flat 9th',
+'+7#9':'dominant 7th, sharp 5th, sharp 9th',
+'7sus4':'seventh suspended 4th',
+
+'add9':'major add 9th',
+'+9':'9th, sharp 5th',
+'maj9':'major 9th',
+'m9':'minor 9th',
+'9':'dominant 9th',
+'m9b5':'minor 9th, flat 5th',
+'m9(maj7)':'minor 9th (major 7)',
+'9#5':'dominant 9th sharp 5th',
+'9b5':'dominant 9th flat 5th',
+'9sus4':'dominant 9th suspended 4th',
+'9#11':'dominant 9th sharp 11th',
+
+'maj11':'major 11th',
+'m11':'minor 11th',
+'11':'11th',
+
+'maj13':'major 13th',
+'m13':'minor 13th',
+'13':'13th',
+'13sus4':'13th suspended 4th'
 }
 
-.help-button {
-    width: 45px;
-    aspect-ratio: 1 / 1; /* Makes it a perfect circle */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 50%;
-    border: solid 1px #333;
-    flex-shrink: 0; /* Prevents flex items from shrinking */
-    margin-right: 15px;
-    font-weight: bold;
-    cursor: pointer;
-}
+pitch_letters = 'CDEFGAB'
 
-.icon-tab {
-    display: flex;
-    aspect-ratio: 1 / 1;
-    align-items: center;
-    justify-content: center;
-    padding: 10px;
-    border: 2px solid #333;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-right: 15px;
-    transition: background-color 0.3s;
-    align-content: center;
-}
+def frequency_from_pitch(pitch):
+    return round(musical_range_frequencies[pitch], 0)
 
-.xy-icon {
-    width: 22px;
-    height: 22px;
-    cursor: pointer;
-}
+def musical_range_compatable(pitch_with_octave):
+    if pitch_with_octave in musical_range:
+        return pitch_with_octave
+    pitch_parts = split_letter_octave(pitch_with_octave)
+    for enharmonic in enharmonic_equivalents[pitch_parts[0]]:
+        if enharmonic + str(pitch_parts[1]) in musical_range:
+            return enharmonic + str(pitch_parts[1])
 
-.phase-icon {
-    font-size: small;
-    width: 22px;
-    height: 22px;
-    cursor: pointer;
-}
+def pitches_from_interval(pitch, interval):
+    pitches = [pitch]
+    pitch_index = musical_range.index(musical_range_compatable(pitch))
+    interval_semitones = interval_name_to_semitones_dict[interval]
+    pitches.append(musical_range[pitch_index + interval_semitones])
+    return pitches
 
-.phase-icon-img {
-    width: 22px;
-    height: 22px;
-    cursor: pointer;
-}
+def interval_semitones_from_pitches(pitch1, pitch2):
+    return abs(musical_range.index(musical_range_compatable(pitch2)) - musical_range.index(musical_range_compatable(pitch1)))
 
-.icon-tab.active {
-    background-color: #ddd;
-}
+def interval_name_from_pitches(pitch1, pitch2):
+    return interval_semitone_to_name_dict[interval_semitones_from_pitches(pitch1, pitch2)]
 
-.tab-content {
-    overflow-x: hidden;
-}
+def interval_name_from_semitones(semitones):
+    return interval_semitone_to_name_dict[semitones]
 
-.piano-functions {
-    display: flex;
-    justify-content: space-between; /* Aligns children to the opposite ends */
-    align-items: center; /* Vertically centers the children */
-    margin: 20px 0;
-    padding: 0 5px;
-}
+def interval_semitones_from_name(interval_name):
+    return interval_name_to_semitones_dict[interval_name]
 
-.function-button {
-    aspect-ratio: 1 / 1;
-    border: 1px solid #333;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s, color 0.3s;
-    background-color: #f5f5f5;
-    color: #333;
-    margin-right: 10px;
-}
-
-.left-side-buttons {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-}
-
-.deselect-button:hover {
-    background-color: #ddd;
+def cents_to_ratio(cents):
+    ratio = 2 ** (cents / 1200)
+    return ratio
     
-}
+def ratio_to_cents(ratio):
+    cents = 1200 * math.log(ratio, 2)
+    return cents
 
-.deselect-button.active {
-    background-color: #cfb8e5;
-}
+def cents_delta_from_ratios(ratio1, ratio2):
+    return round(ratio_to_cents(ratio1) - ratio_to_cents(ratio2), 0)
 
-.power-icon {
-    width: 22px;
-    height: 22px;
-    cursor: pointer;
-}
-
-.mute-button.disabled {
-    background-color: #eee;
-    color: #aaa;
-    cursor: not-allowed;
-}
-
-.mute-button:hover {
-    background-color: #ddd;
+def intonate_single_pitch(pitch, pitch_list, context='inside'):
+    def set_pitch_outisde(pitch, pitch_list):
+        added_pitch_octave = int(pitch_list[-1][-1]) + 1
+        if added_pitch_octave > 8:
+            added_pitch_octave = 8
+        return pitch + str(added_pitch_octave)
     
-}
-
-.mute-button.active {
-    background-color: #cfb8e5;
-}
-
-.mute-button img{
-    width: 22px;
-    height: 22px;
-}
-
-.hidden {
-    display: none;
-}
-
-.rebalance-button.active {
-    background-color: #cfb8e5;
-    color: #fff;
-}
-
-.balanced-icon {
-    width: 22px;
-    height: 22px;
-    cursor: pointer;
-}
-
-.unbalanced-icon {
-    width: 22px;
-    height: 22px;
-    cursor: pointer;
-}
-
-.wavetable-buttons {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-}
-
-.wavetable-button:hover {
-    background-color: #ddd;
-}
-
-.wavetable-button.active {
-    background-color: #cfb8e5;
-    color: #fff;
-}
-
-.sine-icon {
-    width: 22px;
-    height: 22px;
-    cursor: pointer;
-}
-
-.square-icon {
-    width: 22px;
-    height: 22px;
-    cursor: pointer;
-}
-
-.saw-icon {
-    width: 22px;
-    height: 22px;
-    cursor: pointer;
-}
-
-.piano-container {
-    align-items: flex-start;
-    margin-top: 20px;
-    margin-bottom: 30px;
-    overflow-x: scroll;
-    overflow-y: hidden;
-    white-space: nowrap;
-}
-
-.piano {
-    width: calc(23 * 61px);
-    margin: auto;
-    display: flex;
-    align-items: flex-start;
-    position: relative;
-}
-
-/* Optional: Hide the scrollbar for a cleaner look */
-.piano-container::-webkit-scrollbar {
-    display: none;
-}
-
-.piano-container {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
-    min-height: 280px;
-}
-
-.white-key, .black-key {
-    /* ... (existing styles) ... */
-    display: inline-block; /* Convert the key containers to flex containers */
-    flex-direction: column; /* Stack the child elements vertically */
-    justify-content: center; /* Center the child elements vertically */
-    align-items: center; /* Center the child elements horizontally */
-    user-select: none; /* Prevent text selection */
-}
-
-/* Adjust the height of the keys if needed */
-.white-key {
-    width: 60px;
-    height: 200px; /* Adjust this value if needed */
-    background-color: #fffcf597;
-    border: 2px solid rgba(44, 41, 39, 0.435);
-    border-right: none;
-    margin-bottom: 60px;
-    position: relative; /* Set to relative so the .frequency div is positioned relative to this */
-}
-
-.white-key[data-note='G6'] {
-    border-right: 2px solid rgba(44, 41, 39, 0.435);
-} 
-
-.black-key {
-    width: 40px;
-    height: 120px; /* Adjust this value if needed */
-    background-color: #181611;
-    margin-left: -20px;
-    margin-right: -20px;
-    z-index: 1;
-    margin-bottom: 40px;
-    position: relative; /* Set to relative so the .frequency div is positioned relative to this */
-    border-radius: 0 0 10% 10%; /* Make the keys circular */
-    box-shadow: 2px 2px 1px 1px rgba(0,0,0,0.1);
-}
-
-.color-fill {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background-color: #9f82d6; 
-    height: 0%; /* Initially empty */
-    z-index: -1; /* Place it behind the labels */
-    transition: height 0.05s;
-}
-
-
-/* Style for active white key */
-.white-key.active {
-    background-color: transparent;
-    box-shadow: inset 3px 0px 3px 1px rgba(0,0,0,0.1);
-}
-
-/* Style for active black key */
-.black-key.active {
-    /* background-color: transparent; */
-    box-shadow: 0 0 1px 3px rgba(0,0,0,0.1);
-}
-
-.key-label {
-    font-weight: bold; /* Make the labels bold */
-    font-size: 14px; /* Set a font size for the labels */
-    z-index: 2; /* Ensure the labels appear above other elements */
-    text-align: center; /* Center the labels horizontally */
-    position: relative; /* Position the labels absolutely */
-}
-
-.white-key .key-label {
-    color: #181611; /* Set the label color for white keys */
-    top: 80%; /* Position the label towards the top of the white key */
-}
-
-.white-key.active .key-label {
-    color: #ffffff; /* Set the label color for active white keys */
-    transition: color 0.1s; /* Add a transition to the color change */
-}
-
-.white-key.active .key-label.low-fill {
-    color: #000000; /* Set the label color to black when fill is low */
-    transition: color 0.1s; /* Add a transition to the color change */
-}
-
-.black-key.active .key-label {
-    color: #ffffff; /* Set the label color for active white keys */
-}
-
-.black-key .key-label {
-    color: white; /* Set the label color for black keys */
-    top: 50%; /* Center the label vertically within the black key */
-    transform: translateY(-50%); /* Adjust for perfect vertical centering */
-    overflow: hidden; /* Hide the overflow */
-    width: 100%; /* Set the width to 100% of the parent */
-    text-align: center; /* Center the text */
-    line-height: 1.5; /* Control the line spacing */
-    white-space: normal; /* Allow the text to wrap */
-}
-
-.adjustment {
-    position: absolute;
-    top: 245px;
-    bottom: 20px; /* Adjust this value to position the adjustment text above the frequency text */
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 14px; /* Adjust font size as needed */
-    font-weight: 700;
-    color: #333; /* Adjust color as needed */
-}
-
-.frequency {
-    position: absolute;
-    top: 265px;
-    bottom: 20px; /* Adjust this value to position the frequency text below the adjustment text */
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 12px; /* Adjust font size as needed */
-    color: #333; /* Adjust color as needed */
-}
-
-.black-key .adjustment{
-    top: 210px; /* Adjust this value to position the text above the black keys */
-}
-
-/* For the black keys, adjust the positioning of the .frequency div */
-.black-key .frequency {
-    top: 230px; /* Adjust this value to position the text below the black keys */
-}
-
-.frequencyRatioString {
-    font-size: 24px;
-    font-weight: bold;
-    text-align: center;
-    color: #333;
-}
-
-.white-box {
-    background-color: #fff;
-    padding: 100px;
-    width: 100%;
-    height: 100%;
-}
-
-
-/* One-Octave Piano Styles */
-
-#xy-tab, #phase-tab {
-    display: none; 
-}
-
-.one-octave-piano {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    position: relative;
-    max-width: 700px;
-    width: 90%;
-    margin: 0 auto;
-    margin-bottom: 3%;
-}
-
-.small-white-key, .small-black-key {
-    width: 10%;
-    aspect-ratio: 1 / 1; /* Makes it a perfect circle */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 50%;
-    position: relative;
-    flex-shrink: 0; /* Prevents flex items from shrinking */
-    user-select: none; /* Prevent text selection */
-}
-
-.small-white-key {
-    background-color: #fffcf597;
-    margin-top: 11%;
-    margin-right: 0.1%; /* Add some margin to separate the keys */
-    border-style: solid;
-    border-width: 2px;
-    border-color: rgba(208, 202, 192, 0.735);
-    box-shadow: 2px 2px 1px 2px rgba(0,0,0,0.1);
-}
-
-.small-white-key[data-note='E'] {
-    margin-right: 4%; /* Add some margin to separate the keys */
-} 
-
-.small-black-key {
-    background-color: #181611;
-    z-index: 1;
-    margin-left: -3%; /* Negative margin for overlap */
-    margin-right: -3%; /* Negative margin for overlap */
-    border-style: solid;
-    border-width: 2px;
-    border-color: rgba(60, 59, 57, 0.45);
-    box-shadow: 2px 2px 1px 2px rgba(0, 0, 0, 0.207);
-}
-
-.small-white-key.active, .small-black-key.active {
-    background-color: #9170cd;
-    border-style: solid;
-    border-width: 2px;
-    border-color: rgba(117, 84, 156, 0.561);
-    box-shadow: inset 0px 0px 4px 1px rgba(0,0,0,0.1);
-    transition: background-color 0.01s, border-color 0.01s, box-shadow 0.01s;
-}
-
-.small-key-label {
-    font-weight: bolder; /* Make the labels bold */
-    font-size: 107%; /* Set a font size for the labels */
-    z-index: 2; /* Ensure the labels appear above other elements */
-    text-align: center;
-}
-
-
-.small-white-key .small-key-label {
-    color: #181611; /* Set the label color for white keys */
-}
-
-.small-white-key.active .small-key-label {
-    color: #ffffff; 
-}
-
-.small-black-key .small-key-label {
-    color: #ffffff; /* Set the label color for white keys */
-}
-
-.tuning-adjustment {
-    min-height: 25px;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    margin: 20px 0;
-    font-size: 20px;
-}
-
-.melody-context {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    margin: 20px 0;
-    max-height: 70vh; /* Adjust this value based on your preference */
-    overflow-y: auto;
-}
-
-.context-button {
-    padding: 10px 15px;
-    margin: 0 5px;
-    border: 1px solid #333;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s, color 0.3s;
-    background-color: #f5f5f5;
-    color: #333;
-}
-
-.context-button.selected {
-    background-color: #333;
-    color: #fff;
-}
-
-.chord-info {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center; /* Center items */
-    overflow-y: auto;
-    max-width: 825px;
-    margin: auto;
-    position: relative; /* Relative positioning for child absolute positioning */
-    padding-bottom: 20px; /* Add padding to the bottom to make room for the button */
-    padding-top: 5px;
-    margin-top: 20px;
-    min-height: 10vh;
-}
-
-.chord-text {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 0 auto;  /* Center the element */
-}
-
-.deselect-chord-button {
-    padding: 10px 15px;
-    border: 1px solid #333;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s, color 0.3s;
-    background-color: #f5f5f5;
-    color: #333;
-    position: absolute; /* Take it out of the normal flow */
-    left: 0; /* Align it to the left */
-    margin-top: 4%;
-    margin-left: 3%;
-}
-
-.deselect-chord-button:hover {
-    background-color: #ddd;
-}
-
-.chord-symbol {
-    font-size: 24px;
-    font-weight: bold;
-    text-align: center;
-    color: #333;
-    padding-top: 10px;
-}
-
-.chord-pitches {
-    font-size: 18px;
-    margin-top: 0px;
-    text-align: center;
-    color: #333;
-    padding-top: 10px;
-}
-
-.chord-selector {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    overflow-x: hidden;
-}
-
-.row-label {
-    display: flex;
-    flex-direction: row;
-    max-width: 775px;
-    width: 93%;
-    height: 55%;
-    font-size: 15px;
-    margin: auto;
-    color: #333;
-    border-bottom: 1px solid #bbbbbb;
-    border-width: 1px;
-}
-
-.row {
-    justify-content: flex-start; /* Align items to the start */
-    max-width: 95%;
-    overflow-x: scroll;
-    height: 45px; /* Set a fixed height */
-    white-space: nowrap; /* Prevents the buttons from wrapping */
-    margin: 14px 0;
-    margin-left: 10%;
-    margin-right: 10%;
-}
-
-.row::-webkit-scrollbar {
-    display: none;
-}
-
-.chord-btn {
-    scroll-snap-align: start; /* Snap to the start edge of the button */
-    padding: 10px 15px;
-    margin: 0 5px;
-    border: 1px solid #333;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s, color 0.3s;
-    background-color: #f5f5f5;
-    color: #333;
-}
-
-.disabled {
-    opacity: 0.5;
-    pointer-events: none; /* Prevents the button from being clickable */
-}
-
-.chord-btn:hover {
-    background-color: #ddd;
-}
-
-.chord-btn.selected {
-    background-color: #333;
-    color: #fff;
-}
-
-.chord-btn.disabled {
-    background-color: #eee;
-    color: #aaa;
-    cursor: not-allowed;
-}
-
-#phase-tab {
-    flex-direction: row;
-    justify-items:start;
-}
-
-.phase-drag-area {
-    display: inline-block;
-    flex-direction: column;
-    margin-left: 5px;
-    min-width: 250px;
-    width: 50%;
-    height: 575px;
-    overflow: hidden;
-}
-
-.phase-drag-buttons {
-    display: flex;
-    flex-direction: column;
-    align-items: left;
-    justify-content: left;
-    min-height: 20vh; /* Adjust this value based on your preference */
-    overflow-y: auto;
-}
-
-.phase-button-upper {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between; /* Center items */
-    margin-bottom: 10px;
-    max-width: 90%;
-}
-
-.phase-chord-number-buttons {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: left; /* Center items */
-}
-
-.phase-chord-number-label {
-    font-size: 18px;
-    font-weight: bold;
-    margin-right: 10%;
-}
-
-.phase-chord-number-display {
-    font-size: 18px;
-}
-
-.chord-number-button {
-    padding: 5px 10px;
-    margin: 0 5px;
-    border: 1px solid #333;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s, color 0.3s;
-    background-color: #f5f5f5;
-    color: #333;
-}
-
-.phase-chord-type-label {
-    margin-bottom: 10px;
-}
-
-.phase-button-lower {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: left; /* Center items */
-}
-
-.phase-chord-intervals, .phase-chord-triads, .phase-chord-sevenths {
-    align-items: center;
-    justify-content: left; /* Center items */
-    height: 70px;
-    overflow: hidden;
-}
-
-.phase-chord-preset {
-    align-items: center;
-    justify-content: left; /* Center items */
-    margin-right: 7px;
-    margin-bottom: 10px;
-    padding: 5px 5px;
-    border: 1px solid #333;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s, color 0.3s;
-    background-color: #f5f5f5;
-    color: #333;
-}
-
-.phase-chord-preset.active {
-    background-color: #333;
-    color: #fff;
-}
-
-.phase-drag-lines{
-    position: relative;
-}
-
-.phase-drag-line{
-    display: flex;
-    overflow: hidden;
-    align-items: center;
-    justify-content: left;
-    margin-top: 13px;
-    width: 100%;
-}
-
-.phase-drag-line::before{
-    background-color: rgb(177, 177, 177);
-    content: "";
-    display: inline-block;
-    height: 2px;
-    position: relative;
-    vertical-align: middle;
-    margin-top: 3.5px;
-    width: 80%;
-    margin-right: 10px;
-}
-
-.note-drag {
-    width: 65px;
-    position: absolute;
-}
-
-#note-drag-1 {
-    left: 30%;
-    z-index: 1;
-    pointer-events: none;
-}
-
-#note-drag-2 {
-    left: 35%;
-    z-index: 2;
-}
-
-#note-drag-3 {
-    left: 30%;
-    z-index: 3;
-}
-
-#note-drag-4 {
-    left: 35%;
-    z-index: 4;
-}
-
-.phase-graph-area {
-    display: inline-block;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin-right: 5px;
-    overflow: hidden;
-    min-width: 250px;
-    width: 46%;
-    height: 575px;
-}
-
-.phase-graph-info {
-    display: flex;
-    width: 100%;
-    align-items: center;
-    justify-content: space-around;
-    margin-bottom: 10px;
-    margin-top: 30px;
-}
-
-.ratio-display-div, .cancellation-display-div {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100px;
-}
-
-.ratio-display-label, .cancellation-display-label {
-    display: flex;
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 10px;
-    justify-content: center;
-    align-items: center;
-}
-
-.ratio-display, .cancellation-display {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    min-width: 120px;
-}
-
-#canvas {
-    width: 100%;
-    height: 100%;
-}
-
-.canvas-volume-div {
-    display: flex;
-    flex-direction: column;
-    margin-top: 10px;
-}
-
-.canvas-volume-label {
-    margin-top: 10px;
-    margin-bottom: 10px;
-}
-
-.canvas-volume-options {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 10px;
-}
-
-.canvas-volume-option {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.canvas-volume-slider {
-    appearance: slider-vertical;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    height: 75px;
-    width: 20px;
-    justify-content: center;
-    margin-top: 10px;
-    margin-bottom: 10px;
-}
-
-.canvas-volume-slider::-webkit-slider-thumb {
-    appearance: none;
-    color: red;
-}
-
-.canvas-volume-button {
-    padding: 4px 6px;
-    margin: 0 5px;
-    margin-top: 5px;
-    border: 1px solid #333;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s, color 0.3s;
-    background-color: #f5f5f5;
-    color: #333;
-}
-
-.audio-on-icon {
-    width: 15px;
-    height: 15px;
-    cursor: pointer;
-}
+    def set_pitch_inside(pitch, pitch_list):
+        inside_pitch = None
+        for n in musical_range[musical_range.index(pitch_list[0]):musical_range.index(pitch_list[-1]) + 1]:
+            if pitch == n[:-1]:
+                inside_pitch = n
+                break
+        return inside_pitch
+        
+    inside_possible = True
+    outside_possible = False
+    cleaned_pitch_list = []
+    for p in pitch_list:
+        if 'b' in p:
+            cleaned_pitch_list.append(musical_range_compatable(p))
+        else:
+            cleaned_pitch_list.append(p)
+
+    pitch_list_no_octave = [p[:-1] for p in cleaned_pitch_list]
+    added_pitch = None
+
+    if pitch not in pitch_list_no_octave:
+        outside_possible = True
+        added_pitch = set_pitch_inside(pitch, cleaned_pitch_list)
+        inside_possible = False if not added_pitch else True
+        if context != 'inside' or not inside_possible:
+            added_pitch = set_pitch_outisde(pitch, cleaned_pitch_list)
+        cleaned_pitch_list.append(added_pitch)
+
+    intonated_pitches = just_intonate(cleaned_pitch_list)
+    if added_pitch:
+        pitch_index = list(intonated_pitches[0].keys()).index(added_pitch)
+    else:
+        pitch_index = pitch_list_no_octave.index(pitch)
+    pitch_adjustment = intonated_pitches[0][list(intonated_pitches[0].keys())[pitch_index]][1]
+
+    if pitch_adjustment == "":
+        return "0 cents", inside_possible, outside_possible
+    else:
+        return pitch_adjustment + " cents", inside_possible, outside_possible
+    
+def split_letter_octave(pitch):
+    for index, letter in enumerate(pitch, 0):
+        if letter.isdigit():
+            return pitch[:index], int(pitch[index:])
+        
+def rewrite_chord_pitches(chord_pitches, chord_interval_list):
+    def check_letter_difference(pitch1, pitch2, interval_index=0):
+        letter_difference = (pitch_letters.index(pitch2[0]) - pitch_letters.index(pitch1[0])) + 1
+        while letter_difference < 0:
+            letter_difference += 7
+        if interval_index == 0:
+            interval_difference = split_letter_octave(chord_interval_list[0])[1]
+        else:
+            interval_difference = abs((split_letter_octave(chord_interval_list[interval_index])[1] - split_letter_octave(chord_interval_list[interval_index - 1])[1]) + 1)
+
+        return letter_difference == interval_difference
+    
+    def count_accidentals(spelling, accidental_type):
+        return sum(accidental_type in s for s in spelling)
+
+    def choose_best_spelling(spelling_list):
+        # Step 1: Remove spellings with the most double accidentals
+        if any('##' in s or 'bb' in s for spelling in spelling_list for s in spelling):
+            min_double_accidentals = min(count_accidentals(spelling, '##') + count_accidentals(spelling, 'bb') for spelling in spelling_list)
+            spelling_list = [spelling for spelling in spelling_list if count_accidentals(spelling, '##') + count_accidentals(spelling, 'bb') == min_double_accidentals]
+
+        # Step 2: Choose the spelling with the fewest single accidentals
+        min_single_accidentals_spelling = min(spelling_list, key=lambda spelling: count_accidentals(spelling, '#') + count_accidentals(spelling, 'b'))
+        
+        return min_single_accidentals_spelling
+    
+    potential_spellings = []
+    root_list = [split_letter_octave(chord_pitches[0])[0]] + enharmonic_equivalents[split_letter_octave(chord_pitches[0])[0]]
+
+    for possible_root in root_list:
+        temp_list = [possible_root + chord_pitches[0][-1]]
+        for i in range(0, len(chord_pitches) - 1):
+            next_note_list = [split_letter_octave(chord_pitches[i + 1])[0]] + enharmonic_equivalents[split_letter_octave(chord_pitches[i + 1])[0]]
+            for next_note in next_note_list:
+                if check_letter_difference(temp_list[i], next_note, i):
+                    temp_list.append(next_note + str(split_letter_octave(chord_pitches[i + 1])[1]))
+                    break
+            else:
+                break
+
+        if len(temp_list) == len(chord_pitches):
+            potential_spellings.append(temp_list)
+
+    if len(potential_spellings) == 1:
+        return potential_spellings[0]
+    else:
+        return choose_best_spelling(potential_spellings)
+
+def pitches_from_chord_symbol(chord_symbol):
+    cleaned_chord_symbol = chord_symbol
+    replacements = [('(', ''), (')', '')]
+    for char, replacement in replacements:
+        if char in cleaned_chord_symbol:
+            cleaned_chord_symbol = cleaned_chord_symbol.replace(char, replacement)
+    chord_pitches = []
+    slash = None
+    if "/" in cleaned_chord_symbol and not cleaned_chord_symbol[-1].isdigit():
+        chord_symbol = chord_symbol.split("/")[0]
+        cleaned_chord_symbol, slash = cleaned_chord_symbol.split("/")
+
+    if "#" in cleaned_chord_symbol[:2] or "b" in cleaned_chord_symbol[:2]:
+        root = cleaned_chord_symbol[:2] + "4"
+        quality_symbol = cleaned_chord_symbol[2:]
+    else:
+        root = cleaned_chord_symbol[0] + "4"
+        quality_symbol = cleaned_chord_symbol[1:]
+
+    chord_pitches.append(root)
+    for interval in chord_by_interval_dict[quality_symbol]:
+        interval_semitones = interval_semitones_from_name(interval)
+        if "b" in root:
+            chord_pitches.append(musical_range[musical_range.index(musical_range_compatable(root)) + interval_semitones])
+        else:
+            chord_pitches.append(musical_range[musical_range.index(root) + interval_semitones])
+
+    corrected_chord_pitches = [c[:-1] for c in rewrite_chord_pitches(chord_pitches, chord_by_interval_dict[quality_symbol])]
+    if corrected_chord_pitches[0] != root[:-1]:
+        chord_symbol = corrected_chord_pitches[0] + quality_symbol
+
+    if slash:
+        corrected_chord_pitches.insert(0, slash)
+        chord_pitches.insert(0, slash  + "3")
+        chord_symbol += "/" + slash
+
+    pitch_string = '  '.join(corrected_chord_pitches)
+    return pitch_string, chord_pitches, chord_symbol
+
+def construct_chord_symbol(components):
+    quality_dict = {
+        "": "",
+        "major": "",
+        "minor": "m",
+        "augmented": "+",
+        "diminished": "°",
+        "power": "5",
+        "sus2": "sus2",
+        "sus4": "sus4"
+    }
+    sevenths_dict = {
+        "": "",
+        "nat7": "maj7",
+        "m7": "7",
+        "bb7": "°7"
+    }
+    
+    root, quality, seventh, extension, alteration, slash = components
+
+    first = root
+    second = quality_dict[quality]
+    third = sevenths_dict[seventh]
+    fourth = extension
+    fifth = "(" + alteration + ")" if alteration != "" else ""
+
+    if root in ["C#", "D#", "F#", "G#", "A#"] and quality in ["major", "augmented", "sus2", "sus4"]:
+        first = enharmonic_equivalents[root][0]
+
+    if quality == "major" and seventh == "" and extension == "" and alteration == "" and slash == "":
+        return first + " Major"
+
+    if quality == "major" and extension in ["add2", "add4", "add6"]:
+        second = ""
+    
+    if quality == "minor" and seventh == "nat7":
+        third = "(maj7)"
+
+    if quality == "diminished":
+        if seventh == "m7":
+            second = "ø"
+        elif seventh == "bb7":
+            third = "7"
+
+    if quality == "power" and extension == "9":
+        fourth = "(add9)"
+
+    if "sus" in quality and seventh != "":
+        second = sevenths_dict[seventh]
+        third = "(" + quality + ")"
+
+    if "add" in extension:
+        fourth = "(" + extension + ")"
+
+    if seventh == "" and "add6" in extension:
+        fourth = extension.replace("add", "")
+
+    if quality not in ["major", "minor", "sus2", "sus4"] and seventh == "nat7":
+        third = "(" + third + ")"
+
+    if extension in ["9", "11", "13"] and quality != "minor":
+        third = ""
+        if seventh == "nat7":
+            fourth = "maj" + extension if quality == "major" else "(maj" + extension + ")"
+        if seventh == "":
+            fourth = "(add" + extension + ")"
+
+    elif extension in ["9", "11", "13"] and quality == "minor":
+        third = ""
+        if seventh == "nat7":
+            third = extension
+            fourth = "(maj7)"
+        if seventh == "":
+            fourth = "(add" + extension + ")"
+
+    if alteration and extension in alteration:
+        third = sevenths_dict[seventh]
+        fourth = ""
+
+    chord = first + second + third + fourth + fifth
+    if slash:
+        chord += slash
+        
+    return chord
+
+def get_available_options(components):
+    root, quality, seventh, extension, alteration, slash = components
+
+    available_qualities = ["major", "minor", "augmented", "diminished", "dominant", "power", "sus2", "sus4"]
+    available_sevenths = ["nat7", "m7", "bb7"]
+    available_extensions = ["add2", "add4", "add6", "6/9", "9", "11", "13"]
+    available_alterations = ["b5", "b6", "b9", "#9", "#11", "b13", "alt"]
+    available_slashes = ["/C", "/C#", "/D", "/D#", "/E", "/F", "/F#", "/G", "/G#", "/A", "/A#", "/B"]
+
+    force_on = {
+        "roots": [],
+        "qualities": [],
+        "extensions": [],
+        "alterations": [],
+        "slashes": []
+    }
+    force_off = {
+        "roots": [],
+        "qualities": [],
+        "extensions": [],
+        "alterations": [],
+        "slashes": []
+    }
+
+    if root == "" and quality != "" and extension != "" and alteration != "":
+        force_on['roots'] = ["C"]
+
+    if quality == "major":
+        available_sevenths = ["nat7", "m7"]
+        available_extensions = ["add2", "add4", "add6", "6/9", "9"]
+        available_alterations = ["b5"]
+        if seventh == "m7":
+            available_extensions = ["9", "13"]
+            available_alterations = ["b5", "b9", "#9", "#11", "b13", "alt"]
+        elif seventh == "nat7":
+            available_extensions = ["add2", "add4", "add6", "9", "11", "13"]
+            if extension in ["add4", "11"]:
+                available_alterations = []
+    elif quality == "minor":
+        available_sevenths = ["nat7", "m7"]
+        available_extensions = ["add2", "add4", "add6", "6/9", "9"]
+        available_alterations = ["b6"] if extension == "" else []
+        if seventh != "":
+            available_extensions = ["add2", "add4", "add6", "9", "11", "13"]
+            available_alterations = []
+    elif quality == "augmented":
+        available_sevenths = ["nat7", "m7"]
+        available_extensions = ["add2", "9"]
+        available_alterations = ["b9", "#9", "#11"] if seventh != "nat7" else ["#11"]
+    elif quality == "diminished":
+        available_sevenths = ["nat7", "m7", "bb7"]
+        available_extensions = ["9", "11"] if seventh != "m7" else ["9", "11", "13"]
+        available_alterations = []
+    elif quality == "power":
+        available_sevenths = []
+        available_extensions = ["9"]
+        available_alterations = []
+    elif quality == "sus2":
+        available_sevenths = ["nat7", "m7"]
+        available_extensions = ["add4", "add6"]
+        available_alterations = ["#11"]
+    elif quality == "sus4":
+        available_sevenths = ["nat7", "m7"]
+        available_extensions = ["add2", "add6"] if seventh != "nat7" else ["add2"]
+        available_alterations = ["b9"] if seventh != "nat7" else []
+    
+    if root != "":
+        available_slashes.remove("/" + root)
+
+    return {
+        "qualities": available_qualities,
+        "sevenths": available_sevenths,
+        "extensions": available_extensions,
+        "alterations": available_alterations,
+        "slashes": available_slashes
+    }
+
+def get_interval_ratio(pitch1, pitch2, temperment='equal'):
+    multiplier = 1
+    new_interval_semitones = interval_semitones_from_pitches(pitch1, pitch2)
+    while new_interval_semitones > 24:
+        new_interval_semitones -= 12
+        multiplier *= 2
+    new_interval = interval_name_from_semitones(new_interval_semitones)
+    interval_ratio = Fraction(interval_ratio_dict[new_interval][temperment] * multiplier).limit_denominator(1000).as_integer_ratio()
+
+    return interval_ratio, new_interval, multiplier
+
+def freqs_from_ratios(chord_ratio_list, starting_freq = 262):
+    chord_pitches = {}
+    start_pitch = musical_range_frequencies[list(musical_range_frequencies.values()).index(starting_freq)]
+    chord_pitches[start_pitch] = str(starting_freq) + " Hz"
+    for i in range(1, len(chord_ratio_list)):
+        new_freq = round(starting_freq * (chord_ratio_list[i] / chord_ratio_list[0]))
+        new_pitch = musical_range_frequencies[list(musical_range_frequencies.values()).index(new_freq)]
+        chord_pitches[new_pitch] = str(new_freq) + " Hz"
+    return chord_pitches
+
+def simplify_ratios(chord_ratios, index, interval_type, adjustment_limit=0.1, max_cents_adjustment=max_cents_adjustment_dict):
+    chord_ratios_upscaled = [c * 100 for c in chord_ratios.copy()]
+    original_value = chord_ratios_upscaled[index]
+    best_adjustment = 0
+    best_simplified_list = chord_ratios.copy()
+
+    for i in range(-600, 601):  # Adjustments from -6 to 6
+        adjusted_value = original_value + i
+        if abs(adjusted_value / chord_ratios_upscaled[0] - original_value / chord_ratios_upscaled[0]) > adjustment_limit:
+            continue
+        temp_list = chord_ratios_upscaled.copy()
+        temp_list[index] = adjusted_value
+        gcd_value = math.gcd(*temp_list)
+        simplified_list = [int(val / gcd_value) for val in temp_list]
+
+        # Calculate the tuning adjustment for the current note
+        cents_adjustment = cents_delta_from_ratios(simplified_list[index] / simplified_list[0], interval_ratio_dict[interval_type]['equal'])
+        
+        # If the adjustment exceeds the max_adjustment limit, skip this iteration
+        if abs(cents_adjustment) > max_cents_adjustment[interval_type]:
+            continue
+
+        # Check if the new list is genuinely simpler than the best one found so far
+        if max(simplified_list) < max(best_simplified_list) and max(simplified_list) < max(temp_list) and len(set(simplified_list)) == len(chord_ratios_upscaled):
+            best_adjustment = i
+            best_simplified_list = simplified_list
+
+    # If no genuine simplification was found, return the original list
+    if best_adjustment == 0:
+        return chord_ratios_upscaled
+
+    return best_simplified_list
+
+def rewrite_pitch_list_octaves(pitch_list):
+    new_pitch_list = []
+    new_pitch_list.append(pitch_list[0])
+    
+    # Bring notes closer
+    for i in range(len(pitch_list) - 1):
+        current_pitch = new_pitch_list[i]
+        next_pitch = pitch_list[i + 1]
+        current_interval = interval_semitones_from_pitches(current_pitch, next_pitch)
+        if current_interval > 12:
+            new_pitch_list.append(musical_range[musical_range.index(next_pitch) - (12 * int(current_interval / 12))])
+        else:
+            new_pitch_list.append(next_pitch)
+    
+    # Calculate the average octave
+    avg_octave = sum([int(p[-1]) for p in new_pitch_list]) / len(new_pitch_list)
+    
+    # Transpose to majority octave 4
+    if avg_octave != 4:
+        transpose_amount = (4 - int(new_pitch_list[0][-1])) * 12
+        new_pitch_list = [musical_range[musical_range.index(pitch) + transpose_amount] for pitch in new_pitch_list]
+    
+    return new_pitch_list
+
+def rewrite_pitch_list_enharmonics(pitch_list):
+    rewritten_pitch_list = []
+    for p in pitch_list:
+        if '-' in p or 'b' in p:
+            rewritten_pitch_list.append(musical_range_compatable(p))
+        else:
+            rewritten_pitch_list.append(p)
+    return rewritten_pitch_list
+
+def reduce_chord_ratios(chord_ratios_list, new_interval_ratio):
+    # Extract the first element of the chord_ratios_list which represents the denominator of the first ratio
+    current_denominator = chord_ratios_list[0]
+    
+    # Calculate the LCM of the current denominator and the denominator of the new_interval_ratio
+    ratio_lcm = math.lcm(current_denominator, new_interval_ratio[1])
+    
+    # Calculate the multipliers for both the chord_ratios_list and the new_interval_ratio
+    multiplier1 = ratio_lcm / current_denominator
+    multiplier2 = ratio_lcm / new_interval_ratio[1]
+    
+    # If the chord_ratios_list needs to be scaled
+    if multiplier1 != 1:
+        chord_ratios_list = [int(item * multiplier1) for item in chord_ratios_list]
+    
+    # Scale the numerator of the new_interval_ratio and append it to the chord_ratios_list
+    scaled_numerator = int(new_interval_ratio[0] * multiplier2)
+    chord_ratios_list.append(scaled_numerator)
+    
+    # Check if the entire list can be scaled down
+    gcd_value = math.gcd(*chord_ratios_list)
+    if gcd_value > 1:
+        chord_ratios_list = [int(val / gcd_value) for val in chord_ratios_list]
+    
+    return chord_ratios_list
+
+def write_freq_and_vol_for_adjustments(adjustment_dict):
+    starting_pitch = list(adjustment_dict.keys())[0]
+    starting_freq = musical_range_frequencies[starting_pitch]
+    
+    for chord_tone, adjustment in adjustment_dict.items():
+        interval_ratio, interval_type, multiplier = get_interval_ratio(starting_pitch, chord_tone, 'just')
+        adjusted_cents = ratio_to_cents(interval_ratio_dict[interval_type]['equal'] * multiplier) + adjustment
+        adjusted_freq = int(round(float(cents_to_ratio(adjusted_cents) * starting_freq), 0))
+        
+        sign = "+" if adjustment > 0 else ""
+        if chord_tone == starting_pitch:
+            adjustment_dict[chord_tone] = [f"{adjusted_freq} Hz", '', interval_volume_dict[interval_type]]
+        else:
+            adjustment_dict[chord_tone] = [f"{adjusted_freq} Hz", f"{sign}{adjustment}", interval_volume_dict[interval_type]]
+
+    return adjustment_dict
+
+def quality_or_interval_to_chord_tones_cents(component):
+    if component in list(chord_by_name_dict.values()):
+        chord_symbol = list(chord_by_name_dict.keys())[list(chord_by_name_dict.values()).index(component)]
+        chord_pitches = pitches_from_chord_symbol("C" + chord_symbol)[1]
+        chord_intervals = chord_by_interval_dict[chord_symbol]
+    elif component in list(interval_name_to_semitones_dict.keys()):
+        chord_intervals = [component]
+        chord_pitches = pitches_from_interval('C4', component)
+    else:
+        return "Invalid input"
+
+    interval_cents = [0]
+    cents_corrections = []
+    for i in range(0, len(chord_intervals)):
+        interval_cents.append(int(ratio_to_cents(interval_ratio_dict[chord_intervals[i]]['equal'])))
+
+    intonated_dict = just_intonate(chord_pitches)[0]
+    for pitch, info in intonated_dict.items():
+        if info[1] == "":
+            cents_corrections.append(0)
+        else:
+            cents_corrections.append(int(info[1]))
+
+    return [sum(i) for i in zip(interval_cents, cents_corrections)]
+
+def cents_list_to_chord_ratios(cents_list, denom=10):
+    if cents_list[0] != 0:
+        return "The first element of the cents_list must be 0"
+
+    chord_ratios = []
+    for i in range(1, len(cents_list)):
+        interval_ratio = Fraction(cents_to_ratio(cents_list[i] - cents_list[0])).limit_denominator(denom).as_integer_ratio()
+        if len(chord_ratios) == 0:
+            chord_ratios.extend([interval_ratio[1], interval_ratio[0]])
+        else:
+            chord_ratios = reduce_chord_ratios(chord_ratios, interval_ratio)
+    return chord_ratios
+
+def just_intonate(pitch_list, adjustment_margin=0.1):
+    pitch_list = sorted(pitch_list, key=lambda x: musical_range.index(x))
+    chord_tuning = {pitch_list[0]: 0}
+    chord_ratios = []
+    if len(pitch_list) == 1:
+        chord_tuning = {pitch_list[0]: [str(int(frequency_from_pitch(pitch_list[0]))) + ' Hz', '', 1]}
+        return chord_tuning, ''
+    
+    cleaned_pitch_list = rewrite_pitch_list_octaves(rewrite_pitch_list_enharmonics(pitch_list))
+    for n in range(1, len(cleaned_pitch_list)):
+        interval_ratio, interval_type, multiplier = get_interval_ratio(cleaned_pitch_list[0], cleaned_pitch_list[n], temperment='just')
+        # If it's the first ratio, simply add it
+        if len(chord_ratios) == 0:
+            chord_ratios.extend([interval_ratio[1], interval_ratio[0]])
+        else:
+            # Get the updated chord_ratios with the new interval
+            updated_ratios = reduce_chord_ratios(chord_ratios, interval_ratio)
+            
+            # Simplify the updated_ratios with the new interval
+            for i in reversed(range(1, len(updated_ratios))):
+                updated_ratios = simplify_ratios(updated_ratios, i, interval_type, adjustment_margin)
+            
+            chord_ratios = updated_ratios
+
+        chord_tuning[pitch_list[n]] = int(cents_delta_from_ratios(chord_ratios[n] / chord_ratios[0], interval_ratio_dict[interval_type]['equal'] * multiplier))
+        
+    chord_tuning = write_freq_and_vol_for_adjustments(chord_tuning)
+
+    # Scale down the chord_ratios list by their GCD
+    gcd_value = math.gcd(*chord_ratios)
+    chord_ratios = [int(val / gcd_value) for val in chord_ratios]
+    chord_ratio_string = ':'.join([str(r) for r in chord_ratios])
+    return chord_tuning, chord_ratio_string
+
