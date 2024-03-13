@@ -22,35 +22,38 @@
         </div>
         <div class="icon-tabs">
             <button class="help-button">?</button>
-            <div class="icon-tab piano-icon active" id="pianoTab"></div>
-            <div class="icon-tab xy-icon" id="xyTab"></div>
+            <div class="icon-tab piano-icon active" id="pianoTab">🎹</div>
+            <div class="icon-tab xy-icon" id="xyTab">X/Y</div>
+            <div class="icon-tab phase-icon" id="phaseTab">
+                <img src="svgs/two_sine.png" alt="Two Sine Waves" class="phase-icon-img">
+            </div>
         </div>
     </div>
     <div id="piano-tab"class="tab-content">
         <div class="piano-functions">
             <div class="left-side-buttons">
-                <button class="deselect-button disabled">
+                <button class="function-button deselect-button disabled">
                     <img src = "svgs/power.png" class="power-icon">
                 </button>
-                <button class="mute-button disabled">
+                <button class="function-button mute-button disabled">
                     <img src = "svgs/Speaker_Icon.svg.png" class="audio-on-icon hidden">
                     <img src = "svgs/Mute_Icon.svg.png" class="mute-on-icon hidden">
                     <img src = "svgs/Speaker_Icon_Inactive.svg.png" class="audio-inactive-icon">
                 </button>
-                <button class="rebalance-button disabled">
+                <button class="function-button rebalance-button disabled">
                     <img src = "svgs/unbalanced-scales.png" class="unbalanced-icon hidden">
                     <img src = "svgs/balanced-scales.png" class="balanced-icon">
                 </button>
             </div>
             <div class="frequencyRatioString"></div>
             <div class="wavetable-buttons">
-                <button class="wavetable-button" data-wavetype="sine">
+                <button class="function-button wavetable-button" data-wavetype="sine">
                     <img src="svgs/sine.png" class="sine-icon">
                 </button>
-                <button class="wavetable-button" data-wavetype="square">
+                <button class="function-button wavetable-button" data-wavetype="square">
                     <img src="svgs/square.png" class="square-icon">
                 </button>
-                <button class="wavetable-button" data-wavetype="sawtooth">
+                <button class="function-button wavetable-button" data-wavetype="sawtooth">
                     <img src="svgs/saw.png" class="saw-icon">
                 </button>
             </div>
@@ -421,6 +424,117 @@
             </div>
         </div>        
     </div>
+    <div id="phase-tab" class="tab-content">
+        <div class="phase-drag-area">
+            <div class="phase-drag-buttons">
+                <div class="phase-button-upper">
+                    <div class="phase-chord-number-label">Number Of Notes</div>
+                    <div class="phase-chord-number-buttons">
+                        <button class="chord-number-button" data-type="minus">-</button>
+                        <div class="phase-chord-number-display">2</div>
+                        <button class="chord-number-button" data-type="plus">+</button>
+                    </div>
+                </div>
+                <div class="phase-chord-type-label">Interval</div>
+                <div class="phase-button-lower">
+                    <div class="phase-chord-intervals">
+                        <button class="phase-chord-preset" data-type="m2">m2</button>
+                        <button class="phase-chord-preset" data-type="M2">M2</button>
+                        <button class="phase-chord-preset" data-type="m3">m3</button>
+                        <button class="phase-chord-preset" data-type="M3">M3</button>
+                        <button class="phase-chord-preset" data-type="P4">P4</button>
+                        <button class="phase-chord-preset" data-type="d5">d5</button>
+                        <button class="phase-chord-preset active" data-type="P5">P5</button>
+                        <button class="phase-chord-preset" data-type="m6">m6</button>
+                        <button class="phase-chord-preset" data-type="M6">M6</button>
+                        <button class="phase-chord-preset" data-type="m7">m7</button>
+                        <button class="phase-chord-preset" data-type="M7">M7</button>
+                        <button class="phase-chord-preset" data-type="P8">P8</button>
+                    </div>
+                    <div class="phase-chord-triads hidden">
+                        <button class="phase-chord-preset active" data-type="major">Major</button>
+                        <button class="phase-chord-preset" data-type="minor">Minor</button>
+                        <button class="phase-chord-preset" data-type="augmented">Augmented</button>
+                        <button class="phase-chord-preset" data-type="diminished">Diminished</button>
+                    </div>
+                    <div class="phase-chord-sevenths hidden">
+                        <button class="phase-chord-preset active" data-type="major 7th">Major 7th</button>
+                        <button class="phase-chord-preset" data-type="minor 7th">Minor 7th</button>
+                        <button class="phase-chord-preset" data-type="dominant 7th">Dominant 7th</button>
+                        <button class="phase-chord-preset" data-type="minor 7th flat five">Half Diminished</button>
+                        <button class="phase-chord-preset" data-type="diminished 7th">Fully Diminished</button>
+                    </div>
+                </div>
+            </div>
+            <div class="phase-drag-lines">
+                <img src="svgs/wholeNote.svg.png" class="note-drag" id="note-drag-1"></img>
+                <img src="svgs/wholeNote.svg.png" class="note-drag" id="note-drag-2"></img>
+                <img src="svgs/wholeNote.svg.png" class="note-drag" id="note-drag-3"></img>
+                <img src="svgs/wholeNote.svg.png" class="note-drag" id="note-drag-4"></img>
+                <div class="phase-drag-line" data-type="1200">+1200</div>
+                <div class="phase-drag-line" data-type="1100">+1100</div>
+                <div class="phase-drag-line" data-type="1000">+1000</div>
+                <div class="phase-drag-line" data-type="900">+900</div>
+                <div class="phase-drag-line" data-type="800">+800</div>
+                <div class="phase-drag-line" data-type="700">+700</div>
+                <div class="phase-drag-line" data-type="600">+600</div>
+                <div class="phase-drag-line" data-type="500">+500</div>
+                <div class="phase-drag-line" data-type="400">+400</div>
+                <div class="phase-drag-line" data-type="300">+300</div>
+                <div class="phase-drag-line" data-type="200">+200</div>
+                <div class="phase-drag-line" data-type="100">+100</div>
+                <div class="phase-drag-line" data-type="0">+0</div>
+            </div>
+        </div>
+        <div class="phase-graph-area">
+            <div class="phase-graph-info">
+                <div class="ratio-display-div">
+                    <div class="ratio-display-label">Ratio</div>
+                    <div class="ratio-display"></div>
+                </div>
+                <div class="cancellation-display-div">
+                    <div class="cancellation-display-label">Cancellations</div>
+                    <div class="cancellation-display"></div>
+                </div>
+            </div>
+            <div class="canvas-graph">
+                <canvas id="canvas"></canvas>
+            </div>
+            <!-- <div class="canvas-option-div hidden">
+                <button class="canvas-option active" data-type="multi">Multi</button>
+                <button class="canvas-option" data-type="summed">Summed</button>
+            </div>
+            <div class="canvas-volume-div hidden">
+                <div class="canvas-volume-label">Volume</div>
+                <div class="canvas-volume-options">
+                    <div class="canvas-volume-option">
+                        <input type="range" min="0" max="100" value="100" class="canvas-volume-slider" data-type="sine-1">
+                        <button class="canvas-volume-button" data-type="mute-1">
+                            <img src="svgs/Speaker_Icon.svg.png" class="audio-on-icon">
+                        </button>
+                    </div>
+                    <div class="canvas-volume-option">
+                        <input type="range" min="0" max="100" value="100" class="canvas-volume-slider" data-type="sine-2">
+                        <button class="canvas-volume-button" data-type="mute-2">
+                            <img src="svgs/Speaker_Icon.svg.png" class="audio-on-icon">
+                        </button>
+                    </div>
+                    <div class="canvas-volume-option">
+                        <input type="range" min="0" max="100" value="100" class="canvas-volume-slider" data-type="sine-3">
+                        <button class="canvas-volume-button" data-type="mute-3">
+                            <img src="svgs/Speaker_Icon.svg.png" class="audio-on-icon">
+                        </button>
+                    </div>
+                    <div class="canvas-volume-option">
+                        <input type="range" min="0" max="100" value="100" class="canvas-volume-slider" data-type="sine-4">
+                        <button class="canvas-volume-button" data-type="mute-4">
+                            <img src="svgs/Speaker_Icon.svg.png" class="audio-on-icon">
+                        </button>
+                    </div>
+                </div>
+            </div> -->
+        </div>
+    </div>
     <py-script class="pyscript">
         import js
         import pyodide
@@ -433,7 +547,7 @@
             loader.style.opacity = "100";
             setTimeout(() => {
                 loader.style.display = "none";
-            }, 500); // 500ms for fade-out animation
+            }, 4000); // 500ms for fade-out animation
         });
 
         window.addEventListener('load', () => {
@@ -532,13 +646,13 @@
             let lastCalledTime = 0;
             const delay = 16; // 60fps
 
-            function handleStart(event) {
+            function handlePianoStart(event) {
                 isDragging = true;
                 currentKey = this; // Set the current key
                 initialVolume = parseFloat(this.getAttribute('data-volume') || '0.1');
             }
 
-            function handleMove(event) {
+            function handlePianoMove(event) {
                 const currentTime = new Date().getTime();
                 if (currentTime - lastCalledTime < delay) {
                     return;
@@ -582,8 +696,7 @@
                 }
             }
 
-            function handleEnd(event) {
-                console.log(event)
+            function handlePianoEnd(event) {
                 if (event.type === 'touchend' || event.target !== currentKey) {
                     prevTouchY = null;
                     wasDragged = false;
@@ -601,8 +714,8 @@
                 key.querySelector('.key-label').textContent = noteLabel;
                 }
 
-                key.addEventListener('mousedown', handleStart);
-                key.addEventListener('touchstart', handleStart, { passive: false });
+                key.addEventListener('mousedown', handlePianoStart);
+                key.addEventListener('touchstart', handlePianoStart, { passive: false });
 
                 key.addEventListener('click', function() {
                     const note = this.getAttribute('data-note');
@@ -686,11 +799,11 @@
                 });
             });
 
-            document.addEventListener('mousemove', handleMove);
-            document.addEventListener('touchmove', handleMove, { passive: false });
+            document.addEventListener('mousemove', handlePianoMove);
+            document.addEventListener('touchmove', handlePianoMove, { passive: false });
 
-            document.addEventListener('mouseup', handleEnd);
-            document.addEventListener('touchend', handleEnd);
+            document.addEventListener('mouseup', handlePianoEnd);
+            document.addEventListener('touchend', handlePianoEnd);
 
             // Get the deselect button element
             const deselectButton = document.querySelector('.deselect-button');
@@ -853,23 +966,70 @@
             // Tab functionality
             const pianoTabIcon = document.getElementById('pianoTab');
             const xyTabIcon = document.getElementById('xyTab');
+            const phaseTabIcon = document.getElementById('phaseTab');
             const pianoContent = document.getElementById('piano-tab');
             const xyContent = document.getElementById('xy-tab');
+            const phaseContent = document.getElementById('phase-tab');
 
             pianoTabIcon.addEventListener('click', function() {
                 pianoTabIcon.classList.add('active');
                 xyTabIcon.classList.remove('active');
-                clearXYscreen()
+                phaseTabIcon.classList.remove('active');
+                clearXYscreen();
+                clearPhaseScreen();
                 pianoContent.style.display = 'block';
                 xyContent.style.display = 'none';
+                phaseContent.style.display = 'none';
             });
 
             xyTabIcon.addEventListener('click', function() {
                 xyTabIcon.classList.add('active');
                 pianoTabIcon.classList.remove('active');
-                clearPianoScreen()
+                phaseTabIcon.classList.remove('active');
+                clearPianoScreen();
+                clearPhaseScreen();
                 pianoContent.style.display = 'none';
                 xyContent.style.display = 'block';
+                phaseContent.style.display = 'none';
+            });
+
+            phaseTabIcon.addEventListener('click', function() {
+                if (phaseTabIcon.classList.contains('active')) {
+                    return;
+                }
+                phaseTabIcon.classList.add('active');
+                xyTabIcon.classList.remove('active');
+                pianoTabIcon.classList.remove('active');
+                clearPianoScreen();
+                clearXYscreen();
+                pianoContent.style.display = 'none';
+                xyContent.style.display = 'none';
+                phaseContent.style.display = 'block';
+                calculateLinePositions();
+                storeOriginalPositions();
+                dragItems.forEach(dragItem => {
+                    if (dragItem.id !== 'note-drag-1') {
+                        dragItem.addEventListener('mousedown', dragStart);
+
+                        if (dragItem.id === 'note-drag-3' || dragItem.id === 'note-drag-4') {
+                            dragItem.classList.add('hidden');
+                        }
+                    } 
+                });
+                document.addEventListener('mouseup', dragEnd);
+                document.addEventListener('mousemove', drag);
+
+                phaseNoteNumber = document.querySelectorAll('.note-drag:not(.hidden)').length;
+                phaseChordNumberDisplay.textContent = phaseNoteNumber;
+                updatePresets(phaseNoteNumber);
+                getAllPositionValues();
+                var cancellations = calculatePhaseCancellation(allSineFrequencies, allSineAmplitudes, allSinePhaseShifts);
+                setCancellationDisplay(cancellations)
+                
+                document.addEventListener('scrollend', () =>{
+                    calculateLinePositions();
+                    getAllPositionValues(); // Update positions after scrolling
+                });
             });
 
             // Chord selector
@@ -1269,7 +1429,513 @@
                     }
                 });
             });
-        });   
+
+            //// Phase Tab Functionality /////
+            const dragLines = document.querySelectorAll('.phase-drag-line');
+            const dragItems = document.querySelectorAll('.note-drag');
+            let presetCents = [0, 702]
+            let active = false;
+            let yDelta;
+            let initialY;
+            let lastClientY = null;
+            let yOffset = 0;
+            let draggedItem;
+            let linePositions = [];
+            let svgPositions = [];
+            let frequencyFactors = [];
+            let phaseChordLabel = document.querySelector('.phase-chord-type-label');
+            let phaseNoteNumber;
+            let phaseChordNumberDisplay = document.querySelector('.phase-chord-number-display');
+            var sineGraphWidth = 1280;
+            var sineGraphHeight = 175;
+            var sineGraphScale = 1;
+            var sineBaseFrequency = 20;
+            var sineBaseSpeed = 0;
+            let sineTwoMultiplier;
+            let sineThreeMultiplier;
+            let sineFourMultiplier;
+            let baseColor = "hsl(240, 100%, 50%)";
+            let netAmplitude;
+            let allSineFrequencies = [];
+            let allSineAmplitudes = [];
+            let allSinePhaseShifts = [];
+            sineGraphStart();
+
+            const phaseTabPlusMinus = document.querySelectorAll('.chord-number-button');
+            phaseTabPlusMinus.forEach(button => {
+                button.addEventListener('click', function() {
+                    const buttonDataType = button.getAttribute('data-type');
+
+                    if (phaseNoteNumber === 2 && buttonDataType === "minus" || phaseNoteNumber === 4 && buttonDataType === "plus") {
+                        return;
+                    } else if (buttonDataType === "plus") {
+                        document.querySelector('.note-drag.hidden').classList.remove('hidden');
+                        phaseNoteNumber += 1;
+                        phaseChordNumberDisplay.textContent = phaseNoteNumber;
+                    } else if (buttonDataType === "minus") {
+                        document.querySelectorAll('.note-drag')[phaseNoteNumber - 1].classList.add('hidden');
+                        phaseNoteNumber -= 1;
+                        phaseChordNumberDisplay.textContent = phaseNoteNumber;
+                    }
+
+                    if (phaseNoteNumber === 2) {
+                        phaseChordLabel.textContent = "Interval";
+                    } else {
+                        phaseChordLabel.textContent = "Chord Quality";
+                    }
+                    updatePresets(phaseNoteNumber);
+                });
+            });
+
+            function updatePresets (number) {
+                let activeGroup;
+                if (number === 2) {
+                    activeGroup = document.querySelector('.phase-chord-intervals');
+                    document.querySelector('.phase-chord-intervals').querySelector('.phase-chord-preset[data-type="P5"]').classList.add('active');
+                    activeGroup.classList.remove('hidden');
+                    document.querySelector('.phase-chord-triads').classList.add('hidden');
+                    document.querySelector('.phase-chord-sevenths').classList.add('hidden');
+                } else if (number === 3) {
+                    activeGroup = document.querySelector('.phase-chord-triads');
+                    document.querySelector('.phase-chord-triads').querySelector('.phase-chord-preset[data-type="major"]').classList.add('active');
+                    document.querySelector('.phase-chord-intervals').classList.add('hidden');
+                    document.querySelector('.phase-chord-sevenths').classList.add('hidden');
+                    activeGroup.classList.remove('hidden');
+                } else if (number === 4) {
+                    activeGroup = document.querySelector('.phase-chord-sevenths');
+                    document.querySelector('.phase-chord-sevenths').querySelector('.phase-chord-preset[data-type="major 7th"]').classList.add('active');
+                    document.querySelector('.phase-chord-intervals').classList.add('hidden');
+                    document.querySelector('.phase-chord-triads').classList.add('hidden');
+                    activeGroup.classList.remove('hidden');
+                }
+                // set group defaults
+
+                const activePreset = activeGroup.querySelector('.phase-chord-preset.active')
+                const presetData = activePreset.getAttribute('data-type');
+                presetCents = getPresetCents(presetData);
+                calculateLinePositions();
+                setAllPositionsFromValues(presetCents);
+                getAllPositionValues();
+                if (presetData.length === 2) {
+                    var intervalRatio = pyscript.interpreter.globals.get('interval_just_ratio_dict').toJs().get(presetData);
+                    getFrequencyFactors(intervalRatio);
+                    setRatioDisplay(intervalRatio);
+                } else {
+                    var intervalRatios = centsListToChordRatios(svgPositions);
+                    getFrequencyFactors(intervalRatios);
+                    setRatioDisplay(intervalRatios);
+                }
+                var cancellations = calculatePhaseCancellation(allSineFrequencies, allSineAmplitudes, allSinePhaseShifts);
+                setCancellationDisplay(cancellations)
+            }
+
+            const phaseTabPresets = document.querySelectorAll('.phase-chord-preset');
+
+            phaseTabPresets.forEach(preset => {
+                preset.addEventListener('click', function() {
+                    if (!preset.parentElement.classList.contains('hidden')) {
+                        const presetParentChildren = preset.parentElement.querySelectorAll('.phase-chord-preset');
+                        presetParentChildren.forEach(preset => {
+                            preset.classList.remove('active');
+                        });
+                    }
+                    preset.classList.add('active');
+
+                    const presetData = preset.getAttribute('data-type');
+                    presetCents = getPresetCents(presetData);
+                    calculateLinePositions();
+                    setAllPositionsFromValues(presetCents);
+                    getAllPositionValues();
+                    if (presetData.length === 2) {
+                        var intervalRatio = pyscript.interpreter.globals.get('interval_just_ratio_dict').toJs().get(presetData);
+                        getFrequencyFactors(intervalRatio);
+                        setRatioDisplay(intervalRatio);
+                                                var cancellations = calculatePhaseCancellation(allSineFrequencies, allSineAmplitudes, allSinePhaseShifts);
+                        setCancellationDisplay(cancellations)
+                    } else {
+                        var intervalRatios = centsListToChordRatios(svgPositions);
+                        getFrequencyFactors(intervalRatios);
+                        setRatioDisplay(intervalRatios);
+                    }
+                    var cancellations = calculatePhaseCancellation(allSineFrequencies, allSineAmplitudes, allSinePhaseShifts);
+                    setCancellationDisplay(cancellations)
+                });
+            });
+
+            function calculateLinePositions() {
+                linePositions = []; // Reset the array
+                dragLines.forEach(line => {
+                    const rect = line.getBoundingClientRect();
+                    linePositions.push((((rect.top + rect.bottom) / 2) + window.scrollY)); // Adjust for scrolling
+                });
+            }
+            
+            function storeOriginalPositions() {
+                dragItems.forEach(item => {
+                    const rect = item.getBoundingClientRect();
+                    const originalCenterY = rect.top + window.scrollY + rect.height / 2;
+                    // Store the original center Y position as a data attribute
+                    item.dataset.originalCenterY = originalCenterY;
+                });
+            }
+
+            function getAllPositionValues() {
+                svgPositions = []; // Reset the array
+                calculateLinePositions();
+                dragItems.forEach(item => {
+                    if (!item.classList.contains('hidden')) {
+                        svgPositions.push(getValueFromPosition(item));
+                    }
+                });
+            }
+
+            function getValueFromPosition(svgElement) {
+                const svgRect = svgElement.getBoundingClientRect();
+                const svgCenterY = svgRect.top + window.scrollY + svgRect.height / 2;
+
+                for (let i = 0; i < linePositions.length - 1; i++) {
+                    if (dragLines[i + 1]) {
+                        var centLineValue = Number(dragLines[i + 1].getAttribute('data-type'));
+                    }
+                    if (svgCenterY >= linePositions[i] && svgCenterY <= linePositions[i + 1]) {
+                        const range = linePositions[i + 1] - linePositions[i];
+                        const relativePos = linePositions[i + 1] - svgCenterY;
+                        const centPercent = relativePos / range;
+                        const interpolatedValue = (centPercent * 100) + centLineValue;
+                        return Math.round(interpolatedValue, 0);
+                    }
+                }
+                return "Out of range"; // If the SVG is not between any lines
+            }
+
+            function setAllPositionsFromValues(values) {
+                calculateLinePositions();
+                dragItems.forEach((item, index) => {
+                    if (!item.classList.contains('hidden')) {
+                        setPositionFromValue(item, values[index]);
+                    }
+                });
+            }
+
+            function setPositionFromValue(svgElement, value) {
+                const originalCenterY = parseFloat(svgElement.dataset.originalCenterY);
+
+                for (let i = 0; i < linePositions.length - 1; i++) {
+                    if (dragLines[i + 1]) {
+                        const centLineValue = Number(dragLines[i + 1].getAttribute('data-type'));
+                        const nextCentLineValue = Number(dragLines[i].getAttribute('data-type'));
+                        if (value >= centLineValue && value <= nextCentLineValue) {
+                            const range = linePositions[i + 1] - linePositions[i];
+                            const centPercent = (value - centLineValue) / 100;
+                            const relativePos = range * centPercent;
+                            const newY = linePositions[i + 1] - relativePos;
+                            const translationY = newY - originalCenterY;
+                            // console.log('originalCenterY', originalCenterY, 'value', value, 'bottomLinePosition', linePositions[i + 1], 'relativePos', relativePos, 'newY', newY, 'translationY', translationY);
+                            svgElement.style.transform = `translate3d(0, ${translationY}px, 0)`;
+                            break; // Exit the loop once the correct position is found and applied
+                        }
+                    }
+                }
+            }
+
+            function getPresetCents(presetType) {
+                return pyscript.interpreter.globals.get('quality_or_interval_to_chord_tones_cents')(presetType).toJs();
+            }
+
+            function centsListToChordRatios(centsList, denom = 10) {
+                return pyscript.interpreter.globals.get('cents_list_to_chord_ratios')(centsList, denom).toJs();
+            }
+
+            function setRatioDisplay(ratios) {
+                const ratioDisplay = document.querySelector('.ratio-display');
+                if (ratioDisplay) {
+                    // format ratio array to like 4:5:6, etc/
+                    ratioDisplay.textContent = ratios.join(':');;
+                }
+            }
+
+            function setCancellationDisplay(cancellations) {
+                const cancellationDisplay = document.querySelector('.cancellation-display');
+                if (cancellationDisplay) {
+                    cancellationDisplay.textContent = cancellations + "/s";
+                }
+            }
+
+            function getFrequencyFactors(intervalRatios) {
+                frequencyFactors = [];
+                var frequencyList = [1];
+                for (let i = 0; i < intervalRatios.length - 1; i++) {
+                    frequencyList.push(intervalRatios[i + 1] / intervalRatios[i]);
+                }
+                frequencyFactors = frequencyList;
+                assignSineMultipliers()
+                if (sineThreeMultiplier === 0 && sineFourMultiplier === 0) {
+                    allSineFrequencies = [sineBaseFrequency, sineBaseFrequency * sineTwoMultiplier];
+                    allSineAmplitudes = [50, 50];
+                    allSinePhaseShifts = [0, sineBaseSpeed * sineTwoMultiplier];
+                } else if (sineFourMultiplier === 0) {
+                    allSineFrequencies = [sineBaseFrequency, sineBaseFrequency * sineTwoMultiplier, sineBaseFrequency * sineThreeMultiplier];
+                    allSineAmplitudes = [50, 50, 50];
+                    allSinePhaseShifts = [0, sineBaseSpeed * sineTwoMultiplier, sineBaseSpeed * sineThreeMultiplier];
+                } else {
+                    allSineFrequencies = [sineBaseFrequency, sineBaseFrequency * sineTwoMultiplier, sineBaseFrequency * sineThreeMultiplier, sineBaseFrequency * sineFourMultiplier];
+                    allSineAmplitudes = [50, 50, 50, 50];
+                    allSinePhaseShifts = [0, sineBaseSpeed * sineTwoMultiplier, sineBaseSpeed * sineThreeMultiplier, sineBaseSpeed * sineFourMultiplier];
+                }
+            }
+            
+            function assignSineMultipliers() {
+                if (frequencyFactors.length === 0) {
+                    sineTwoMultiplier = 1;
+                    sineThreeMultiplier = 1;
+                    sineFourMultiplier = 1;
+                } else if (frequencyFactors.length === 2) {
+                    sineTwoMultiplier = frequencyFactors[1];
+                    sineThreeMultiplier = 0;
+                    sineFourMultiplier = 0;
+                } else if (frequencyFactors.length === 3) {
+                    sineTwoMultiplier = frequencyFactors[1];
+                    sineThreeMultiplier = frequencyFactors[2];
+                    sineFourMultiplier = 0;
+                } else if (frequencyFactors.length === 4) {
+                    sineTwoMultiplier = frequencyFactors[1];
+                    sineThreeMultiplier = frequencyFactors[2];
+                    sineFourMultiplier = frequencyFactors[3];
+                } 
+            }
+
+            function dragStart(e) {
+                if (e.target.classList.contains('note-drag')) {
+                    initialY = e.clientY;
+                    active = true;
+                    draggedItem = e.target;
+
+                    // If the element has a previous translation, store it; otherwise, start at 0
+                    const transform = draggedItem.style.transform;
+                    yOffset = transform ? parseFloat(transform.split(',')[1]) : 0;
+                }
+            }
+
+            function drag(e) {
+                if (active) {
+                    e.preventDefault();
+                    getAllPositionValues();
+                    
+                    yDelta = e.clientY - initialY;
+                    let newYOffset = yOffset + yDelta;
+                    let canMove = true;
+
+                    const targetBounding = draggedItem.getBoundingClientRect();
+                    const draggedItemCenter = targetBounding.top + (targetBounding.height / 2) + window.scrollY + newYOffset;
+                    console.log(draggedItemCenter, linePositions[linePositions.length - 1], linePositions[0]);
+
+                    // // Determine mouse movement direction
+                    // const movingDown = e.clientY > (lastClientY || e.clientY);
+                    // lastClientY = e.clientY; // Update lastClientY for next call
+
+                    // // Check if the potential center position crosses the boundary lines
+                    // if (draggedItemCenter > linePositions[linePositions.length - 1] || draggedItemCenter < linePositions[0]) {
+                    //     canMove = false;
+                    // }
+
+                    // // Check for crossing other SVGs
+                    // const index = Array.from(document.querySelectorAll('.note-drag:not(.hidden)')).indexOf(draggedItem);
+                    // if (index > 0 && movingDown && draggedItemCenter < linePositions[index - 1]) {
+                    //     canMove = false;
+                    // }
+                    // if (index < linePositions.length - 1 && !movingDown && draggedItemCenter > linePositions[index + 1]) {
+                    //     canMove = false;
+                    // }
+                    
+                    if (canMove) {
+                        setTranslate(0, newYOffset, draggedItem);
+                        getAllPositionValues();
+                        var intervalRatios = centsListToChordRatios(svgPositions, 100);
+                        setRatioDisplay(intervalRatios);
+                        getFrequencyFactors(intervalRatios);
+                        var cancellations = calculatePhaseCancellation(allSineFrequencies, allSineAmplitudes, allSinePhaseShifts);
+                        setCancellationDisplay(cancellations)
+                        const activePreset = document.querySelector('.phase-chord-preset.active');
+                        if (activePreset) {
+                            activePreset.classList.remove('active');
+                        }
+                    }
+                }
+            }
+
+            function dragEnd() {
+                if (active) {
+                    getAllPositionValues();
+                    var intervalRatios = centsListToChordRatios(svgPositions, 100);
+                    setRatioDisplay(intervalRatios);
+                    getFrequencyFactors(intervalRatios);
+                    var cancellations = calculatePhaseCancellation(allSineFrequencies, allSineAmplitudes, allSinePhaseShifts);
+                    setCancellationDisplay(cancellations)
+                    active = false;
+                }
+            }
+
+            function setTranslate(xPos, yPos, el) {
+                el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
+            }
+        
+            function showAxes(ctx,axes) {
+                var width = ctx.canvas.width;
+                var height = ctx.canvas.height;
+                var xMin = 0;
+                
+                ctx.beginPath();
+                ctx.strokeStyle = "rgb(128,128,128)";
+                
+                // X-Axis
+                ctx.moveTo(xMin, height/2);
+                ctx.lineTo(width, height/2);
+
+                // // Starting line
+                // ctx.moveTo(0, 0);
+                // ctx.lineTo(0, height);
+                
+                ctx.stroke();
+            }
+
+            function calculateNetAmplitude(x, xOffset, frequencies, amplitudes, phaseShifts) {
+                let netAmplitude = 0;
+                for (let i = 0; i < frequencies.length; i++) {
+                    let y = amplitudes[i] * Math.sin((x + xOffset + phaseShifts[i]) / frequencies[i]);
+                    netAmplitude += y;
+                }
+                return netAmplitude;
+            }
+
+            function adjustColorBasedOnAmplitude(color, amplitude) {
+                // Parse the HSL color to extract its components
+                let [hue, saturation, lightness] = color.match(/\d+/g).map(Number);
+
+                // Adjust the lightness based on the amplitude
+                // Example: scale the lightness from 30% to 70% based on the amplitude
+                let adjustedLightness = 30 + (amplitude * 20); // Adjust this range as needed
+
+                // Ensure lightness does not exceed 100%
+                // adjustedLightness = Math.min(100, adjustedLightness);
+                adjustedLightness = lightness;
+
+                // Adjust saturation based on the amplitude
+                // Example: scale the saturation from 50% to 100% based on the amplitude
+                let adjustedSaturation = 50 + (amplitude * 50); // Adjust this range as needed
+
+                // Ensure saturation does not exceed 100%
+                adjustedSaturation = Math.min(100, adjustedSaturation);
+
+                return `hsl(${hue}, ${adjustedSaturation}%, ${adjustedLightness}%)`;
+            }
+
+            function adjustStrokeWidthBasedOnAmplitude(amplitude) {
+                // Example: scale stroke width from 1 to 5 based on amplitude
+                return 2 + (amplitude * 10); // Adjust this range as needed
+            }
+
+            function calculatePhaseCancellation(frequencies, amplitudes) {
+                let dt = 0.001; // Time step
+                let cancellations = 0;
+                let zeroCrossings = 0;
+                let threshold = 2; // Define a suitable threshold for low net amplitude
+                let currentSign = 1;
+
+                for (let t = 0; t <= 1; t += dt) {
+                    let sum = 0;
+                    for (let i = 0; i < frequencies.length; i++) {
+                        if (frequencies[i] === NaN || frequencies[i] === Infinity || frequencies[i] === 0) {
+                            continue; // Skip waves with zero amplitude
+                        }
+                        sum += amplitudes[i] * Math.sin(2 * Math.PI * frequencies[i] * t);
+                    }
+                    if (Math.sign(sum) !== currentSign) {
+                        zeroCrossings++;
+                        currentSign = Math.sign(sum);
+                    }
+                    if (Math.abs(sum) < threshold) {
+                        cancellations++;
+                    }
+                }
+                return cancellations;
+            }
+
+            function plotSine(ctx, xOffset, frequency, baseColor, amplitude = 70) {
+                var width = ctx.canvas.width;
+                var height = ctx.canvas.height;
+
+                let allSineFrequencies = [sineBaseFrequency, sineBaseFrequency / sineTwoMultiplier, sineBaseFrequency / sineThreeMultiplier, sineBaseFrequency / sineFourMultiplier];
+                let allSineAmplitudes = [50, 50, 50, 50]; // Example amplitudes
+                let allSinePhaseShifts = [0, sineBaseSpeed * sineTwoMultiplier, sineBaseSpeed * sineThreeMultiplier, sineBaseSpeed * sineFourMultiplier];
+
+                for (let x = 0; x < width; x++) {
+                    let netAmplitude = calculateNetAmplitude(x, xOffset, allSineFrequencies, allSineAmplitudes, allSinePhaseShifts);
+                    let y = height / 2 + amplitude * Math.sin((x + xOffset) / frequency);
+                    let normalizedAmplitude = Math.abs(netAmplitude) / (Math.max(...[amplitude]) * 4); // Normalize net amplitude for color adjustment
+
+                    ctx.strokeStyle = adjustColorBasedOnAmplitude(baseColor, normalizedAmplitude);
+                    ctx.lineWidth = adjustStrokeWidthBasedOnAmplitude(normalizedAmplitude);
+                    // console.log(`x: ${x}, netAmplitude: ${netAmplitude}, normalizedAmplitude: ${normalizedAmplitude}, lineWidth: ${ctx.lineWidth}, strokeStyle: ${ctx.strokeStyle}`);
+                    // Begin a new path for each segment with specific stroke width
+                    if (x === 0) {
+                        ctx.beginPath();
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                        ctx.stroke(); // Apply stroke here to use the specific lineWidth
+                        ctx.beginPath(); // Begin new path to potentially use a new lineWidth
+                        ctx.moveTo(x, y);
+                    }
+                }
+                ctx.stroke();
+            }
+
+            function draw() {
+                var canvas = document.getElementById("canvas");
+                var context = canvas.getContext("2d");
+                canvas.style.width = sineGraphWidth + 'px';
+                canvas.style.height = sineGraphHeight + 'px';
+                canvas.width = sineGraphWidth * sineGraphScale;
+                canvas.height = sineGraphHeight * sineGraphScale;
+
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                showAxes(context);
+                context.save();
+
+                var width = context.canvas.width;
+                var threshold = 0.01; // Define a suitable threshold for low net amplitude
+
+                plotSine(context, sineBaseSpeed, sineBaseFrequency, baseColor);
+                if (sineTwoMultiplier > 0) {
+                    plotSine(context, sineBaseSpeed * sineTwoMultiplier, sineBaseFrequency / sineTwoMultiplier, baseColor);
+                }
+                if (sineThreeMultiplier > 0) {
+                    plotSine(context, sineBaseSpeed * sineThreeMultiplier, sineBaseFrequency / sineThreeMultiplier, baseColor);
+                }
+                if (sineFourMultiplier > 0) {
+                    plotSine(context, sineBaseSpeed * sineFourMultiplier, sineBaseFrequency / sineFourMultiplier, baseColor);
+                }
+                context.restore();
+                
+                sineBaseSpeed += 2;
+                window.requestAnimationFrame(draw);
+            }
+            
+            function sineGraphStart() {
+                window.requestAnimationFrame(draw);
+            }
+
+            function clearPhaseScreen() {
+                document.querySelectorAll('.note-drag').forEach(item => {
+                    item.style.transform = `translate3d(0, 0, 0)`;
+                });
+                document.querySelector('.note-drag.hidden').classList.remove('hidden');
+                phaseNoteNumber = 2;
+                phaseChordNumberDisplay.textContent = phaseNoteNumber;
+                phaseChordLabel.textContent = "Interval";
+                updatePresets(phaseNoteNumber);
+            }
+        }); // End of window load event listener
     </script>    
 </body>
 </html>
