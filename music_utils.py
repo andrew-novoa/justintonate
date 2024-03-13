@@ -82,6 +82,7 @@ interval_name_to_semitones_dict = {
     'm3': 3,
     'M3': 4,
     'P4': 5,
+    'A4': 6,
     'd5': 6,
     'P5': 7,
     'A5': 8,
@@ -115,6 +116,7 @@ interval_ratio_dict = {
     'A4': {'just': 45/32, 'equal': 2**(6/12)},
     'd5': {'just': 64/45, 'equal': 2**(6/12)},
     'P5': {'just': 3/2, 'equal': 2**(7/12)},
+    'A5': {'just': 8/5, 'equal': 2**(8/12)},
     'm6': {'just': 8/5, 'equal': 2**(8/12)},
     'M6': {'just': 5/3, 'equal': 2**(9/12)},
     'm7': {'just': 16/9, 'equal': 2**(10/12)},
@@ -133,6 +135,24 @@ interval_ratio_dict = {
     'm14': {'just': 32/9, 'equal': 2**(22/12)},
     'M14': {'just': 30/8, 'equal': 2**(23/12)},
     'P15': {'just': 4, 'equal': 2**(24/12)}
+}
+
+interval_just_ratio_dict = {
+    'P1': [1, 1],
+    'm2': [15, 16],
+    'M2': [8, 9],
+    'm3': [5, 6],
+    'M3': [4, 5],
+    'P4': [3, 4],
+    'A4': [32, 45],
+    'd5': [45, 64],
+    'P5': [2, 3],
+    'A5': [5, 8],
+    'm6': [5, 8],
+    'M6': [3, 5],
+    'm7': [9, 16],
+    'M7': [8, 15],
+    'P8': [1, 2]
 }
 
 interval_volume_dict = {
@@ -398,6 +418,13 @@ def musical_range_compatable(pitch_with_octave):
     for enharmonic in enharmonic_equivalents[pitch_parts[0]]:
         if enharmonic + str(pitch_parts[1]) in musical_range:
             return enharmonic + str(pitch_parts[1])
+
+def pitches_from_interval(pitch, interval):
+    pitches = [pitch]
+    pitch_index = musical_range.index(musical_range_compatable(pitch))
+    interval_semitones = interval_name_to_semitones_dict[interval]
+    pitches.append(musical_range[pitch_index + interval_semitones])
+    return pitches
 
 def interval_semitones_from_pitches(pitch1, pitch2):
     return abs(musical_range.index(musical_range_compatable(pitch2)) - musical_range.index(musical_range_compatable(pitch1)))
@@ -810,7 +837,7 @@ def rewrite_pitch_list_enharmonics(pitch_list):
             rewritten_pitch_list.append(p)
     return rewritten_pitch_list
 
-def rewrite_chord_ratios(chord_ratios_list, new_interval_ratio):
+def reduce_chord_ratios(chord_ratios_list, new_interval_ratio):
     # Extract the first element of the chord_ratios_list which represents the denominator of the first ratio
     current_denominator = chord_ratios_list[0]
     
@@ -853,6 +880,44 @@ def write_freq_and_vol_for_adjustments(adjustment_dict):
 
     return adjustment_dict
 
+def quality_or_interval_to_chord_tones_cents(component):
+    if component in list(chord_by_name_dict.values()):
+        chord_symbol = list(chord_by_name_dict.keys())[list(chord_by_name_dict.values()).index(component)]
+        chord_pitches = pitches_from_chord_symbol("C" + chord_symbol)[1]
+        chord_intervals = chord_by_interval_dict[chord_symbol]
+    elif component in list(interval_name_to_semitones_dict.keys()):
+        chord_intervals = [component]
+        chord_pitches = pitches_from_interval('C4', component)
+    else:
+        return "Invalid input"
+
+    interval_cents = [0]
+    cents_corrections = []
+    for i in range(0, len(chord_intervals)):
+        interval_cents.append(int(ratio_to_cents(interval_ratio_dict[chord_intervals[i]]['equal'])))
+
+    intonated_dict = just_intonate(chord_pitches)[0]
+    for pitch, info in intonated_dict.items():
+        if info[1] == "":
+            cents_corrections.append(0)
+        else:
+            cents_corrections.append(int(info[1]))
+
+    return [sum(i) for i in zip(interval_cents, cents_corrections)]
+
+def cents_list_to_chord_ratios(cents_list, denom=10):
+    if cents_list[0] != 0:
+        return "The first element of the cents_list must be 0"
+
+    chord_ratios = []
+    for i in range(1, len(cents_list)):
+        interval_ratio = Fraction(cents_to_ratio(cents_list[i] - cents_list[0])).limit_denominator(denom).as_integer_ratio()
+        if len(chord_ratios) == 0:
+            chord_ratios.extend([interval_ratio[1], interval_ratio[0]])
+        else:
+            chord_ratios = reduce_chord_ratios(chord_ratios, interval_ratio)
+    return chord_ratios
+
 def just_intonate(pitch_list, adjustment_margin=0.1):
     pitch_list = sorted(pitch_list, key=lambda x: musical_range.index(x))
     chord_tuning = {pitch_list[0]: 0}
@@ -869,7 +934,7 @@ def just_intonate(pitch_list, adjustment_margin=0.1):
             chord_ratios.extend([interval_ratio[1], interval_ratio[0]])
         else:
             # Get the updated chord_ratios with the new interval
-            updated_ratios = rewrite_chord_ratios(chord_ratios, interval_ratio)
+            updated_ratios = reduce_chord_ratios(chord_ratios, interval_ratio)
             
             # Simplify the updated_ratios with the new interval
             for i in reversed(range(1, len(updated_ratios))):
