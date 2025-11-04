@@ -545,22 +545,109 @@
         // Helper function to wait for PyScript to be ready
         function waitForPyScript() {
             return new Promise((resolve, reject) => {
-                // Check if PyScript is already loaded
-                if (window.pyscript && window.pyscript.interpreter && window.pyscript.interpreter.globals) {
-                    resolve(window.pyscript);
+                // Helper to check if PyScript is ready
+                const checkReady = () => {
+                    // Try multiple ways to access PyScript
+                    let pyscript = null;
+                    
+                    // Method 1: window.pyscript.interpreter.globals (original API)
+                    if (window.pyscript && window.pyscript.interpreter && window.pyscript.interpreter.globals) {
+                        pyscript = window.pyscript;
+                    }
+                    // Method 2: Check for Pyodide runtime directly
+                    else if (window.pyodide && window.pyodide.globals) {
+                        // Create a wrapper object to match the expected API
+                        pyscript = {
+                            interpreter: {
+                                globals: window.pyodide.globals
+                            }
+                        };
+                    }
+                    // Method 3: Check pyscript.runtime.globals
+                    else if (window.pyscript && window.pyscript.runtime && window.pyscript.runtime.globals) {
+                        pyscript = {
+                            interpreter: {
+                                globals: window.pyscript.runtime.globals
+                            }
+                        };
+                    }
+                    // Method 4: Check if py-script tag has finished loading
+                    else {
+                        // Try to get the interpreter from the py-script element
+                        const pyScriptElement = document.querySelector('py-script');
+                        if (pyScriptElement && pyScriptElement._pyodide) {
+                            pyscript = {
+                                interpreter: {
+                                    globals: pyScriptElement._pyodide.globals
+                                }
+                            };
+                        }
+                    }
+                    
+                    return pyscript;
+                };
+                
+                // Check if already ready
+                const pyscript = checkReady();
+                if (pyscript) {
+                    resolve(pyscript);
                     return;
                 }
                 
-                // Wait for PyScript to load
+                // Listen for PyScript/Pyodide ready events
+                const readyHandler = () => {
+                    const pyscript = checkReady();
+                    if (pyscript) {
+                        document.removeEventListener('pyodideReady', readyHandler);
+                        document.removeEventListener('pyscriptready', readyHandler);
+                        document.removeEventListener('pyscript:ready', readyHandler);
+                        resolve(pyscript);
+                        return true;
+                    }
+                    return false;
+                };
+                
+                // Listen for various ready events
+                document.addEventListener('pyodideReady', readyHandler);
+                document.addEventListener('pyscriptready', readyHandler);
+                document.addEventListener('pyscript:ready', readyHandler);
+                
+                // Wait for py-script tag to load
+                const pyScriptElement = document.querySelector('py-script');
+                if (pyScriptElement) {
+                    pyScriptElement.addEventListener('pyodideReady', readyHandler);
+                }
+                
+                // Also poll as fallback
                 let attempts = 0;
-                const maxAttempts = 100; // 5 seconds max wait
+                const maxAttempts = 300; // 15 seconds max wait (increased timeout for slow connections)
                 const checkInterval = setInterval(() => {
                     attempts++;
-                    if (window.pyscript && window.pyscript.interpreter && window.pyscript.interpreter.globals) {
+                    const pyscript = checkReady();
+                    if (pyscript) {
                         clearInterval(checkInterval);
-                        resolve(window.pyscript);
+                        document.removeEventListener('pyodideReady', readyHandler);
+                        document.removeEventListener('pyscriptready', readyHandler);
+                        document.removeEventListener('pyscript:ready', readyHandler);
+                        if (pyScriptElement) {
+                            pyScriptElement.removeEventListener('pyodideReady', readyHandler);
+                        }
+                        resolve(pyscript);
                     } else if (attempts >= maxAttempts) {
                         clearInterval(checkInterval);
+                        document.removeEventListener('pyodideReady', readyHandler);
+                        document.removeEventListener('pyscriptready', readyHandler);
+                        document.removeEventListener('pyscript:ready', readyHandler);
+                        if (pyScriptElement) {
+                            pyScriptElement.removeEventListener('pyodideReady', readyHandler);
+                        }
+                        console.error('PyScript not found. Available:', {
+                            window_pyscript: !!window.pyscript,
+                            window_pyodide: !!window.pyodide,
+                            pyscript_interpreter: !!(window.pyscript && window.pyscript.interpreter),
+                            pyscript_runtime: !!(window.pyscript && window.pyscript.runtime),
+                            py_script_element: !!pyScriptElement
+                        });
                         reject(new Error('PyScript failed to load within timeout period'));
                     }
                 }, 50);
