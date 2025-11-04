@@ -542,6 +542,42 @@
         from music_utils import *
     </py-script>
     <script>
+        // Helper function to wait for PyScript to be ready
+        function waitForPyScript() {
+            return new Promise((resolve, reject) => {
+                // Check if PyScript is already loaded
+                if (window.pyscript && window.pyscript.interpreter && window.pyscript.interpreter.globals) {
+                    resolve(window.pyscript);
+                    return;
+                }
+                
+                // Wait for PyScript to load
+                let attempts = 0;
+                const maxAttempts = 100; // 5 seconds max wait
+                const checkInterval = setInterval(() => {
+                    attempts++;
+                    if (window.pyscript && window.pyscript.interpreter && window.pyscript.interpreter.globals) {
+                        clearInterval(checkInterval);
+                        resolve(window.pyscript);
+                    } else if (attempts >= maxAttempts) {
+                        clearInterval(checkInterval);
+                        reject(new Error('PyScript failed to load within timeout period'));
+                    }
+                }, 50);
+            });
+        }
+
+        // Helper function to safely get PyScript interpreter
+        async function getPyScriptInterpreter() {
+            try {
+                const pyscript = await waitForPyScript();
+                return pyscript.interpreter.globals;
+            } catch (error) {
+                console.error('Error accessing PyScript:', error);
+                throw error;
+            }
+        }
+
         window.addEventListener('load', () => {
             const loader = document.getElementById('loader');
             loader.style.opacity = "100";
@@ -717,7 +753,7 @@
                 key.addEventListener('mousedown', handlePianoStart);
                 key.addEventListener('touchstart', handlePianoStart, { passive: false });
 
-                key.addEventListener('click', function() {
+                key.addEventListener('click', async function() {
                     const note = this.getAttribute('data-note');
                     const freqDiv = this.querySelector('.frequency');
                     let volumeAdjustment = parseFloat(this.getAttribute('data-volume') || '0.1');
@@ -757,8 +793,10 @@
                         deselectButton.classList.add('active');
                         rebalanceButton.classList.remove('disabled');
                         rebalanceButton.classList.add('active');
-                        const result = pyscript.interpreter.globals.get('just_intonate')(activePitches);
-                        const [justIntonationData, freqRatioString] = result.toJs();
+                        try {
+                            const globals = await getPyScriptInterpreter();
+                            const result = globals.get('just_intonate')(activePitches);
+                            const [justIntonationData, freqRatioString] = result.toJs();
                         
                         justIntonationData.forEach((info, pitch) => {
                             const keyElement = document.querySelector(`[data-note="${pitch}"]`);
@@ -784,6 +822,9 @@
                         });
 
                         freqRatioDiv.textContent = freqRatioString;
+                        } catch (error) {
+                            console.error('Error accessing PyScript:', error);
+                        }
                     }
 
                     if (freqDiv.textContent) {
@@ -794,7 +835,7 @@
                     }
 
                     if (chordDisplay.textContent && xyTabIcon.classList.contains('active')) {
-                        updateAdjustmentInfo(note);
+                        await updateAdjustmentInfo(note);
                     }
                 });
             });
@@ -834,23 +875,28 @@
 
             const rebalanceButton = document.querySelector('.rebalance-button');
 
-            rebalanceButton.addEventListener('click', () => {
+            rebalanceButton.addEventListener('click', async () => {
                 if (activePitches.length > 0 && pianoTabIcon.classList.contains('active')) {
-                    const result = pyscript.interpreter.globals.get('just_intonate')(activePitches);
-                    const [justIntonationData, freqRatioString] = result.toJs();
-                    
-                    justIntonationData.forEach((info, pitch) => {
-                        const keyElement = document.querySelector(`[data-note="${pitch}"]`);
-                        const freqDiv = keyElement.querySelector('.frequency');
+                    try {
+                        const globals = await getPyScriptInterpreter();
+                        const result = globals.get('just_intonate')(activePitches);
+                        const [justIntonationData, freqRatioString] = result.toJs();
+                        
+                        justIntonationData.forEach((info, pitch) => {
+                            const keyElement = document.querySelector(`[data-note="${pitch}"]`);
+                            const freqDiv = keyElement.querySelector('.frequency');
 
-                        volumeAdjustment = info[2];
-                        keyElement.setAttribute('data-volume', volumeAdjustment.toString());
-                        keyElement.classList.remove('manual');
+                            volumeAdjustment = info[2];
+                            keyElement.setAttribute('data-volume', volumeAdjustment.toString());
+                            keyElement.classList.remove('manual');
 
-                        // Update the frequency and volume of the active oscillator
-                        const newFreq = parseFloat(info[0].split(' ')[0]);
-                        changeFrequencyAndVolume(pitch, newFreq, volumeAdjustment);
-                    });
+                            // Update the frequency and volume of the active oscillator
+                            const newFreq = parseFloat(info[0].split(' ')[0]);
+                            changeFrequencyAndVolume(pitch, newFreq, volumeAdjustment);
+                        });
+                    } catch (error) {
+                        console.error('Error accessing PyScript:', error);
+                    }
                 }
                 document.querySelector('.balanced-icon').classList.remove('hidden');
                 document.querySelector('.unbalanced-icon').classList.add('hidden');
@@ -1065,7 +1111,7 @@
             const smallPianokeys = document.querySelectorAll('.small-white-key, .small-black-key');
 
             smallPianokeys.forEach(smallKey => {
-                smallKey.addEventListener('click', function() {
+                smallKey.addEventListener('click', async function() {
                     const wasActive = this.classList.contains('active'); // Check if the clicked key was active
 
                     // Remove 'active' class from all keys
@@ -1085,7 +1131,7 @@
                         });
 
                         const note = this.getAttribute('data-note');
-                        updateAdjustmentInfo(note, melodyContext);
+                        await updateAdjustmentInfo(note, melodyContext);
                     } else {
                         adjustmentInfo.textContent = "";
                         // Disable context buttons when there is no chord symbol or active key
@@ -1127,7 +1173,7 @@
             contextButtons.forEach(button => {
                 button.classList.add('disabled');
                 button.classList.remove('selected');
-                button.addEventListener('click', function() {
+                button.addEventListener('click', async function() {
                     // Check if the button is disabled
                     if (this.classList.contains('disabled')) {
                         return;
@@ -1148,7 +1194,7 @@
                     const activeKey = document.querySelector('.small-white-key.active, .small-black-key.active');
                     if (activeKey && chordDisplay.textContent) {
                         const note = activeKey.getAttribute('data-note');
-                        updateAdjustmentInfo(note, melodyContext);
+                        await updateAdjustmentInfo(note, melodyContext);
                     }
                 });
             });
@@ -1173,11 +1219,16 @@
             });
 
             // Modify your existing updateAdjustmentInfo function
-            function updateAdjustmentInfo(pitchInfo, melodyContext) {
-                const [adjustmentData, insideData, outsideData] = pyscript.interpreter.globals.get('intonate_single_pitch')(pitchInfo, chordPitchesList, melodyContext).toJs();
-                adjustmentInfo.textContent = adjustmentData;
-                insidePossible = insideData;
-                outsidePossible = outsideData;
+            async function updateAdjustmentInfo(pitchInfo, melodyContext) {
+                try {
+                    const globals = await getPyScriptInterpreter();
+                    const [adjustmentData, insideData, outsideData] = globals.get('intonate_single_pitch')(pitchInfo, chordPitchesList, melodyContext).toJs();
+                    adjustmentInfo.textContent = adjustmentData;
+                    insidePossible = insideData;
+                    outsidePossible = outsideData;
+                } catch (error) {
+                    console.error('Error accessing PyScript:', error);
+                }
 
                 // Update the state of the context-buttons
                 const insideButton = document.querySelector('.context-button[data-context="inside"]');
@@ -1216,7 +1267,7 @@
                 }
             }
 
-            function updateChordSymbol() {
+            async function updateChordSymbol() {
                 const components = [
                     selectedRoot,
                     selectedQuality,
@@ -1227,18 +1278,23 @@
                 ];
                 
                 if (selectedRoot && selectedQuality) {
-                    const chordSymbol = pyscript.interpreter.globals.get('construct_chord_symbol')(components);
-                    const [chordPitchesString, pitchList, updatedChordSymbol] = pyscript.interpreter.globals.get('pitches_from_chord_symbol')(chordSymbol);
-                    chordDisplay.textContent = updatedChordSymbol;
-                    chordPitches.textContent = chordPitchesString;
-                    chordPitchesList = pitchList;
+                    try {
+                        const globals = await getPyScriptInterpreter();
+                        const chordSymbol = globals.get('construct_chord_symbol')(components);
+                        const [chordPitchesString, pitchList, updatedChordSymbol] = globals.get('pitches_from_chord_symbol')(chordSymbol);
+                        chordDisplay.textContent = updatedChordSymbol;
+                        chordPitches.textContent = chordPitchesString;
+                        chordPitchesList = pitchList;
+                    } catch (error) {
+                        console.error('Error accessing PyScript:', error);
+                    }
                 } else {
                     chordDisplay.textContent = '';
                     chordPitches.textContent = '';
                 }
             }
         
-            function updateAvailableOptions() {
+            async function updateAvailableOptions() {
                 const components = [
                     selectedRoot,
                     selectedQuality,
@@ -1248,8 +1304,10 @@
                     selectedSlash
                 ];
 
-                const availableOptionsData = pyscript.interpreter.globals.get('get_available_options')(components);
-                const availableOptions = new Map(availableOptionsData.toJs());
+                try {
+                    const globals = await getPyScriptInterpreter();
+                    const availableOptionsData = globals.get('get_available_options')(components);
+                    const availableOptions = new Map(availableOptionsData.toJs());
 
                 // Gray out unavailable options
                 document.querySelectorAll(`[data-type="quality"]`).forEach(btn => {
@@ -1296,6 +1354,9 @@
                         btn.classList.remove('disabled');
                     }
                 });
+                } catch (error) {
+                    console.error('Error accessing PyScript:', error);
+                }
             }
 
             function clearXYscreen() {
@@ -1325,7 +1386,7 @@
 
             // Call these functions whenever a button is clicked
             document.querySelectorAll('.chord-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
+                btn.addEventListener('click', async () => {
                     // Check if the button already has the 'selected' class
                     if (btn.classList.contains('selected')) {
                         // If it does, remove the 'selected' class
@@ -1384,7 +1445,7 @@
                     }
 
                     // Call the functions
-                    updateAvailableOptions();
+                    await updateAvailableOptions();
 
                     // New code to check for disabled class
                     ['.row.roots', '.row.qualities', '.row.sevenths', '.row.extensions', '.row.alterations'].forEach(selector => {
@@ -1414,13 +1475,13 @@
                         }
                     });
 
-                    updateChordSymbol();
+                    await updateChordSymbol();
 
                     // Update the adjustment info if a key is active
                     const activeKey = document.querySelector('.small-white-key.active, .small-black-key.active');
                     if (activeKey && (selectedRoot && selectedQuality)) {
                         const note = activeKey.getAttribute('data-note');
-                        updateAdjustmentInfo(note, melodyContext);
+                        await updateAdjustmentInfo(note, melodyContext);
                     } else {
                         adjustmentInfo.textContent = "";
                         contextButtons.forEach(button => {
@@ -1487,7 +1548,7 @@
                 });
             });
 
-            function updatePresets (number) {
+            async function updatePresets (number) {
                 let activeGroup;
                 if (number === 2) {
                     activeGroup = document.querySelector('.phase-chord-intervals');
@@ -1512,18 +1573,23 @@
 
                 const activePreset = activeGroup.querySelector('.phase-chord-preset.active')
                 const presetData = activePreset.getAttribute('data-type');
-                presetCents = getPresetCents(presetData);
+                presetCents = await getPresetCents(presetData);
                 calculateLinePositions();
                 setAllPositionsFromValues(presetCents);
                 getAllPositionValues();
-                if (presetData.length === 2) {
-                    var intervalRatio = pyscript.interpreter.globals.get('interval_just_ratio_dict').toJs().get(presetData);
-                    getFrequencyFactors(intervalRatio);
-                    setRatioDisplay(intervalRatio);
-                } else {
-                    var intervalRatios = centsListToChordRatios(svgPositions);
-                    getFrequencyFactors(intervalRatios);
-                    setRatioDisplay(intervalRatios);
+                try {
+                    if (presetData.length === 2) {
+                        const globals = await getPyScriptInterpreter();
+                        var intervalRatio = globals.get('interval_just_ratio_dict').toJs().get(presetData);
+                        getFrequencyFactors(intervalRatio);
+                        setRatioDisplay(intervalRatio);
+                    } else {
+                        var intervalRatios = await centsListToChordRatios(svgPositions);
+                        getFrequencyFactors(intervalRatios);
+                        setRatioDisplay(intervalRatios);
+                    }
+                } catch (error) {
+                    console.error('Error accessing PyScript:', error);
                 }
                 var cancellations = calculatePhaseCancellation(allSineFrequencies, allSineAmplitudes, allSinePhaseShifts);
                 setCancellationDisplay(cancellations)
@@ -1532,7 +1598,7 @@
             const phaseTabPresets = document.querySelectorAll('.phase-chord-preset');
 
             phaseTabPresets.forEach(preset => {
-                preset.addEventListener('click', function() {
+                preset.addEventListener('click', async function() {
                     if (!preset.parentElement.classList.contains('hidden')) {
                         const presetParentChildren = preset.parentElement.querySelectorAll('.phase-chord-preset');
                         presetParentChildren.forEach(preset => {
@@ -1542,23 +1608,28 @@
                     preset.classList.add('active');
 
                     const presetData = preset.getAttribute('data-type');
-                    presetCents = getPresetCents(presetData);
+                    presetCents = await getPresetCents(presetData);
                     calculateLinePositions();
                     setAllPositionsFromValues(presetCents);
                     getAllPositionValues();
-                    if (presetData.length === 2) {
-                        var intervalRatio = pyscript.interpreter.globals.get('interval_just_ratio_dict').toJs().get(presetData);
-                        getFrequencyFactors(intervalRatio);
-                        setRatioDisplay(intervalRatio);
-                                                var cancellations = calculatePhaseCancellation(allSineFrequencies, allSineAmplitudes, allSinePhaseShifts);
+                    try {
+                        if (presetData.length === 2) {
+                            const globals = await getPyScriptInterpreter();
+                            var intervalRatio = globals.get('interval_just_ratio_dict').toJs().get(presetData);
+                            getFrequencyFactors(intervalRatio);
+                            setRatioDisplay(intervalRatio);
+                            var cancellations = calculatePhaseCancellation(allSineFrequencies, allSineAmplitudes, allSinePhaseShifts);
+                            setCancellationDisplay(cancellations)
+                        } else {
+                            var intervalRatios = await centsListToChordRatios(svgPositions);
+                            getFrequencyFactors(intervalRatios);
+                            setRatioDisplay(intervalRatios);
+                        }
+                        var cancellations = calculatePhaseCancellation(allSineFrequencies, allSineAmplitudes, allSinePhaseShifts);
                         setCancellationDisplay(cancellations)
-                    } else {
-                        var intervalRatios = centsListToChordRatios(svgPositions);
-                        getFrequencyFactors(intervalRatios);
-                        setRatioDisplay(intervalRatios);
+                    } catch (error) {
+                        console.error('Error accessing PyScript:', error);
                     }
-                    var cancellations = calculatePhaseCancellation(allSineFrequencies, allSineAmplitudes, allSinePhaseShifts);
-                    setCancellationDisplay(cancellations)
                 });
             });
 
@@ -1638,12 +1709,24 @@
                 }
             }
 
-            function getPresetCents(presetType) {
-                return pyscript.interpreter.globals.get('quality_or_interval_to_chord_tones_cents')(presetType).toJs();
+            async function getPresetCents(presetType) {
+                try {
+                    const globals = await getPyScriptInterpreter();
+                    return globals.get('quality_or_interval_to_chord_tones_cents')(presetType).toJs();
+                } catch (error) {
+                    console.error('Error accessing PyScript:', error);
+                    return [];
+                }
             }
 
-            function centsListToChordRatios(centsList, denom = 10) {
-                return pyscript.interpreter.globals.get('cents_list_to_chord_ratios')(centsList, denom).toJs();
+            async function centsListToChordRatios(centsList, denom = 10) {
+                try {
+                    const globals = await getPyScriptInterpreter();
+                    return globals.get('cents_list_to_chord_ratios')(centsList, denom).toJs();
+                } catch (error) {
+                    console.error('Error accessing PyScript:', error);
+                    return [];
+                }
             }
 
             function setRatioDisplay(ratios) {
