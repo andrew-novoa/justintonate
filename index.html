@@ -1084,9 +1084,11 @@
                 // Remove existing event listeners before adding new ones
                 if (phaseDragEndHandler) {
                     document.removeEventListener('mouseup', phaseDragEndHandler);
+                    document.removeEventListener('touchend', phaseDragEndHandler);
                 }
                 if (phaseDragHandler) {
                     document.removeEventListener('mousemove', phaseDragHandler);
+                    document.removeEventListener('touchmove', phaseDragHandler);
                 }
                 if (phaseScrollHandler) {
                     document.removeEventListener('scrollend', phaseScrollHandler);
@@ -1098,16 +1100,20 @@
                 // Re-query dragItems to get fresh references and remove old listeners
                 const currentDragItems = document.querySelectorAll('.note-drag');
                 currentDragItems.forEach(dragItem => {
+                    // note-drag-1 has pointer-events: none in CSS, so skip it
                     if (dragItem.id !== 'note-drag-1') {
                         // Remove old listeners by cloning (this removes all event listeners)
                         const parent = dragItem.parentNode;
+                        const dragItemId = dragItem.id;
                         const newDragItem = dragItem.cloneNode(true);
                         parent.replaceChild(newDragItem, dragItem);
                         
                         // Re-select the element after replacement
-                        const updatedDragItem = document.getElementById(dragItem.id);
+                        const updatedDragItem = document.getElementById(dragItemId);
                         if (updatedDragItem) {
+                            // Add event listeners for dragging
                             updatedDragItem.addEventListener('mousedown', dragStart);
+                            updatedDragItem.addEventListener('touchstart', dragStart, { passive: false });
                             if (updatedDragItem.id === 'note-drag-3' || updatedDragItem.id === 'note-drag-4') {
                                 updatedDragItem.classList.add('hidden');
                             }
@@ -1128,11 +1134,14 @@
                 
                 document.addEventListener('mouseup', phaseDragEndHandler);
                 document.addEventListener('mousemove', phaseDragHandler);
+                document.addEventListener('touchend', phaseDragEndHandler);
+                document.addEventListener('touchmove', phaseDragHandler, { passive: false });
 
                 phaseNoteNumber = document.querySelectorAll('.note-drag:not(.hidden)').length;
                 if (phaseChordNumberDisplay) {
                     phaseChordNumberDisplay.textContent = phaseNoteNumber;
                 }
+                updateNoteNumberButtons(phaseNoteNumber);
                 updatePresets(phaseNoteNumber);
                 getAllPositionValues();
                 var cancellations = calculatePhaseCancellation(allSineFrequencies, allSineAmplitudes, allSinePhaseShifts);
@@ -1583,7 +1592,7 @@
             let svgPositions = [];
             let frequencyFactors = [];
             let phaseChordLabel = document.querySelector('.phase-chord-type-label');
-            let phaseNoteNumber;
+            let phaseNoteNumber = document.querySelectorAll('.note-drag:not(.hidden)').length;
             let phaseChordNumberDisplay = document.querySelector('.phase-chord-number-display');
             var sineGraphWidth = 1280;
             var sineGraphHeight = 175;
@@ -1599,6 +1608,37 @@
             let allSineAmplitudes = [];
             let allSinePhaseShifts = [];
             sineGraphStart();
+
+            // Function to update button visibility based on note number
+            function updateNoteNumberButtons(number) {
+                const minusButton = document.querySelector('.chord-number-button[data-type="minus"]');
+                const plusButton = document.querySelector('.chord-number-button[data-type="plus"]');
+                
+                if (minusButton && plusButton) {
+                    if (number === 2) {
+                        // 2 notes: hide minus button but keep its space
+                        minusButton.style.visibility = 'hidden';
+                        minusButton.style.pointerEvents = 'none';
+                        plusButton.style.visibility = 'visible';
+                        plusButton.style.pointerEvents = 'auto';
+                    } else if (number === 3) {
+                        // 3 notes: show both buttons
+                        minusButton.style.visibility = 'visible';
+                        minusButton.style.pointerEvents = 'auto';
+                        plusButton.style.visibility = 'visible';
+                        plusButton.style.pointerEvents = 'auto';
+                    } else if (number === 4) {
+                        // 4 notes: hide plus button but keep its space
+                        minusButton.style.visibility = 'visible';
+                        minusButton.style.pointerEvents = 'auto';
+                        plusButton.style.visibility = 'hidden';
+                        plusButton.style.pointerEvents = 'none';
+                    }
+                }
+            }
+
+            // Initialize button visibility on page load
+            updateNoteNumberButtons(phaseNoteNumber);
 
             const phaseTabPlusMinus = document.querySelectorAll('.chord-number-button');
             phaseTabPlusMinus.forEach(button => {
@@ -1626,6 +1666,9 @@
                             phaseChordNumberDisplay.textContent = phaseNoteNumber;
                         }
                     }
+
+                    // Update button visibility after number change
+                    updateNoteNumberButtons(phaseNoteNumber);
 
                     if (phaseChordLabel) {
                         if (phaseNoteNumber === 2) {
@@ -1722,49 +1765,133 @@
             });
 
             function calculateLinePositions() {
-                linePositions = []; // Reset the array
-                dragLines.forEach(line => {
-                    const rect = line.getBoundingClientRect();
-                    linePositions.push((((rect.top + rect.bottom) / 2) + window.scrollY)); // Adjust for scrolling
-                });
+                try {
+                    linePositions = []; // Reset the array
+                    if (!dragLines || dragLines.length === 0) {
+                        return;
+                    }
+                    dragLines.forEach(line => {
+                        if (line) {
+                            const rect = line.getBoundingClientRect();
+                            const centerY = ((rect.top + rect.bottom) / 2) + window.scrollY;
+                            if (!isNaN(centerY)) {
+                                linePositions.push(centerY); // Adjust for scrolling
+                            }
+                        }
+                    });
+                } catch (error) {
+                    console.error('Error in calculateLinePositions:', error);
+                    linePositions = [];
+                }
             }
             
             function storeOriginalPositions() {
-                dragItems.forEach(item => {
-                    const rect = item.getBoundingClientRect();
-                    const originalCenterY = rect.top + window.scrollY + rect.height / 2;
-                    // Store the original center Y position as a data attribute
-                    item.dataset.originalCenterY = originalCenterY;
-                });
+                try {
+                    if (!dragItems || dragItems.length === 0) {
+                        return;
+                    }
+                    dragItems.forEach(item => {
+                        if (item) {
+                            const rect = item.getBoundingClientRect();
+                            const originalCenterY = rect.top + window.scrollY + rect.height / 2;
+                            if (!isNaN(originalCenterY)) {
+                                // Store the original center Y position as a data attribute
+                                item.dataset.originalCenterY = originalCenterY.toString();
+                            }
+                        }
+                    });
+                } catch (error) {
+                    console.error('Error in storeOriginalPositions:', error);
+                }
             }
 
             function getAllPositionValues() {
-                svgPositions = []; // Reset the array
-                calculateLinePositions();
-                dragItems.forEach(item => {
-                    if (!item.classList.contains('hidden')) {
-                        svgPositions.push(getValueFromPosition(item));
+                try {
+                    svgPositions = []; // Reset the array
+                    calculateLinePositions();
+                    if (!dragItems || dragItems.length === 0) {
+                        return;
                     }
-                });
+                    
+                    // Sort drag items by ID to ensure consistent order (note-drag-1, note-drag-2, etc.)
+                    const sortedDragItems = Array.from(dragItems).sort((a, b) => {
+                        const aNum = parseInt(a.id.match(/\d+/)?.[0] || '0');
+                        const bNum = parseInt(b.id.match(/\d+/)?.[0] || '0');
+                        return aNum - bNum;
+                    });
+                    
+                    // Collect positions in order, ensuring note-drag-1 is always first and at 0
+                    sortedDragItems.forEach(item => {
+                        if (!item.classList.contains('hidden')) {
+                            if (item.id === 'note-drag-1') {
+                                // note-drag-1 is always the reference note at 0 cents
+                                svgPositions.push(0);
+                            } else {
+                                const value = getValueFromPosition(item);
+                                svgPositions.push(value);
+                            }
+                        }
+                    });
+                    
+                    // Ensure the first element is always 0 (base/reference note)
+                    // If we have positions but first isn't 0, fix it
+                    if (svgPositions.length > 0 && svgPositions[0] !== 0) {
+                        // Find note-drag-1's position if it exists
+                        const noteDrag1Index = sortedDragItems.findIndex(item => item.id === 'note-drag-1' && !item.classList.contains('hidden'));
+                        if (noteDrag1Index >= 0 && noteDrag1Index < svgPositions.length) {
+                            // Swap: move note-drag-1's value (should be 0) to first position
+                            const temp = svgPositions[0];
+                            svgPositions[0] = 0; // note-drag-1 is always 0
+                            if (noteDrag1Index > 0) {
+                                svgPositions[noteDrag1Index] = temp;
+                            }
+                        } else {
+                            // If note-drag-1 is not in the list, ensure first is 0
+                            svgPositions.unshift(0);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error in getAllPositionValues:', error);
+                    svgPositions = [];
+                }
             }
 
             function getValueFromPosition(svgElement) {
-                const svgRect = svgElement.getBoundingClientRect();
-                const svgCenterY = svgRect.top + window.scrollY + svgRect.height / 2;
+                try {
+                    if (!svgElement || !linePositions || linePositions.length < 2) {
+                        return "Out of range";
+                    }
+                    
+                    const svgRect = svgElement.getBoundingClientRect();
+                    const svgCenterY = svgRect.top + window.scrollY + svgRect.height / 2;
 
-                for (let i = 0; i < linePositions.length - 1; i++) {
-                    if (dragLines[i + 1]) {
-                        var centLineValue = Number(dragLines[i + 1].getAttribute('data-type'));
+                    for (let i = 0; i < linePositions.length - 1; i++) {
+                        if (!dragLines[i + 1]) {
+                            continue;
+                        }
+                        
+                        const centLineValue = Number(dragLines[i + 1].getAttribute('data-type'));
+                        if (isNaN(centLineValue)) {
+                            continue;
+                        }
+                        
+                        if (svgCenterY >= linePositions[i] && svgCenterY <= linePositions[i + 1]) {
+                            const range = linePositions[i + 1] - linePositions[i];
+                            if (range === 0) {
+                                // If range is 0, return the cent line value directly
+                                return Math.round(centLineValue, 0);
+                            }
+                            const relativePos = linePositions[i + 1] - svgCenterY;
+                            const centPercent = relativePos / range;
+                            const interpolatedValue = (centPercent * 100) + centLineValue;
+                            return Math.round(interpolatedValue, 0);
+                        }
                     }
-                    if (svgCenterY >= linePositions[i] && svgCenterY <= linePositions[i + 1]) {
-                        const range = linePositions[i + 1] - linePositions[i];
-                        const relativePos = linePositions[i + 1] - svgCenterY;
-                        const centPercent = relativePos / range;
-                        const interpolatedValue = (centPercent * 100) + centLineValue;
-                        return Math.round(interpolatedValue, 0);
-                    }
+                    return "Out of range"; // If the SVG is not between any lines
+                } catch (error) {
+                    console.error('Error in getValueFromPosition:', error);
+                    return "Out of range";
                 }
-                return "Out of range"; // If the SVG is not between any lines
             }
 
             function setAllPositionsFromValues(values) {
@@ -1777,23 +1904,52 @@
             }
 
             function setPositionFromValue(svgElement, value) {
-                const originalCenterY = parseFloat(svgElement.dataset.originalCenterY);
+                try {
+                    if (!svgElement || typeof value !== 'number' || isNaN(value)) {
+                        return;
+                    }
+                    
+                    const originalCenterY = parseFloat(svgElement.dataset.originalCenterY);
+                    if (isNaN(originalCenterY)) {
+                        // If originalCenterY is not set, calculate it from current position
+                        const rect = svgElement.getBoundingClientRect();
+                        svgElement.dataset.originalCenterY = (rect.top + window.scrollY + rect.height / 2).toString();
+                        return; // Try again next time
+                    }
 
-                for (let i = 0; i < linePositions.length - 1; i++) {
-                    if (dragLines[i + 1]) {
+                    if (!linePositions || linePositions.length < 2) {
+                        return;
+                    }
+
+                    for (let i = 0; i < linePositions.length - 1; i++) {
+                        if (!dragLines[i + 1] || !dragLines[i]) {
+                            continue;
+                        }
+                        
                         const centLineValue = Number(dragLines[i + 1].getAttribute('data-type'));
                         const nextCentLineValue = Number(dragLines[i].getAttribute('data-type'));
+                        
+                        if (isNaN(centLineValue) || isNaN(nextCentLineValue)) {
+                            continue;
+                        }
+                        
                         if (value >= centLineValue && value <= nextCentLineValue) {
                             const range = linePositions[i + 1] - linePositions[i];
+                            if (range === 0) {
+                                continue; // Skip if range is 0
+                            }
                             const centPercent = (value - centLineValue) / 100;
                             const relativePos = range * centPercent;
                             const newY = linePositions[i + 1] - relativePos;
                             const translationY = newY - originalCenterY;
-                            // console.log('originalCenterY', originalCenterY, 'value', value, 'bottomLinePosition', linePositions[i + 1], 'relativePos', relativePos, 'newY', newY, 'translationY', translationY);
-                            svgElement.style.transform = `translate3d(0, ${translationY}px, 0)`;
+                            if (!isNaN(translationY)) {
+                                svgElement.style.transform = `translate3d(0, ${translationY}px, 0)`;
+                            }
                             break; // Exit the loop once the correct position is found and applied
                         }
                     }
+                } catch (error) {
+                    console.error('Error in setPositionFromValue:', error);
                 }
             }
 
@@ -1808,48 +1964,125 @@
 
             function centsListToChordRatios(centsList, denom = 10) {
                 try {
-                    return cents_list_to_chord_ratios(centsList, denom);
+                    if (!centsList || !Array.isArray(centsList) || centsList.length === 0) {
+                        return [];
+                    }
+                    
+                    // Filter out "Out of range" strings and invalid values, but preserve order
+                    // The first element must be 0 (base note), so we need to handle this carefully
+                    const validCents = [];
+                    let hasBaseNote = false;
+                    
+                    for (let i = 0; i < centsList.length; i++) {
+                        const val = centsList[i];
+                        if (typeof val === 'number' && !isNaN(val) && val !== "Out of range") {
+                            // If this is the first element and it's not 0, we need to ensure base is 0
+                            if (i === 0 && val !== 0) {
+                                // Insert 0 at the beginning if first element is not 0
+                                validCents.push(0);
+                                hasBaseNote = true;
+                                // Continue to include this value if it's valid
+                                if (val !== 0) {
+                                    validCents.push(val);
+                                }
+                            } else {
+                                // For subsequent elements, just add them
+                                if (i === 0) {
+                                    hasBaseNote = true;
+                                }
+                                validCents.push(val);
+                            }
+                        }
+                    }
+                    
+                    // Ensure first element is always 0 (base note)
+                    if (validCents.length > 0 && validCents[0] !== 0) {
+                        validCents.unshift(0);
+                    }
+                    
+                    if (validCents.length === 0 || validCents[0] !== 0) {
+                        return [];
+                    }
+                    
+                    return cents_list_to_chord_ratios(validCents, denom);
                 } catch (error) {
-                    console.error('Error:', error);
+                    console.error('Error in centsListToChordRatios:', error);
                     return [];
                 }
             }
 
             function setRatioDisplay(ratios) {
-                const ratioDisplay = document.querySelector('.ratio-display');
-                if (ratioDisplay) {
-                    // format ratio array to like 4:5:6, etc/
-                    ratioDisplay.textContent = ratios.join(':');;
+                try {
+                    const ratioDisplay = document.querySelector('.ratio-display');
+                    if (ratioDisplay) {
+                        if (!ratios || !Array.isArray(ratios) || ratios.length === 0) {
+                            ratioDisplay.textContent = '';
+                            return;
+                        }
+                        // format ratio array to like 4:5:6, etc/
+                        ratioDisplay.textContent = ratios.join(':');
+                    }
+                } catch (error) {
+                    console.error('Error in setRatioDisplay:', error);
                 }
             }
 
             function setCancellationDisplay(cancellations) {
-                const cancellationDisplay = document.querySelector('.cancellation-display');
-                if (cancellationDisplay) {
-                    cancellationDisplay.textContent = cancellations + "/s";
+                try {
+                    const cancellationDisplay = document.querySelector('.cancellation-display');
+                    if (cancellationDisplay) {
+                        const value = (typeof cancellations === 'number' && !isNaN(cancellations)) ? cancellations : 0;
+                        cancellationDisplay.textContent = value + "/s";
+                    }
+                } catch (error) {
+                    console.error('Error in setCancellationDisplay:', error);
                 }
             }
 
             function getFrequencyFactors(intervalRatios) {
-                frequencyFactors = [];
-                var frequencyList = [1];
-                for (let i = 0; i < intervalRatios.length - 1; i++) {
-                    frequencyList.push(intervalRatios[i + 1] / intervalRatios[i]);
-                }
-                frequencyFactors = frequencyList;
-                assignSineMultipliers()
-                if (sineThreeMultiplier === 0 && sineFourMultiplier === 0) {
-                    allSineFrequencies = [sineBaseFrequency, sineBaseFrequency * sineTwoMultiplier];
-                    allSineAmplitudes = [50, 50];
-                    allSinePhaseShifts = [0, sineBaseSpeed * sineTwoMultiplier];
-                } else if (sineFourMultiplier === 0) {
-                    allSineFrequencies = [sineBaseFrequency, sineBaseFrequency * sineTwoMultiplier, sineBaseFrequency * sineThreeMultiplier];
-                    allSineAmplitudes = [50, 50, 50];
-                    allSinePhaseShifts = [0, sineBaseSpeed * sineTwoMultiplier, sineBaseSpeed * sineThreeMultiplier];
-                } else {
-                    allSineFrequencies = [sineBaseFrequency, sineBaseFrequency * sineTwoMultiplier, sineBaseFrequency * sineThreeMultiplier, sineBaseFrequency * sineFourMultiplier];
-                    allSineAmplitudes = [50, 50, 50, 50];
-                    allSinePhaseShifts = [0, sineBaseSpeed * sineTwoMultiplier, sineBaseSpeed * sineThreeMultiplier, sineBaseSpeed * sineFourMultiplier];
+                try {
+                    if (!intervalRatios || !Array.isArray(intervalRatios) || intervalRatios.length === 0) {
+                        frequencyFactors = [];
+                        allSineFrequencies = [sineBaseFrequency];
+                        allSineAmplitudes = [50];
+                        allSinePhaseShifts = [0];
+                        return;
+                    }
+                    
+                    frequencyFactors = [];
+                    var frequencyList = [1];
+                    for (let i = 0; i < intervalRatios.length - 1; i++) {
+                        if (typeof intervalRatios[i] !== 'number' || typeof intervalRatios[i + 1] !== 'number') {
+                            continue;
+                        }
+                        if (intervalRatios[i] === 0) {
+                            console.warn('Division by zero in getFrequencyFactors');
+                            continue;
+                        }
+                        frequencyList.push(intervalRatios[i + 1] / intervalRatios[i]);
+                    }
+                    frequencyFactors = frequencyList;
+                    assignSineMultipliers();
+                    
+                    if (sineThreeMultiplier === 0 && sineFourMultiplier === 0) {
+                        allSineFrequencies = [sineBaseFrequency, sineBaseFrequency * sineTwoMultiplier];
+                        allSineAmplitudes = [50, 50];
+                        allSinePhaseShifts = [0, sineBaseSpeed * sineTwoMultiplier];
+                    } else if (sineFourMultiplier === 0) {
+                        allSineFrequencies = [sineBaseFrequency, sineBaseFrequency * sineTwoMultiplier, sineBaseFrequency * sineThreeMultiplier];
+                        allSineAmplitudes = [50, 50, 50];
+                        allSinePhaseShifts = [0, sineBaseSpeed * sineTwoMultiplier, sineBaseSpeed * sineThreeMultiplier];
+                    } else {
+                        allSineFrequencies = [sineBaseFrequency, sineBaseFrequency * sineTwoMultiplier, sineBaseFrequency * sineThreeMultiplier, sineBaseFrequency * sineFourMultiplier];
+                        allSineAmplitudes = [50, 50, 50, 50];
+                        allSinePhaseShifts = [0, sineBaseSpeed * sineTwoMultiplier, sineBaseSpeed * sineThreeMultiplier, sineBaseSpeed * sineFourMultiplier];
+                    }
+                } catch (error) {
+                    console.error('Error in getFrequencyFactors:', error);
+                    frequencyFactors = [];
+                    allSineFrequencies = [sineBaseFrequency];
+                    allSineAmplitudes = [50];
+                    allSinePhaseShifts = [0];
                 }
             }
             
@@ -1874,73 +2107,160 @@
             }
 
             function dragStart(e) {
-                if (e.target.classList.contains('note-drag')) {
-                    initialY = e.clientY;
+                // Find the note-drag element (in case e.target is a child element)
+                let target = e.target;
+                if (!target.classList.contains('note-drag')) {
+                    target = target.closest('.note-drag');
+                }
+                
+                if (target && target.classList.contains('note-drag')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Handle both mouse and touch events
+                    if (e.type === 'touchstart') {
+                        initialY = e.touches[0].clientY;
+                    } else {
+                        initialY = e.clientY;
+                    }
                     active = true;
-                    draggedItem = e.target;
+                    draggedItem = target;
+
+                    // Ensure originalCenterY is set
+                    if (!draggedItem.dataset.originalCenterY || isNaN(parseFloat(draggedItem.dataset.originalCenterY))) {
+                        const rect = draggedItem.getBoundingClientRect();
+                        const currentCenterY = rect.top + window.scrollY + rect.height / 2;
+                        draggedItem.dataset.originalCenterY = currentCenterY.toString();
+                    }
 
                     // If the element has a previous translation, store it; otherwise, start at 0
                     const transform = draggedItem.style.transform;
-                    yOffset = transform ? parseFloat(transform.split(',')[1]) : 0;
+                    if (transform && transform !== 'none') {
+                        // Parse translate3d(0, yOffset, 0) - handle various formats
+                        // Match pattern: translate3d(X, Y, Z) where Y may have units like "px"
+                        const match = transform.match(/translate3d\([^,]+,\s*([^,)]+)/);
+                        if (match) {
+                            // parseFloat handles units like "px" correctly (returns 50 for "50px")
+                            yOffset = parseFloat(match[1].trim());
+                        } else {
+                            // Fallback: try to parse translateY
+                            const translateYMatch = transform.match(/translateY\(([^)]+)\)/);
+                            if (translateYMatch) {
+                                yOffset = parseFloat(translateYMatch[1].trim());
+                            } else {
+                                yOffset = 0;
+                            }
+                        }
+                    } else {
+                        yOffset = 0;
+                    }
                 }
             }
 
             function drag(e) {
-                if (active) {
-                    e.preventDefault();
-                    getAllPositionValues();
-                    
-                    yDelta = e.clientY - initialY;
-                    let newYOffset = yOffset + yDelta;
-                    let canMove = true;
-
-                    const targetBounding = draggedItem.getBoundingClientRect();
-                    const draggedItemCenter = targetBounding.top + (targetBounding.height / 2) + window.scrollY + newYOffset;
-                    console.log(draggedItemCenter, linePositions[linePositions.length - 1], linePositions[0]);
-
-                    // // Determine mouse movement direction
-                    // const movingDown = e.clientY > (lastClientY || e.clientY);
-                    // lastClientY = e.clientY; // Update lastClientY for next call
-
-                    // // Check if the potential center position crosses the boundary lines
-                    // if (draggedItemCenter > linePositions[linePositions.length - 1] || draggedItemCenter < linePositions[0]) {
-                    //     canMove = false;
-                    // }
-
-                    // // Check for crossing other SVGs
-                    // const index = Array.from(document.querySelectorAll('.note-drag:not(.hidden)')).indexOf(draggedItem);
-                    // if (index > 0 && movingDown && draggedItemCenter < linePositions[index - 1]) {
-                    //     canMove = false;
-                    // }
-                    // if (index < linePositions.length - 1 && !movingDown && draggedItemCenter > linePositions[index + 1]) {
-                    //     canMove = false;
-                    // }
-                    
-                    if (canMove) {
+                if (active && draggedItem) {
+                    try {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        // Handle both mouse and touch events
+                        let currentY;
+                        if (e.type === 'touchmove') {
+                            if (e.touches.length > 0) {
+                                currentY = e.touches[0].clientY;
+                            } else {
+                                return; // No touch data available
+                            }
+                        } else {
+                            currentY = e.clientY;
+                        }
+                        
+                        if (typeof initialY !== 'number' || isNaN(initialY)) {
+                            return; // Invalid initialY
+                        }
+                        
+                        yDelta = currentY - initialY;
+                        let newYOffset = yOffset + yDelta;
+                        
+                        // Calculate boundaries based on drag lines
+                        if (!linePositions || linePositions.length < 2) {
+                            calculateLinePositions();
+                        }
+                        
+                        if (linePositions.length >= 2) {
+                            // Get the original position of the dragged item
+                            const originalCenterY = parseFloat(draggedItem.dataset.originalCenterY);
+                            if (!isNaN(originalCenterY)) {
+                                // Calculate boundaries: min is the first line (top), max is the last line (bottom)
+                                const minLineY = linePositions[0]; // First line (top)
+                                const maxLineY = linePositions[linePositions.length - 1]; // Last line (bottom)
+                                
+                                // Calculate the min and max offsets based on boundaries
+                                // The note's center should stay between minLineY and maxLineY
+                                const minOffset = minLineY - originalCenterY;
+                                const maxOffset = maxLineY - originalCenterY;
+                                
+                                // Constrain newYOffset to stay within boundaries
+                                newYOffset = Math.max(minOffset, Math.min(maxOffset, newYOffset));
+                            }
+                        }
+                        
+                        // Apply the transform immediately for smooth dragging
                         setTranslate(0, newYOffset, draggedItem);
+                        
+                        // Update positions and calculations
                         getAllPositionValues();
                         var intervalRatios = centsListToChordRatios(svgPositions, 100);
                         setRatioDisplay(intervalRatios);
                         getFrequencyFactors(intervalRatios);
                         var cancellations = calculatePhaseCancellation(allSineFrequencies, allSineAmplitudes, allSinePhaseShifts);
-                        setCancellationDisplay(cancellations)
+                        setCancellationDisplay(cancellations);
+                        
+                        // Remove active preset when manually dragging
                         const activePreset = document.querySelector('.phase-chord-preset.active');
                         if (activePreset) {
                             activePreset.classList.remove('active');
                         }
+                    } catch (error) {
+                        console.error('Error in drag:', error);
+                        // Reset drag state on error
+                        active = false;
+                        draggedItem = null;
                     }
                 }
             }
 
-            function dragEnd() {
-                if (active) {
-                    getAllPositionValues();
-                    var intervalRatios = centsListToChordRatios(svgPositions, 100);
-                    setRatioDisplay(intervalRatios);
-                    getFrequencyFactors(intervalRatios);
-                    var cancellations = calculatePhaseCancellation(allSineFrequencies, allSineAmplitudes, allSinePhaseShifts);
-                    setCancellationDisplay(cancellations)
-                    active = false;
+            function dragEnd(e) {
+                if (active && draggedItem) {
+                    try {
+                        // Update yOffset to the final position so subsequent drags start from correct position
+                        const transform = draggedItem.style.transform;
+                        if (transform && transform !== 'none') {
+                            const match = transform.match(/translate3d\([^,]+,\s*([^,)]+)/);
+                            if (match) {
+                                const parsedOffset = parseFloat(match[1].trim());
+                                if (!isNaN(parsedOffset)) {
+                                    yOffset = parsedOffset;
+                                }
+                            }
+                        }
+                        
+                        getAllPositionValues();
+                        var intervalRatios = centsListToChordRatios(svgPositions, 100);
+                        setRatioDisplay(intervalRatios);
+                        getFrequencyFactors(intervalRatios);
+                        var cancellations = calculatePhaseCancellation(allSineFrequencies, allSineAmplitudes, allSinePhaseShifts);
+                        setCancellationDisplay(cancellations);
+                    } catch (error) {
+                        console.error('Error in dragEnd:', error);
+                    } finally {
+                        // Reset drag state
+                        active = false;
+                        draggedItem = null;
+                        initialY = null;
+                        yDelta = 0;
+                        // Note: yOffset is preserved so subsequent drags continue from current position
+                    }
                 }
             }
 
@@ -2003,30 +2323,54 @@
                 return 2 + (amplitude * 10); // Adjust this range as needed
             }
 
-            function calculatePhaseCancellation(frequencies, amplitudes) {
-                let dt = 0.001; // Time step
-                let cancellations = 0;
-                let zeroCrossings = 0;
-                let threshold = 2; // Define a suitable threshold for low net amplitude
-                let currentSign = 1;
+            function calculatePhaseCancellation(frequencies, amplitudes, phaseShifts) {
+                try {
+                    if (!frequencies || !amplitudes || !Array.isArray(frequencies) || !Array.isArray(amplitudes) || frequencies.length === 0) {
+                        return 0;
+                    }
+                    
+                    // Ensure phaseShifts exists and has the same length
+                    if (!phaseShifts || !Array.isArray(phaseShifts) || phaseShifts.length !== frequencies.length) {
+                        phaseShifts = new Array(frequencies.length).fill(0);
+                    }
+                    
+                    let dt = 0.001; // Time step
+                    let cancellations = 0;
+                    let zeroCrossings = 0;
+                    let threshold = 2; // Define a suitable threshold for low net amplitude
+                    let currentSign = 1;
 
-                for (let t = 0; t <= 1; t += dt) {
-                    let sum = 0;
-                    for (let i = 0; i < frequencies.length; i++) {
-                        if (frequencies[i] === NaN || frequencies[i] === Infinity || frequencies[i] === 0) {
-                            continue; // Skip waves with zero amplitude
+                    for (let t = 0; t <= 1; t += dt) {
+                        let sum = 0;
+                        for (let i = 0; i < frequencies.length; i++) {
+                            const freq = frequencies[i];
+                            const amp = amplitudes[i] || 0;
+                            const phaseShift = phaseShifts[i] || 0;
+                            
+                            // Skip invalid values
+                            if (typeof freq !== 'number' || isNaN(freq) || !isFinite(freq) || freq === 0) {
+                                continue;
+                            }
+                            if (typeof amp !== 'number' || isNaN(amp) || !isFinite(amp)) {
+                                continue;
+                            }
+                            
+                            sum += amp * Math.sin(2 * Math.PI * freq * t + phaseShift);
                         }
-                        sum += amplitudes[i] * Math.sin(2 * Math.PI * frequencies[i] * t);
+                        const sign = Math.sign(sum);
+                        if (sign !== 0 && sign !== currentSign) {
+                            zeroCrossings++;
+                            currentSign = sign;
+                        }
+                        if (Math.abs(sum) < threshold) {
+                            cancellations++;
+                        }
                     }
-                    if (Math.sign(sum) !== currentSign) {
-                        zeroCrossings++;
-                        currentSign = Math.sign(sum);
-                    }
-                    if (Math.abs(sum) < threshold) {
-                        cancellations++;
-                    }
+                    return cancellations;
+                } catch (error) {
+                    console.error('Error in calculatePhaseCancellation:', error);
+                    return 0;
                 }
-                return cancellations;
             }
 
             function plotSine(ctx, xOffset, frequency, baseColor, amplitude = 70) {
