@@ -846,7 +846,11 @@ function cents_list_to_chord_ratios(cents_list, denom = 10) {
         if (chord_ratios.length === 0) {
             chord_ratios.push(interval_ratio[1], interval_ratio[0]);
         } else {
-            reduce_chord_ratios(chord_ratios, interval_ratio);
+            // reduce_chord_ratios returns the modified array, so we need to assign it back
+            const updated_ratios = reduce_chord_ratios([...chord_ratios], interval_ratio);
+            // Update chord_ratios with the returned value
+            chord_ratios.length = 0;
+            chord_ratios.push(...updated_ratios);
         }
     }
     return chord_ratios;
