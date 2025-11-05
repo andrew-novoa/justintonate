@@ -1099,18 +1099,29 @@
                 
                 // Re-query dragItems to get fresh references and remove old listeners
                 const currentDragItems = document.querySelectorAll('.note-drag');
+                // Store current transforms before cloning to preserve positions
+                const savedTransforms = new Map();
+                currentDragItems.forEach(dragItem => {
+                    savedTransforms.set(dragItem.id, dragItem.style.transform);
+                });
+                
                 currentDragItems.forEach(dragItem => {
                     // note-drag-1 has pointer-events: none in CSS, so skip it
                     if (dragItem.id !== 'note-drag-1') {
                         // Remove old listeners by cloning (this removes all event listeners)
                         const parent = dragItem.parentNode;
                         const dragItemId = dragItem.id;
+                        const savedTransform = savedTransforms.get(dragItemId);
                         const newDragItem = dragItem.cloneNode(true);
                         parent.replaceChild(newDragItem, dragItem);
                         
                         // Re-select the element after replacement
                         const updatedDragItem = document.getElementById(dragItemId);
                         if (updatedDragItem) {
+                            // Restore the transform to preserve position
+                            if (savedTransform && savedTransform !== 'none') {
+                                updatedDragItem.style.transform = savedTransform;
+                            }
                             // Add event listeners for dragging
                             updatedDragItem.addEventListener('mousedown', dragStart);
                             updatedDragItem.addEventListener('touchstart', dragStart, { passive: false });
@@ -1609,30 +1620,30 @@
             let allSinePhaseShifts = [];
             sineGraphStart();
 
-            // Function to update button visibility based on note number
+            // Function to update button state based on note number
             function updateNoteNumberButtons(number) {
                 const minusButton = document.querySelector('.chord-number-button[data-type="minus"]');
                 const plusButton = document.querySelector('.chord-number-button[data-type="plus"]');
                 
                 if (minusButton && plusButton) {
                     if (number === 2) {
-                        // 2 notes: hide minus button but keep its space
-                        minusButton.style.visibility = 'hidden';
-                        minusButton.style.pointerEvents = 'none';
-                        plusButton.style.visibility = 'visible';
-                        plusButton.style.pointerEvents = 'auto';
+                        // 2 notes: disable minus button
+                        minusButton.disabled = true;
+                        minusButton.classList.add('disabled');
+                        plusButton.disabled = false;
+                        plusButton.classList.remove('disabled');
                     } else if (number === 3) {
-                        // 3 notes: show both buttons
-                        minusButton.style.visibility = 'visible';
-                        minusButton.style.pointerEvents = 'auto';
-                        plusButton.style.visibility = 'visible';
-                        plusButton.style.pointerEvents = 'auto';
+                        // 3 notes: enable both buttons
+                        minusButton.disabled = false;
+                        minusButton.classList.remove('disabled');
+                        plusButton.disabled = false;
+                        plusButton.classList.remove('disabled');
                     } else if (number === 4) {
-                        // 4 notes: hide plus button but keep its space
-                        minusButton.style.visibility = 'visible';
-                        minusButton.style.pointerEvents = 'auto';
-                        plusButton.style.visibility = 'hidden';
-                        plusButton.style.pointerEvents = 'none';
+                        // 4 notes: disable plus button
+                        minusButton.disabled = false;
+                        minusButton.classList.remove('disabled');
+                        plusButton.disabled = true;
+                        plusButton.classList.add('disabled');
                     }
                 }
             }
@@ -1645,9 +1656,12 @@
                 button.addEventListener('click', function() {
                     const buttonDataType = button.getAttribute('data-type');
 
-                    if (phaseNoteNumber === 2 && buttonDataType === "minus" || phaseNoteNumber === 4 && buttonDataType === "plus") {
+                    // Check if button is disabled before processing
+                    if (this.disabled) {
                         return;
-                    } else if (buttonDataType === "plus") {
+                    }
+                    
+                    if (buttonDataType === "plus") {
                         const hiddenNote = document.querySelector('.note-drag.hidden');
                         if (hiddenNote) {
                             hiddenNote.classList.remove('hidden');
@@ -1792,11 +1806,15 @@
                     }
                     dragItems.forEach(item => {
                         if (item) {
-                            const rect = item.getBoundingClientRect();
-                            const originalCenterY = rect.top + window.scrollY + rect.height / 2;
-                            if (!isNaN(originalCenterY)) {
-                                // Store the original center Y position as a data attribute
-                                item.dataset.originalCenterY = originalCenterY.toString();
+                            // Only update originalCenterY if it's not already set
+                            // This preserves the original position from initial load
+                            if (!item.dataset.originalCenterY) {
+                                const rect = item.getBoundingClientRect();
+                                const originalCenterY = rect.top + window.scrollY + rect.height / 2;
+                                if (!isNaN(originalCenterY)) {
+                                    // Store the original center Y position as a data attribute
+                                    item.dataset.originalCenterY = originalCenterY.toString();
+                                }
                             }
                         }
                     });
