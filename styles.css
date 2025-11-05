@@ -32,10 +32,6 @@ body::-webkit-scrollbar {
     display: none;
 }
 
-.pyscript {
-    display: none;
-}
-
 .icon-tabs {
     display: flex;
     justify-content: right;
@@ -246,6 +242,7 @@ body::-webkit-scrollbar {
     justify-content: center; /* Center the child elements vertically */
     align-items: center; /* Center the child elements horizontally */
     user-select: none; /* Prevent text selection */
+    touch-action: manipulation; /* Improve touch responsiveness */
 }
 
 /* Adjust the height of the keys if needed */
@@ -403,6 +400,7 @@ body::-webkit-scrollbar {
     position: relative;
     flex-shrink: 0; /* Prevents flex items from shrinking */
     user-select: none; /* Prevent text selection */
+    touch-action: manipulation; /* Improve touch responsiveness */
 }
 
 .small-white-key {
@@ -656,6 +654,8 @@ body::-webkit-scrollbar {
     flex-direction: row;
     align-items: center;
     justify-content: left; /* Center items */
+    width: 100px; /* Fixed width to prevent shifting */
+    position: relative;
 }
 
 .phase-chord-number-label {
@@ -666,6 +666,8 @@ body::-webkit-scrollbar {
 
 .phase-chord-number-display {
     font-size: 18px;
+    min-width: 20px; /* Fixed width to prevent shifting */
+    text-align: center;
 }
 
 .chord-number-button {
@@ -677,6 +679,18 @@ body::-webkit-scrollbar {
     transition: background-color 0.3s, color 0.3s;
     background-color: #f5f5f5;
     color: #333;
+    width: 30px; /* Fixed width to prevent shifting */
+    text-align: center;
+    flex-shrink: 0; /* Prevent buttons from shrinking */
+}
+
+.chord-number-button:disabled,
+.chord-number-button.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #e0e0e0;
+    color: #999;
+    pointer-events: none;
 }
 
 .phase-chord-type-label {
