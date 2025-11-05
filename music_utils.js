@@ -424,7 +424,9 @@ function pitches_from_chord_symbol(chord_symbol) {
     const replacements = [['(', ''], [')', '']];
     for (const [char, replacement] of replacements) {
         if (cleaned_chord_symbol.includes(char)) {
-            cleaned_chord_symbol = cleaned_chord_symbol.replace(new RegExp(char, 'g'), replacement);
+            // Escape special regex characters
+            const escapedChar = char.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            cleaned_chord_symbol = cleaned_chord_symbol.replace(new RegExp(escapedChar, 'g'), replacement);
         }
     }
     const chord_pitches = [];
@@ -708,30 +710,9 @@ function simplify_ratios(chord_ratios, index, interval_type, adjustment_limit = 
 }
 
 function rewrite_pitch_list_octaves(pitch_list) {
-    const new_pitch_list = [pitch_list[0]];
-    
-    // Bring notes closer
-    for (let i = 0; i < pitch_list.length - 1; i++) {
-        const current_pitch = new_pitch_list[i];
-        const next_pitch = pitch_list[i + 1];
-        const current_interval = interval_semitones_from_pitches(current_pitch, next_pitch);
-        if (current_interval > 12) {
-            new_pitch_list.push(musical_range[musical_range.indexOf(next_pitch) - (12 * Math.floor(current_interval / 12))]);
-        } else {
-            new_pitch_list.push(next_pitch);
-        }
-    }
-    
-    // Calculate the average octave
-    const avg_octave = new_pitch_list.reduce((sum, p) => sum + parseInt(p.slice(-1)), 0) / new_pitch_list.length;
-    
-    // Transpose to majority octave 4
-    if (avg_octave !== 4) {
-        const transpose_amount = (4 - parseInt(new_pitch_list[0].slice(-1))) * 12;
-        new_pitch_list = new_pitch_list.map(pitch => musical_range[musical_range.indexOf(pitch) + transpose_amount]);
-    }
-    
-    return new_pitch_list;
+    // Just reorder/sort the pitches by their position in musical_range
+    // No octave adjustments, no transposition - just sorting
+    return [...pitch_list].sort((a, b) => musical_range.indexOf(a) - musical_range.indexOf(b));
 }
 
 function rewrite_pitch_list_enharmonics(pitch_list) {
@@ -777,18 +758,42 @@ function reduce_chord_ratios(chord_ratios_list, new_interval_ratio) {
 }
 
 function write_freq_and_vol_for_adjustments(adjustment_dict) {
+    // Get the starting pitch - this should be the first key in the dictionary
+    // which is sorted_pitches[0] from just_intonate, preserving the original pitch name
     const starting_pitch = Object.keys(adjustment_dict)[0];
+    
+    // Use the original pitch's frequency from musical_range_frequencies
+    // This ensures we use the correct octave (e.g., C4 = 262Hz, not C5 = 523Hz)
     const starting_freq = musical_range_frequencies[starting_pitch];
     
+    if (!starting_freq) {
+        console.error(`Starting frequency not found for pitch: ${starting_pitch}`);
+        return adjustment_dict;
+    }
+    
     for (const [chord_tone, adjustment] of Object.entries(adjustment_dict)) {
-        const [interval_ratio, interval_type, multiplier] = get_interval_ratio(starting_pitch, chord_tone, 'just');
-        const adjusted_cents = ratio_to_cents(interval_ratio_dict[interval_type]['equal'] * multiplier) + adjustment;
-        const adjusted_freq = Math.round(cents_to_ratio(adjusted_cents) * starting_freq);
+        let adjusted_freq;
+        
+        // For the starting pitch (unison), use the base frequency directly
+        if (chord_tone === starting_pitch) {
+            // For unison, the frequency is just the starting frequency
+            // The adjustment is already 0 for the starting pitch
+            adjusted_freq = Math.round(starting_freq);
+        } else {
+            // Use the actual pitch names from the dictionary keys (sorted_pitches)
+            // These are the original pitches selected by the user
+            const [interval_ratio, interval_type, multiplier] = get_interval_ratio(starting_pitch, chord_tone, 'just');
+            
+            const equal_temperament_cents = ratio_to_cents(interval_ratio_dict[interval_type]['equal'] * multiplier);
+            const adjusted_cents = equal_temperament_cents + adjustment;
+            adjusted_freq = Math.round(cents_to_ratio(adjusted_cents) * starting_freq);
+        }
         
         const sign = adjustment > 0 ? "+" : "";
         if (chord_tone === starting_pitch) {
-            adjustment_dict[chord_tone] = [String(adjusted_freq) + " Hz", '', interval_volume_dict[interval_type]];
+            adjustment_dict[chord_tone] = [String(adjusted_freq) + " Hz", '', interval_volume_dict['P1'] || 1];
         } else {
+            const [interval_ratio, interval_type, multiplier] = get_interval_ratio(starting_pitch, chord_tone, 'just');
             adjustment_dict[chord_tone] = [String(adjusted_freq) + " Hz", sign + String(adjustment), interval_volume_dict[interval_type]];
         }
     }
@@ -858,6 +863,10 @@ function just_intonate(pitch_list, adjustment_margin = 0.1) {
     }
     
     const cleaned_pitch_list = rewrite_pitch_list_octaves(rewrite_pitch_list_enharmonics(sorted_pitches));
+    
+    // Since rewrite_pitch_list_octaves now just sorts, cleaned_pitch_list should match sorted_pitches
+    // But we use cleaned_pitch_list for interval calculations to handle enharmonics correctly
+    // and use sorted_pitches for the keys to preserve original pitch names
     for (let n = 1; n < cleaned_pitch_list.length; n++) {
         const [interval_ratio, interval_type, multiplier] = get_interval_ratio(cleaned_pitch_list[0], cleaned_pitch_list[n], 'just');
         // If it's the first ratio, simply add it
@@ -875,9 +884,14 @@ function just_intonate(pitch_list, adjustment_margin = 0.1) {
             chord_ratios = updated_ratios;
         }
 
-        chord_tuning[sorted_pitches[n]] = Math.floor(cents_delta_from_ratios(chord_ratios[n] / chord_ratios[0], interval_ratio_dict[interval_type]['equal'] * multiplier));
+        // Use sorted_pitches[n] as the key to preserve original pitch names
+        // This ensures the mapping back to the original keys works correctly
+        const adjustment = Math.floor(cents_delta_from_ratios(chord_ratios[n] / chord_ratios[0], interval_ratio_dict[interval_type]['equal'] * multiplier));
+        chord_tuning[sorted_pitches[n]] = adjustment;
     }
     
+    // Pass the original pitch names to write_freq_and_vol_for_adjustments
+    // The function will use the original pitch names to calculate frequencies correctly
     chord_tuning = write_freq_and_vol_for_adjustments(chord_tuning);
 
     // Scale down the chord_ratios list by their GCD
