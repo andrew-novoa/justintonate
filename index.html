@@ -9,9 +9,6 @@
     <script src="music_utils.js"></script>
 </head>
 <body>
-    <div id="loader" class="loader">
-        <div class="spinner"></div>
-    </div>
     <div class="top-bar">
         <div class="header">
             <h1>Just Intonation Calculator</h1>
@@ -532,15 +529,7 @@
         </div>
     </div>
     <script>
-
-        window.addEventListener('load', () => {
-            const loader = document.getElementById('loader');
-            loader.style.opacity = "100";
-            setTimeout(() => {
-                loader.style.display = "none";
-            }, 4000); // 500ms for fade-out animation
-        });
-
+        
         window.addEventListener('load', () => {
             const audioContext = new (window.AudioContext || window.webkitAudioContext)();
             const masterGainNode = audioContext.createGain();
@@ -635,12 +624,22 @@
             let wasDragged = false;
             let initialVolume = 0;
             let lastCalledTime = 0;
+            let startMouseY = null; // Track starting mouse position
+            let startTouchY = null; // Track starting touch position
             const delay = 16; // 60fps
+            const dragThreshold = 3; // Minimum pixels to move before considering it a drag
 
             function handlePianoStart(event) {
                 isDragging = true;
+                wasDragged = false; // Reset wasDragged at start
                 currentKey = this; // Set the current key
                 initialVolume = parseFloat(this.getAttribute('data-volume') || '0.1');
+                // Record starting position
+                if (event.type === 'mousedown') {
+                    startMouseY = event.clientY;
+                } else if (event.type === 'touchstart') {
+                    startTouchY = event.touches[0].clientY;
+                }
             }
 
             function handlePianoMove(event) {
@@ -650,12 +649,15 @@
                 }
                 lastCalledTime = currentTime;
                 if (isDragging && currentKey && currentKey.classList.contains('active')) {
-                    wasDragged = true;
-                    event.preventDefault(); // Prevent default behavior like scrolling
                     let deltaY;
+                    let totalMovement = 0;
 
                     if (event.type === 'mousemove') {
                         deltaY = event.movementY;
+                        // Calculate total movement from start position
+                        if (startMouseY !== null) {
+                            totalMovement = Math.abs(event.clientY - startMouseY);
+                        }
                     } else if (event.type === 'touchmove') {
                         const currentTouchY = event.touches[0].clientY;
                         if (prevTouchY !== null) {
@@ -664,7 +666,19 @@
                             deltaY = 0;
                         }
                         prevTouchY = currentTouchY;
+                        // Calculate total movement from start position
+                        if (startTouchY !== null) {
+                            totalMovement = Math.abs(currentTouchY - startTouchY);
+                        }
                     }
+                    
+                    // Only set wasDragged if we've moved significantly from the start position
+                    // This prevents tiny movements during clicks from being treated as drags
+                    if (totalMovement > dragThreshold) {
+                        wasDragged = true;
+                        event.preventDefault(); // Prevent default behavior like scrolling
+                    }
+                    
                     let newVolume = initialVolume - deltaY * 0.01; // Adjust the sensitivity here
                     newVolume = Math.min(Math.max(newVolume, 0.1), 1); // Clamp between 0.1 and 1
 
@@ -688,12 +702,20 @@
             }
 
             function handlePianoEnd(event) {
-                if (event.type === 'touchend' || event.target !== currentKey) {
+                // Reset touch position for touch events
+                if (event.type === 'touchend') {
                     prevTouchY = null;
-                    wasDragged = false;
+                    startTouchY = null;
                 }
+                // Reset mouse position tracking
+                if (event.type === 'mouseup') {
+                    startMouseY = null;
+                }
+                // Reset dragging state
                 isDragging = false;
                 currentKey = null; // Reset the current key
+                // Note: wasDragged is checked in the click handler and reset there if needed
+                // This ensures click events can properly check if a drag occurred
             }
 
             bigPianokeys.forEach(key => {
@@ -708,14 +730,22 @@
                 key.addEventListener('mousedown', handlePianoStart);
                 key.addEventListener('touchstart', handlePianoStart, { passive: false });
 
-                key.addEventListener('click', function() {
+                key.addEventListener('click', function(event) {
                     const note = this.getAttribute('data-note');
                     const freqDiv = this.querySelector('.frequency');
                     let volumeAdjustment = parseFloat(this.getAttribute('data-volume') || '0.1');
 
+                    // Check if this was a drag operation - if so, ignore the click
+                    // wasDragged is set to true in handlePianoMove only when dragging an active key
                     if (wasDragged) {
                         wasDragged = false; // Reset the flag
                         return; // If the key was dragged, don't toggle the active state
+                    }
+                    
+                    // Small delay to ensure wasDragged is properly checked after mouseup
+                    // This handles cases where mousemove might have been triggered by tiny movements
+                    if (isDragging === false) {
+                        // If we're not dragging, it's a legitimate click
                     }
                     
                     if (this.classList.contains('active')) {
@@ -941,23 +971,36 @@
             });
 
             function clearPianoScreen() {
-                // Loop through all active piano keys and deactivate them
-                bigPianokeys.forEach(key => {
-                    if (key.classList.contains('active')) {
-                        const note = key.getAttribute('data-note');
-                        stopOscillator(note);
-                        removeColorFill(key);
-                        key.querySelector('.frequency').textContent = "";
-                        key.querySelector('.adjustment').textContent = "";
-                        key.classList.remove('active');
-                    }
-                });
+                // Check if bigPianokeys is defined
+                if (typeof bigPianokeys !== 'undefined' && bigPianokeys) {
+                    // Loop through all active piano keys and deactivate them
+                    bigPianokeys.forEach(key => {
+                        if (key.classList.contains('active')) {
+                            const note = key.getAttribute('data-note');
+                            if (typeof stopOscillator === 'function') {
+                                stopOscillator(note);
+                            }
+                            if (typeof removeColorFill === 'function') {
+                                removeColorFill(key);
+                            }
+                            const freqDiv = key.querySelector('.frequency');
+                            const adjDiv = key.querySelector('.adjustment');
+                            if (freqDiv) freqDiv.textContent = "";
+                            if (adjDiv) adjDiv.textContent = "";
+                            key.classList.remove('active');
+                        }
+                    });
+                }
 
                 // Clear the activePitches array
-                activePitches = [];
+                if (typeof activePitches !== 'undefined') {
+                    activePitches = [];
+                }
 
                 // Clear the frequency ratio string
-                freqRatioDiv.textContent = "";
+                if (typeof freqRatioDiv !== 'undefined' && freqRatioDiv) {
+                    freqRatioDiv.textContent = "";
+                }
             }
 
             // Tab functionality
@@ -968,32 +1011,68 @@
             const xyContent = document.getElementById('xy-tab');
             const phaseContent = document.getElementById('phase-tab');
 
+            // Set initial display states
+            pianoContent.style.display = 'block';
+            xyContent.style.display = 'none';
+            phaseContent.style.display = 'none';
+
+            // Store references to phase tab event handlers for cleanup
+            let phaseDragEndHandler = null;
+            let phaseDragHandler = null;
+            let phaseScrollHandler = null;
+
             pianoTabIcon.addEventListener('click', function() {
+                // Check which tabs were active before removing the classes
+                const wasXYActive = xyTabIcon.classList.contains('active');
+                const wasPhaseActive = phaseTabIcon.classList.contains('active');
                 pianoTabIcon.classList.add('active');
                 xyTabIcon.classList.remove('active');
                 phaseTabIcon.classList.remove('active');
-                clearXYscreen();
-                clearPhaseScreen();
+                // Only clear screens if they were visible
+                if (wasXYActive) {
+                    clearXYscreen();
+                }
+                if (wasPhaseActive) {
+                    clearPhaseScreen();
+                }
                 pianoContent.style.display = 'block';
                 xyContent.style.display = 'none';
                 phaseContent.style.display = 'none';
             });
 
             xyTabIcon.addEventListener('click', function() {
-                xyTabIcon.classList.add('active');
-                pianoTabIcon.classList.remove('active');
-                phaseTabIcon.classList.remove('active');
-                clearPianoScreen();
-                clearPhaseScreen();
-                pianoContent.style.display = 'none';
-                xyContent.style.display = 'block';
-                phaseContent.style.display = 'none';
+                try {
+                    // Check which tabs were active before removing the classes
+                    const wasPianoActive = pianoTabIcon.classList.contains('active');
+                    const wasPhaseActive = phaseTabIcon.classList.contains('active');
+                    
+                    xyTabIcon.classList.add('active');
+                    pianoTabIcon.classList.remove('active');
+                    phaseTabIcon.classList.remove('active');
+                    
+                    // Set display first to ensure content is available
+                    pianoContent.style.display = 'none';
+                    xyContent.style.display = 'block';
+                    phaseContent.style.display = 'none';
+                    
+                    // Only clear screens if they were visible
+                    if (wasPianoActive && typeof clearPianoScreen === 'function') {
+                        clearPianoScreen();
+                    }
+                    if (wasPhaseActive && typeof clearPhaseScreen === 'function') {
+                        clearPhaseScreen();
+                    }
+                } catch (error) {
+                    console.error('Error switching to X/Y tab:', error);
+                    // Still try to show the tab even if there's an error
+                    xyContent.style.display = 'block';
+                    pianoContent.style.display = 'none';
+                    phaseContent.style.display = 'none';
+                }
             });
 
             phaseTabIcon.addEventListener('click', function() {
-                if (phaseTabIcon.classList.contains('active')) {
-                    return;
-                }
+                // Remove early return - allow re-initialization
                 phaseTabIcon.classList.add('active');
                 xyTabIcon.classList.remove('active');
                 pianoTabIcon.classList.remove('active');
@@ -1002,31 +1081,65 @@
                 pianoContent.style.display = 'none';
                 xyContent.style.display = 'none';
                 phaseContent.style.display = 'block';
+                
+                // Remove existing event listeners before adding new ones
+                if (phaseDragEndHandler) {
+                    document.removeEventListener('mouseup', phaseDragEndHandler);
+                }
+                if (phaseDragHandler) {
+                    document.removeEventListener('mousemove', phaseDragHandler);
+                }
+                if (phaseScrollHandler) {
+                    document.removeEventListener('scrollend', phaseScrollHandler);
+                }
+                
                 calculateLinePositions();
                 storeOriginalPositions();
-                dragItems.forEach(dragItem => {
+                
+                // Re-query dragItems to get fresh references and remove old listeners
+                const currentDragItems = document.querySelectorAll('.note-drag');
+                currentDragItems.forEach(dragItem => {
                     if (dragItem.id !== 'note-drag-1') {
-                        dragItem.addEventListener('mousedown', dragStart);
-
-                        if (dragItem.id === 'note-drag-3' || dragItem.id === 'note-drag-4') {
-                            dragItem.classList.add('hidden');
+                        // Remove old listeners by cloning (this removes all event listeners)
+                        const parent = dragItem.parentNode;
+                        const newDragItem = dragItem.cloneNode(true);
+                        parent.replaceChild(newDragItem, dragItem);
+                        
+                        // Re-select the element after replacement
+                        const updatedDragItem = document.getElementById(dragItem.id);
+                        if (updatedDragItem) {
+                            updatedDragItem.addEventListener('mousedown', dragStart);
+                            if (updatedDragItem.id === 'note-drag-3' || updatedDragItem.id === 'note-drag-4') {
+                                updatedDragItem.classList.add('hidden');
+                            }
                         }
-                    } 
+                    }
                 });
-                document.addEventListener('mouseup', dragEnd);
-                document.addEventListener('mousemove', drag);
+                
+                // Update dragItems array with new references after cloning
+                dragItems = document.querySelectorAll('.note-drag');
+                
+                // Store handlers for cleanup
+                phaseDragEndHandler = dragEnd;
+                phaseDragHandler = drag;
+                phaseScrollHandler = () => {
+                    calculateLinePositions();
+                    getAllPositionValues(); // Update positions after scrolling
+                };
+                
+                document.addEventListener('mouseup', phaseDragEndHandler);
+                document.addEventListener('mousemove', phaseDragHandler);
 
                 phaseNoteNumber = document.querySelectorAll('.note-drag:not(.hidden)').length;
-                phaseChordNumberDisplay.textContent = phaseNoteNumber;
+                if (phaseChordNumberDisplay) {
+                    phaseChordNumberDisplay.textContent = phaseNoteNumber;
+                }
                 updatePresets(phaseNoteNumber);
                 getAllPositionValues();
                 var cancellations = calculatePhaseCancellation(allSineFrequencies, allSineAmplitudes, allSinePhaseShifts);
-                setCancellationDisplay(cancellations)
+                setCancellationDisplay(cancellations);
                 
-                document.addEventListener('scrollend', () =>{
-                    calculateLinePositions();
-                    getAllPositionValues(); // Update positions after scrolling
-                });
+                document.addEventListener('scrollend', phaseScrollHandler);
             });
 
             // Chord selector
@@ -1314,22 +1427,40 @@
                     button.classList.remove('disabled');
                 });
 
-                contextButtons.forEach(button => {
-                    button.classList.add('disabled');
-                    button.classList.remove('selected');
-                });
+                // Check if contextButtons is defined (it might not be on first load)
+                if (typeof contextButtons !== 'undefined' && contextButtons) {
+                    contextButtons.forEach(button => {
+                        button.classList.add('disabled');
+                        button.classList.remove('selected');
+                    });
+                }
 
                 document.querySelectorAll('.small-white-key, .small-black-key').forEach(key => {
                     key.classList.remove('active');
                 });
 
-                adjustmentInfo.textContent = "";
-                chordDisplay.textContent = "";
-                chordPitches.textContent = "";
-                melodyContext = "inside";
-                insidePossible = true;
-                outsidePossible = true;
-                chordPitchesList = [];
+                // Check if these elements exist before accessing them
+                if (typeof adjustmentInfo !== 'undefined' && adjustmentInfo) {
+                    adjustmentInfo.textContent = "";
+                }
+                if (typeof chordDisplay !== 'undefined' && chordDisplay) {
+                    chordDisplay.textContent = "";
+                }
+                if (typeof chordPitches !== 'undefined' && chordPitches) {
+                    chordPitches.textContent = "";
+                }
+                if (typeof melodyContext !== 'undefined') {
+                    melodyContext = "inside";
+                }
+                if (typeof insidePossible !== 'undefined') {
+                    insidePossible = true;
+                }
+                if (typeof outsidePossible !== 'undefined') {
+                    outsidePossible = true;
+                }
+                if (typeof chordPitchesList !== 'undefined') {
+                    chordPitchesList = [];
+                }
             }
 
             // Call these functions whenever a button is clicked
@@ -1441,7 +1572,7 @@
 
             //// Phase Tab Functionality /////
             const dragLines = document.querySelectorAll('.phase-drag-line');
-            const dragItems = document.querySelectorAll('.note-drag');
+            let dragItems = document.querySelectorAll('.note-drag');
             let presetCents = [0, 702]
             let active = false;
             let yDelta;
@@ -1478,19 +1609,31 @@
                     if (phaseNoteNumber === 2 && buttonDataType === "minus" || phaseNoteNumber === 4 && buttonDataType === "plus") {
                         return;
                     } else if (buttonDataType === "plus") {
-                        document.querySelector('.note-drag.hidden').classList.remove('hidden');
+                        const hiddenNote = document.querySelector('.note-drag.hidden');
+                        if (hiddenNote) {
+                            hiddenNote.classList.remove('hidden');
+                        }
                         phaseNoteNumber += 1;
-                        phaseChordNumberDisplay.textContent = phaseNoteNumber;
+                        if (phaseChordNumberDisplay) {
+                            phaseChordNumberDisplay.textContent = phaseNoteNumber;
+                        }
                     } else if (buttonDataType === "minus") {
-                        document.querySelectorAll('.note-drag')[phaseNoteNumber - 1].classList.add('hidden');
+                        const noteDrags = document.querySelectorAll('.note-drag');
+                        if (noteDrags[phaseNoteNumber - 1]) {
+                            noteDrags[phaseNoteNumber - 1].classList.add('hidden');
+                        }
                         phaseNoteNumber -= 1;
-                        phaseChordNumberDisplay.textContent = phaseNoteNumber;
+                        if (phaseChordNumberDisplay) {
+                            phaseChordNumberDisplay.textContent = phaseNoteNumber;
+                        }
                     }
 
-                    if (phaseNoteNumber === 2) {
-                        phaseChordLabel.textContent = "Interval";
-                    } else {
-                        phaseChordLabel.textContent = "Chord Quality";
+                    if (phaseChordLabel) {
+                        if (phaseNoteNumber === 2) {
+                            phaseChordLabel.textContent = "Interval";
+                        } else {
+                            phaseChordLabel.textContent = "Chord Quality";
+                        }
                     }
                     updatePresets(phaseNoteNumber);
                 });
@@ -1953,14 +2096,29 @@
             }
 
             function clearPhaseScreen() {
-                document.querySelectorAll('.note-drag').forEach(item => {
-                    item.style.transform = `translate3d(0, 0, 0)`;
-                });
-                document.querySelector('.note-drag.hidden').classList.remove('hidden');
-                phaseNoteNumber = 2;
-                phaseChordNumberDisplay.textContent = phaseNoteNumber;
-                phaseChordLabel.textContent = "Interval";
-                updatePresets(phaseNoteNumber);
+                try {
+                    document.querySelectorAll('.note-drag').forEach(item => {
+                        item.style.transform = `translate3d(0, 0, 0)`;
+                    });
+                    const hiddenNote = document.querySelector('.note-drag.hidden');
+                    if (hiddenNote) {
+                        hiddenNote.classList.remove('hidden');
+                    }
+                    if (typeof phaseNoteNumber !== 'undefined') {
+                        phaseNoteNumber = 2;
+                    }
+                    if (typeof phaseChordNumberDisplay !== 'undefined' && phaseChordNumberDisplay) {
+                        phaseChordNumberDisplay.textContent = phaseNoteNumber || 2;
+                    }
+                    if (typeof phaseChordLabel !== 'undefined' && phaseChordLabel) {
+                        phaseChordLabel.textContent = "Interval";
+                    }
+                    if (typeof updatePresets === 'function') {
+                        updatePresets(phaseNoteNumber || 2);
+                    }
+                } catch (error) {
+                    console.error('Error in clearPhaseScreen:', error);
+                }
             }
         }); // End of window load event listener
     </script>    
